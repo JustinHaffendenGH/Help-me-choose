@@ -296,20 +296,11 @@ function displayRandomFilteredMovie(movies) {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
-    const backBtn = document.getElementById('back-btn');
-    const nextBtn = document.getElementById('next-btn');
-    if (backBtn) {
-        backBtn.onclick = function() {
-            if (currentMovieIndex > 0) {
-                showMovieFromCache(currentMovieIndex - 1);
-            }
-        };
-    }
-    if (nextBtn) {
-        nextBtn.onclick = function() {
-            if (currentMovieIndex < filteredMoviesCache.length - 1) {
-                showMovieFromCache(currentMovieIndex + 1);
-            }
+    // Next Movie button functionality
+    const nextMovieBtn = document.getElementById('next-movie-btn');
+    if (nextMovieBtn) {
+        nextMovieBtn.onclick = function() {
+            showRandomTMDbMovie();
         };
     }
 });
