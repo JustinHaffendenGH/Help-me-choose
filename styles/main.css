@@ -37,10 +37,29 @@ body {
     background: #f4f4f4;
 }
 header {
-    background: #008cff;
-    color: #fff;
-    padding: 1rem;
-    text-align: center;
+  background: linear-gradient(90deg, #008cff 0%, #5468ff 100%);
+  color: #fff;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Remove underline and highlight from header nav links */
+header nav a {
+  text-decoration: none;
+  color: inherit;
+  background: none;
+  box-shadow: none;
+  transition: none;
+}
+header nav a:hover {
+  text-decoration: none;
+  color: #fff;
+  background: #005bb5;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  padding: 0.25em 0.75em;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
 .movie-header-logo {
