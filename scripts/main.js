@@ -101,7 +101,6 @@ async function updateImdbLink(movie) {
     }
 }
 
-// Update showRandomTMDbMovie to call updateImdbLink when movie is available
 async function showRandomTMDbMovie() {
     const movie = await getRandomTMDbMovie();
     const movieResult = document.getElementById('movie-result');
@@ -174,27 +173,6 @@ async function showRandomTMDbMovie() {
         }
     }
 }
-
-const genreMap = {
-    28: "Action",
-    12: "Adventure",
-    16: "Animation",
-    35: "Comedy",
-    80: "Crime",
-    99: "Documentary",
-    18: "Drama",
-    10751: "Family",
-    14: "Fantasy",
-    27: "Horror",
-    10402: "Music",
-    9648: "Mystery",
-    10749: "Romance",
-    878: "Science Fiction",
-    10770: "TV Movie",
-    53: "Thriller",
-    10752: "War",
-    37: "Western"
-};
 
 async function fetchMovies() {
     const TMDB_API_KEY = 'e2a3d53d839bb5d20ef4dca2d7c5ec3b'; // Replace with your API key
@@ -312,3 +290,22 @@ function displayRandomFilteredMovie(movies) {
     // Show the movie-result div
     movieResult.style.display = 'block';
 }
+
+window.addEventListener('DOMContentLoaded', function() {
+    const backBtn = document.getElementById('back-btn');
+    const nextBtn = document.getElementById('next-btn');
+    if (backBtn) {
+        backBtn.onclick = function() {
+            if (currentMovieIndex > 0) {
+                showMovieFromCache(currentMovieIndex - 1);
+            }
+        };
+    }
+    if (nextBtn) {
+        nextBtn.onclick = function() {
+            if (currentMovieIndex < filteredMoviesCache.length - 1) {
+                showMovieFromCache(currentMovieIndex + 1);
+            }
+        };
+    }
+});
