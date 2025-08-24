@@ -13,8 +13,23 @@
     </header>
     <main>
         <p id="main-tag" class="center-horizontal">Dont know what to watch? We can help.</p>
-        <button id="Random-button" class="center-horizontal button-29" role="button" onclick="showRandomTMDbMovie() ">Get Movie Suggestions</button>        
-        <div id="movie-result" class="center-horizontal movie-suggestion">
+        <button id="Random-button" class="center-horizontal button-29" role="button" onclick="showRandomTMDbMovie() ">Get Movie Suggestions</button>
+        <div class="filters center-horizontal">
+            <label for="genre">Genre:</label>
+            <select id="genre">
+                <option value="all">All</option>
+                <option value="10751">Family</option>
+                <option value="27">Horror</option>
+                <option value="28">Action</option>
+            </select>
+
+            <label for="rating">Minimum Rating:</label>
+            <input type="number" id="rating" min="1" max="10" value="5" step="0.1">
+
+            <button onclick="applyFilters()">Apply Filters</button>
+        </div>        
+        <div id="movie-result" class="center-horizontal movie-suggestion" style="display:none;">
+            <!-- Movie details here -->
             <h2 id="movie-title"> </h2>
             <p id="movie-overview"></p>
             <span id="movie-release"></span><br>
@@ -23,6 +38,8 @@
             <img id="movie-poster" alt="Movie Poster" />
         </div>
         <button class="center-horizontal" onclick="window.location.href='index.html'">Back to Home</button>
+
+       
 
     </main>
     <script src="scripts/main.js"></script>
