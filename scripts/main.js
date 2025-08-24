@@ -5,6 +5,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('movie-release').textContent = "";
     document.getElementById('movie-rating').textContent = "";
     document.getElementById('movie-poster').style.display = 'none';
+    document.getElementById('trailer-btn').style.display = 'none';
 });
 // Coded by RedEyedMonster.
 
@@ -44,15 +45,24 @@ async function showRandomTMDbMovie() {
         document.getElementById('movie-title').textContent = movie.title;
         document.getElementById('movie-overview').textContent = movie.overview;
         document.getElementById('movie-release').textContent = "Release date: " + movie.release_date;
-        document.getElementById('movie-rating').textContent = "Average rating: " + movie.vote_average;
+        document.getElementById('movie-rating').textContent = "Average rating: " + movie.vote_average.toFixed(1);
         document.getElementById('movie-poster').src = posterUrl;
         document.getElementById('movie-poster').style.display = posterUrl ? 'block' : 'none';
+        
+        // Show trailer button and set up click handler
+        const trailerBtn = document.getElementById('trailer-btn');
+        trailerBtn.style.display = 'inline-block';
+        trailerBtn.onclick = function() {
+            const query = encodeURIComponent(movie.title + ' trailer');
+            window.open('https://www.youtube.com/results?search_query=' + query, '_blank');
+        };
     } else {
         document.getElementById('movie-title').textContent = "Sorry, we couldn't find a movie for you.";
         document.getElementById('movie-overview').textContent = "";
         document.getElementById('movie-release').textContent = "";
         document.getElementById('movie-rating').textContent = "";
         document.getElementById('movie-poster').style.display = 'none';
+        document.getElementById('trailer-btn').style.display = 'none';
     }
 
 }
