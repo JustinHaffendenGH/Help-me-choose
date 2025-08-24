@@ -18,24 +18,54 @@ function goToPage() {
   window.location.href = page;
 }
 
+// Store current filter settings
+let currentFilter = {
+    genre: 'all',
+    minRating: 0,
+    isActive: false
+};
+
 const TMDB_API_KEY = 'e2a3d53d839bb5d20ef4dca2d7c5ec3b'; // My Api key.
 
 async function getRandomTMDbMovie() {
-    const randomPage = Math.floor(Math.random() * 500) + 1;
-    const url = `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=${randomPage}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    if (data.results && data.results.length > 0) {
-        // Filter movies with rating above 5 and at least 100 votes
-        const filtered = data.results.filter(
-            m => m.vote_average >= 5 && m.vote_count >= 100 && m.title
-        );
-        if (filtered.length > 0) {
-            const randomIndex = Math.floor(Math.random() * filtered.length);
-            return filtered[randomIndex];
+    let attempts = 0;
+    const maxAttempts = 15; // Try up to 15 different pages for better results
+    
+    while (attempts < maxAttempts) {
+        const randomPage = Math.floor(Math.random() * 500) + 1;
+        const url = `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=${randomPage}`;
+        
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.results && data.results.length > 0) {
+                let filtered = data.results.filter(
+                    m => m.vote_average >= 5 && m.vote_count >= 100 && m.title
+                );
+
+                // Apply current filter if active
+                if (currentFilter.isActive) {
+                    filtered = filtered.filter(movie => {
+                        const matchesGenre = currentFilter.genre === 'all' || movie.genre_ids.includes(parseInt(currentFilter.genre));
+                        const matchesRating = movie.vote_average >= currentFilter.minRating;
+                        return matchesGenre && matchesRating;
+                    });
+                }
+
+                if (filtered.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * filtered.length);
+                    return filtered[randomIndex];
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching movies:", error);
         }
+        
+        attempts++;
     }
-    return null;
+    
+    return null; // Return null if no movie found after all attempts
 }
 
 async function showRandomTMDbMovie() {
@@ -148,24 +178,18 @@ function applyFilters() {
     const genre = document.getElementById('genre').value;
     const minRating = parseFloat(document.getElementById('rating').value);
 
-    try {
-        fetchMovies().then(movies => {
-            // Filter movies based on genre and rating
-            const filteredMovies = movies.filter(movie => {
-                const matchesGenre = genre === 'all' || movie.genre_ids.includes(parseInt(genre));
-                const matchesRating = movie.vote_average >= minRating;
-                return matchesGenre && matchesRating;
-            });
+    // Store the current filter settings
+    currentFilter = {
+        genre: genre,
+        minRating: minRating,
+        isActive: true
+    };
 
-            // Display filtered movies
-            displayMovies(filteredMovies);
-        });
-    } catch (error) {
-        console.error("Error applying filters:", error);
-    }
+    // Get a random movie with the new filter applied
+    showRandomTMDbMovie();
 }
 
-function displayMovies(movies) {
+function displayRandomFilteredMovie(movies) {
     const movieResult = document.getElementById('movie-result');
     if (!movieResult) {
         console.error("movie-result div not found");
@@ -173,7 +197,9 @@ function displayMovies(movies) {
     }
 
     if (movies.length > 0) {
-        const movie = movies[0]; // Display only the first movie from the filtered list
+        // Select a random movie from the filtered list
+        const randomIndex = Math.floor(Math.random() * movies.length);
+        const movie = movies[randomIndex];
 
         // Update existing elements instead of replacing innerHTML
         const movieTitle = document.getElementById('movie-title');
