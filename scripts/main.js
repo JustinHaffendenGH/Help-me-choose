@@ -20,17 +20,21 @@ function goToPage() {
 const TMDB_API_KEY = 'e2a3d53d839bb5d20ef4dca2d7c5ec3b'; // My Api key.
 
 async function getRandomTMDbMovie() {
-    // TMDb has many pages of popular movies, so pick a random page
     const randomPage = Math.floor(Math.random() * 500) + 1;
     const url = `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=${randomPage}`;
     const response = await fetch(url);
     const data = await response.json();
-        if (data.results && data.results.length > 0) {
-            const randomIndex = Math.floor(Math.random() * data.results.length);
-            return data.results[randomIndex]; // Return the whole movie object
-        } else {
-            return null;
+    if (data.results && data.results.length > 0) {
+        // Filter movies with rating above 5 and at least 100 votes
+        const filtered = data.results.filter(
+            m => m.vote_average >= 5 && m.vote_count >= 100 && m.title
+        );
+        if (filtered.length > 0) {
+            const randomIndex = Math.floor(Math.random() * filtered.length);
+            return filtered[randomIndex];
         }
+    }
+    return null;
 }
 
 async function showRandomTMDbMovie() {
