@@ -125,14 +125,17 @@ async function showRandomTMDbMovie() {
             movieRating.textContent = "Average rating: " + movie.vote_average.toFixed(1);
         }
         const moviePoster = document.getElementById('movie-poster');
-        if (moviePoster) {
+        if (moviePoster && posterUrl) {
+            moviePoster.onload = function() {
+                movieResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            };
             moviePoster.src = posterUrl;
             moviePoster.style.display = 'block';
+        } else {
+            movieResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-        
         // Update IMDb link
         updateImdbLink(movie);
-        
         // Show and update trailer button
         const trailerBtn = document.getElementById('trailer-btn');
         if (trailerBtn) {
@@ -171,6 +174,7 @@ async function showRandomTMDbMovie() {
         if (imdbLink) {
             imdbLink.style.display = 'none';
         }
+        movieResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 }
 
