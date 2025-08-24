@@ -1,14 +1,21 @@
 /* Movie suggestion styling */
 .movie-suggestion {
     background: #fff;
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    max-width: 400px;
-    margin: 2rem auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+    padding: 2.5rem 2rem;
+    max-width: 700px;
+    margin: 2.5rem auto;
     text-align: center;
+    transition: box-shadow 0.2s;
+}
+.movie-suggestion:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
 }
 .movie-suggestion img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
     margin-top: 1rem;
     max-width: 100%;
     border-radius: 4px;
@@ -35,6 +42,11 @@ header {
     padding: 1rem;
     text-align: center;
 }
+
+.movie-header-logo {
+    color: #7b0000;
+}
+
 main {
     padding: 2rem;
 }
@@ -164,6 +176,26 @@ h2 a:hover {
     justify-content: space-around; /* Evenly space the items */
     align-items: center; /* Align items vertically in the center */
     margin-top: 200px; /* Adjust the value to lower the divs */
+}
+
+/* Subtle hover effect for IMDb and trailer buttons */
+#imdb-link,
+#trailer-btn {
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    font-size: 1rem;
+}
+#imdb-link:hover,
+#trailer-btn:hover {
+    background-color: #ffe082;
+    color: #222;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    text-decoration: underline;
 }
 
 /* Coded by RedEyedMonster*/
