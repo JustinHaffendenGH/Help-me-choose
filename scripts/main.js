@@ -68,6 +68,40 @@ async function getRandomTMDbMovie() {
     return null; // Return null if no movie found after all attempts
 }
 
+async function getMovieExternalIDs(movieId) {
+    try {
+        const url = `https://api.themoviedb.org/3/movie/${movieId}/external_ids?api_key=${TMDB_API_KEY}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        return data; // contains imdb_id if available
+    } catch (error) {
+        console.error('Error fetching external IDs:', error);
+        return null;
+    }
+}
+
+// Helper to update IMDb link element
+async function updateImdbLink(movie) {
+    const imdbLink = document.getElementById('imdb-link');
+    if (!imdbLink) return;
+
+    if (!movie || !movie.id) {
+        imdbLink.style.display = 'none';
+        imdbLink.href = '#';
+        return;
+    }
+
+    const external = await getMovieExternalIDs(movie.id);
+    if (external && external.imdb_id) {
+        imdbLink.href = `https://www.imdb.com/title/${external.imdb_id}/`;
+        imdbLink.style.display = 'inline-block';
+    } else {
+        imdbLink.style.display = 'none';
+        imdbLink.href = '#';
+    }
+}
+
+// Update showRandomTMDbMovie to call updateImdbLink when movie is available
 async function showRandomTMDbMovie() {
     const movie = await getRandomTMDbMovie();
     const movieResult = document.getElementById('movie-result');
@@ -96,6 +130,9 @@ async function showRandomTMDbMovie() {
             moviePoster.src = posterUrl;
             moviePoster.style.display = 'block';
         }
+        
+        // Update IMDb link
+        updateImdbLink(movie);
         
         // Show and update trailer button
         const trailerBtn = document.getElementById('trailer-btn');
@@ -130,6 +167,10 @@ async function showRandomTMDbMovie() {
         const trailerBtn = document.getElementById('trailer-btn');
         if (trailerBtn) {
             trailerBtn.style.display = 'none';
+        }
+        const imdbLink = document.getElementById('imdb-link');
+        if (imdbLink) {
+            imdbLink.style.display = 'none';
         }
     }
 }
@@ -224,6 +265,9 @@ function displayRandomFilteredMovie(movies) {
             moviePoster.style.display = 'block';
         }
         
+        // Update IMDb link
+        updateImdbLink(movie);
+        
         // Show and update trailer button
         const trailerBtn = document.getElementById('trailer-btn');
         if (trailerBtn) {
@@ -258,6 +302,10 @@ function displayRandomFilteredMovie(movies) {
         const trailerBtn = document.getElementById('trailer-btn');
         if (trailerBtn) {
             trailerBtn.style.display = 'none';
+        }
+        const imdbLink = document.getElementById('imdb-link');
+        if (imdbLink) {
+            imdbLink.style.display = 'none';
         }
     }
 
