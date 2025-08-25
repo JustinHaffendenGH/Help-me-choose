@@ -314,7 +314,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const nextBookBtn = document.getElementById('next-book-btn');
     if (nextBookBtn) {
         nextBookBtn.onclick = function() {
-            showRandomBook();
+            showRandomNYTBook();
         };
     }
 
@@ -326,11 +326,13 @@ window.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // Apply Filters button for books
+    // Apply Filters button for NYT lists
     const applyBookFiltersBtn = document.getElementById('apply-book-filters');
     if (applyBookFiltersBtn) {
         applyBookFiltersBtn.onclick = function() {
-            showRandomBook();
+            const nytListSelect = document.getElementById('nyt-list');
+            const selectedList = nytListSelect ? nytListSelect.value : 'hardcover-fiction';
+            showRandomNYTBook(selectedList);
         };
     }
 });
@@ -340,21 +342,26 @@ const GOOGLE_BOOKS_API_KEY = 'AIzaSyBDTaZh_q4O7CgY4WzPPvUB5xOJC002XhQ'; // User'
 
 // Helper to get a random book from Google Books API
 async function getRandomBook() {
-    // Genres mapped to Google Books subject terms
+    // Get genre and rating from UI
     const genreSelect = document.getElementById('book-genre');
     const genre = genreSelect ? genreSelect.value : 'all';
-    let subject = genre !== 'all' ? `subject:${genre}` : '';
-    // Minimum rating (Google Books does not provide ratings for all books)
     const minRatingInput = document.getElementById('book-rating');
-    const minRating = minRatingInput ? parseFloat(minRatingInput.value) : 3;
-    // Random start index for variety (increase range to 200)
+    const minRating = minRatingInput ? parseFloat(minRatingInput.value) : 2.5; // 5/10 = 2.5/5
+
+    // Build a more targeted query
+    let keywords = "bestseller+popular+award+winning+classic";
+    let subject = genre !== 'all' ? `subject:${genre}` : '';
+    let query = subject ? `${keywords}+${subject}` : keywords;
+
+    // Randomize start index for variety
     const startIndex = Math.floor(Math.random() * 200);
-    let url = `https://www.googleapis.com/books/v1/volumes?q=${subject ? subject : 'book'}&printType=books&maxResults=40&startIndex=${startIndex}&key=${GOOGLE_BOOKS_API_KEY}`;
+    let url = `https://www.googleapis.com/books/v1/volumes?q=${query}&printType=books&maxResults=40&startIndex=${startIndex}&key=${GOOGLE_BOOKS_API_KEY}`;
+
     try {
         const response = await fetch(url);
         const data = await response.json();
         if (data.items && data.items.length > 0) {
-            // Filter by rating if available
+            // Filter for minimum rating
             let filtered = data.items.filter(item => {
                 const rating = item.volumeInfo.averageRating || 0;
                 return rating >= minRating;
@@ -413,6 +420,71 @@ async function showRandomBook() {
         } else if (previewBtn) {
             previewBtn.style.display = 'none';
         }
+        bookResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+        document.getElementById('book-title').textContent = "Sorry, we couldn't find a book for you.";
+        document.getElementById('book-description').textContent = "";
+        document.getElementById('book-author').textContent = "";
+        document.getElementById('book-rating').textContent = "";
+        const cover = document.getElementById('book-cover');
+        if (cover) cover.style.display = 'none';
+        const goodreadsLink = document.getElementById('goodreads-link');
+        if (goodreadsLink) goodreadsLink.style.display = 'none';
+        const previewBtn = document.getElementById('preview-btn');
+        if (previewBtn) previewBtn.style.display = 'none';
+        bookResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+// NY Times Books API Key
+const NYT_API_KEY = 'adNTUAmUd86bUXmEdySFJgEFaIlPF2rk';
+
+// Fetch a random book from NYT bestseller list
+async function getRandomNYTBook(list = 'hardcover-fiction') {
+    const url = `https://api.nytimes.com/svc/books/v3/lists/current/${list}.json?api-key=${NYT_API_KEY}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.results && data.results.books && data.results.books.length > 0) {
+            const books = data.results.books;
+            const randomIndex = Math.floor(Math.random() * books.length);
+            return books[randomIndex];
+        }
+    } catch (error) {
+        console.error('Error fetching NYT books:', error);
+    }
+    return null;
+}
+
+// Show a random NYT book in the template
+async function showRandomNYTBook(list) {
+    const book = await getRandomNYTBook(list);
+    const bookResult = document.getElementById('book-result');
+    bookResult.style.display = 'block';
+    if (book) {
+        document.getElementById('book-title').textContent = book.title || 'No title';
+        document.getElementById('book-description').textContent = book.description || '';
+        document.getElementById('book-author').textContent = book.author ? 'By ' + book.author : '';
+        document.getElementById('book-rating').textContent = book.rank ? 'NYT Rank: ' + book.rank : '';
+        const cover = document.getElementById('book-cover');
+        if (cover && book.book_image) {
+            cover.src = book.book_image;
+            cover.style.display = 'block';
+        } else if (cover) {
+            cover.style.display = 'none';
+        }
+        // Goodreads link
+        const goodreadsLink = document.getElementById('goodreads-link');
+        if (goodreadsLink && book.amazon_product_url) {
+            goodreadsLink.href = book.amazon_product_url;
+            goodreadsLink.textContent = 'View on Amazon';
+            goodreadsLink.style.display = 'inline-block';
+        } else if (goodreadsLink) {
+            goodreadsLink.style.display = 'none';
+        }
+        // Preview button (not available from NYT, so hide)
+        const previewBtn = document.getElementById('preview-btn');
+        if (previewBtn) previewBtn.style.display = 'none';
         bookResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
         document.getElementById('book-title').textContent = "Sorry, we couldn't find a book for you.";

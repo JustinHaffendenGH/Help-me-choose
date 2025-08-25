@@ -21,22 +21,20 @@
             <span>Don’t know what to read?</span><br>
             <span>We can help.</span>
         </p>
-        <button id="Random-book-button" class="center-horizontal button-29" role="button" onclick="showRandomBook()">Get Book Suggestions</button>
+    <button id="Random-book-button" class="center-horizontal button-29" role="button" onclick="showRandomNYTBook()">Get Book Suggestions</button>
         <div class="filters center-horizontal">
-            <label for="book-genre">Genre:</label>
-            <select id="book-genre">
-                <option value="all">All</option>
-                <option value="fiction">Fiction</option>
-                <option value="nonfiction">Non-Fiction</option>
-                <option value="fantasy">Fantasy</option>
-                <option value="mystery">Mystery</option>
-                <option value="romance">Romance</option>
-                <option value="science">Science</option>
-                <option value="history">History</option>
+            <label for="nyt-list">NY Times Bestseller List:</label>
+            <select id="nyt-list">
+                <option value="hardcover-fiction">Hardcover Fiction</option>
+                <option value="hardcover-nonfiction">Hardcover Nonfiction</option>
+                <option value="combined-print-and-e-book-fiction">Print & E-Book Fiction</option>
+                <option value="combined-print-and-e-book-nonfiction">Print & E-Book Nonfiction</option>
+                <option value="advice-how-to-and-miscellaneous">Advice, How-To & Miscellaneous</option>
+                <option value="children's-middle-grade-hardcover">Children's Middle Grade</option>
+                <option value="young-adult-hardcover">Young Adult</option>
+                <option value="paperback-nonfiction">Paperback Nonfiction</option>
+                <option value="paperback-trade-fiction">Paperback Trade Fiction</option>
             </select>
-
-            <label for="book-rating">Minimum Rating:</label>
-            <input type="number" id="book-rating" min="1" max="5" value="3" step="0.1">
 
             <button id="apply-book-filters" type="button">Apply Filters</button>
         </div>
