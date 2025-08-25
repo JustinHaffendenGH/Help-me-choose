@@ -1,22 +1,171 @@
-// Curated popular books list
+// Curated popular books list (expanded)
 const popularBooks = [
+  // Harry Potter series
   { title: "Harry Potter and the Sorcerer's Stone", author: "J.K. Rowling" },
+  { title: "Harry Potter and the Chamber of Secrets", author: "J.K. Rowling" },
+  { title: "Harry Potter and the Prisoner of Azkaban", author: "J.K. Rowling" },
+  { title: "Harry Potter and the Goblet of Fire", author: "J.K. Rowling" },
+  { title: "Harry Potter and the Order of the Phoenix", author: "J.K. Rowling" },
+  { title: "Harry Potter and the Half-Blood Prince", author: "J.K. Rowling" },
+  { title: "Harry Potter and the Deathly Hallows", author: "J.K. Rowling" },
+  // Lord of the Rings
+  { title: "The Fellowship of the Ring", author: "J.R.R. Tolkien" },
+  { title: "The Two Towers", author: "J.R.R. Tolkien" },
+  { title: "The Return of the King", author: "J.R.R. Tolkien" },
+  // Stephen King
+  { title: "Carrie", author: "Stephen King" },
+  { title: "The Shining", author: "Stephen King" },
+  { title: "It", author: "Stephen King" },
+  { title: "Misery", author: "Stephen King" },
+  { title: "The Stand", author: "Stephen King" },
+  { title: "Pet Sematary", author: "Stephen King" },
+  // Agatha Christie
+  { title: "Murder on the Orient Express", author: "Agatha Christie" },
+  { title: "And Then There Were None", author: "Agatha Christie" },
+  { title: "The Murder of Roger Ackroyd", author: "Agatha Christie" },
+  // Suzanne Collins
   { title: "The Hunger Games", author: "Suzanne Collins" },
+  { title: "Catching Fire", author: "Suzanne Collins" },
+  { title: "Mockingjay", author: "Suzanne Collins" },
+  // Dan Brown
   { title: "The Da Vinci Code", author: "Dan Brown" },
+  { title: "Angels & Demons", author: "Dan Brown" },
+  { title: "Inferno", author: "Dan Brown" },
+  // More popular fiction
   { title: "The Girl on the Train", author: "Paula Hawkins" },
   { title: "Gone Girl", author: "Gillian Flynn" },
   { title: "Twilight", author: "Stephenie Meyer" },
+  { title: "New Moon", author: "Stephenie Meyer" },
+  { title: "Eclipse", author: "Stephenie Meyer" },
+  { title: "Breaking Dawn", author: "Stephenie Meyer" },
   { title: "The Fault in Our Stars", author: "John Green" },
   { title: "The Alchemist", author: "Paulo Coelho" },
   { title: "To Kill a Mockingbird", author: "Harper Lee" },
   { title: "The Great Gatsby", author: "F. Scott Fitzgerald" },
-  { title: "The Lord of the Rings", author: "J.R.R. Tolkien" },
   { title: "Pride and Prejudice", author: "Jane Austen" },
   { title: "1984", author: "George Orwell" },
   { title: "The Catcher in the Rye", author: "J.D. Salinger" },
   { title: "The Kite Runner", author: "Khaled Hosseini" },
-  { title: "Carrie", author: "Stephen King" },
-  { title: "The Shining", author: "Stephen King" }
+  // Andy Weir books
+  { title: "The Martian", author: "Andy Weir" },
+  { title: "Artemis", author: "Andy Weir" },
+  { title: "Project Hail Mary", author: "Andy Weir" },
+  // Dean Koontz books (author only, for API lookup)
+  { title: "", author: "Dean Koontz" },
+  // Odd Thomas series by Dean Koontz
+  { title: "Odd Thomas", author: "Dean Koontz" },
+  { title: "Forever Odd", author: "Dean Koontz" },
+  { title: "Brother Odd", author: "Dean Koontz" },
+  { title: "Odd Hours", author: "Dean Koontz" },
+  { title: "Odd Apocalypse", author: "Dean Koontz" },
+  { title: "Deeply Odd", author: "Dean Koontz" },
+  { title: "Saint Odd", author: "Dean Koontz" },
+  // Added by request
+  { title: "Johnny Got His Gun", author: "Dalton Trumbo" },
+  // Top 100 authors (author only, for API lookup)
+  { title: "", author: "J.K. Rowling" },
+  { title: "", author: "Stephen King" },
+  { title: "", author: "Agatha Christie" },
+  { title: "", author: "James Patterson" },
+  { title: "", author: "John Grisham" },
+  { title: "", author: "Dan Brown" },
+  { title: "", author: "Nora Roberts" },
+  { title: "", author: "Paulo Coelho" },
+  { title: "", author: "George R.R. Martin" },
+  { title: "", author: "J.R.R. Tolkien" },
+  { title: "", author: "Suzanne Collins" },
+  { title: "", author: "Margaret Atwood" },
+  { title: "", author: "Haruki Murakami" },
+  { title: "", author: "Harper Lee" },
+  { title: "", author: "Gillian Flynn" },
+  { title: "", author: "C.S. Lewis" },
+  { title: "", author: "Ernest Hemingway" },
+  { title: "", author: "F. Scott Fitzgerald" },
+  { title: "", author: "Jane Austen" },
+  { title: "", author: "Mark Twain" },
+  { title: "", author: "Charles Dickens" },
+  { title: "", author: "Leo Tolstoy" },
+  { title: "", author: "Emily Brontë" },
+  { title: "", author: "Charlotte Brontë" },
+  { title: "", author: "Oscar Wilde" },
+  { title: "", author: "Virginia Woolf" },
+  { title: "", author: "J.D. Salinger" },
+  { title: "", author: "Khaled Hosseini" },
+  { title: "", author: "Stephenie Meyer" },
+  { title: "", author: "John Green" },
+  { title: "", author: "E.L. James" },
+  { title: "", author: "Michael Connelly" },
+  { title: "", author: "Dean Koontz" },
+  { title: "", author: "Andy Weir" },
+  { title: "", author: "Ken Follett" },
+  { title: "", author: "David Baldacci" },
+  { title: "", author: "Jeffrey Archer" },
+  { title: "", author: "Terry Pratchett" },
+  { title: "", author: "Isaac Asimov" },
+  { title: "", author: "Arthur C. Clarke" },
+  { title: "", author: "Ray Bradbury" },
+  { title: "", author: "Philip K. Dick" },
+  { title: "", author: "Neil Gaiman" },
+  { title: "", author: "Jules Verne" },
+  { title: "", author: "H.G. Wells" },
+  { title: "", author: "Robert Ludlum" },
+  { title: "", author: "Tom Clancy" },
+  { title: "", author: "Wilbur Smith" },
+  { title: "", author: "Robin Cook" },
+  { title: "", author: "Patricia Cornwell" },
+  { title: "", author: "Mary Higgins Clark" },
+  { title: "", author: "Jack Higgins" },
+  { title: "", author: "Lee Child" },
+  { title: "", author: "Stieg Larsson" },
+  { title: "", author: "Jo Nesbø" },
+  { title: "", author: "Camilla Läckberg" },
+  { title: "", author: "Fredrik Backman" },
+  { title: "", author: "Colleen Hoover" },
+  { title: "", author: "Sally Rooney" },
+  { title: "", author: "Tana French" },
+  { title: "", author: "Donna Tartt" },
+  { title: "", author: "Jhumpa Lahiri" },
+  { title: "", author: "Chimamanda Ngozi Adichie" },
+  { title: "", author: "Kazuo Ishiguro" },
+  { title: "", author: "Salman Rushdie" },
+  { title: "", author: "Orhan Pamuk" },
+  { title: "", author: "Elif Shafak" },
+  { title: "", author: "Alice Munro" },
+  { title: "", author: "Toni Morrison" },
+  { title: "", author: "Maya Angelou" },
+  { title: "", author: "Zadie Smith" },
+  { title: "", author: "Ian McEwan" },
+  { title: "", author: "Hilary Mantel" },
+  { title: "", author: "Margaret Mitchell" },
+  { title: "", author: "Louisa May Alcott" },
+  { title: "", author: "Jodi Picoult" },
+  { title: "", author: "Nicholas Sparks" },
+  { title: "", author: "Danielle Steel" },
+  { title: "", author: "Barbara Kingsolver" },
+  { title: "", author: "Amy Tan" },
+  { title: "", author: "Celeste Ng" },
+  { title: "", author: "Lisa Jewell" },
+  { title: "", author: "Ruth Ware" },
+  { title: "", author: "Liane Moriarty" },
+  { title: "", author: "Helen Fielding" },
+  { title: "", author: "Sophie Kinsella" },
+  { title: "", author: "Jojo Moyes" },
+  { title: "", author: "Eoin Colfer" },
+  { title: "", author: "Rick Riordan" },
+  { title: "", author: "Veronica Roth" },
+  { title: "", author: "Cassandra Clare" },
+  { title: "", author: "Ransom Riggs" },
+  { title: "", author: "Victoria Aveyard" },
+  { title: "", author: "Marissa Meyer" },
+  { title: "", author: "Sarah J. Maas" },
+  { title: "", author: "Brandon Sanderson" },
+  { title: "", author: "Patrick Rothfuss" },
+  { title: "", author: "George Orwell" },
+  { title: "", author: "Aldous Huxley" },
+  { title: "", author: "William Golding" },
+  { title: "", author: "Joseph Heller" },
+  { title: "", author: "Kurt Vonnegut" },
+  { title: "", author: "Douglas Adams" }
 ];
 
 // Clear movie result fields on page load
@@ -367,19 +516,21 @@ function shuffleBooks() {
 shuffleBooks();
 
 async function getRandomBook() {
-    // If we've cycled through all books, reshuffle
+    // Pick a random book from the curated list
     if (bookIndex >= shuffledBooks.length) {
         shuffleBooks();
     }
     const bookChoice = shuffledBooks[bookIndex++];
-    const query = encodeURIComponent(`${bookChoice.title} ${bookChoice.author}`);
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&printType=books&maxResults=5&key=${GOOGLE_BOOKS_API_KEY}`;
+    // Search for all books by the author
+    const query = encodeURIComponent(`inauthor:${bookChoice.author}`);
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&printType=books&maxResults=20&langRestrict=en&key=${GOOGLE_BOOKS_API_KEY}`;
     try {
         const response = await fetch(url);
         const data = await response.json();
         if (data.items && data.items.length > 0) {
-            // Return the first matching book
-            return data.items[0];
+            // Pick a random book from the author's results
+            const randomIndex = Math.floor(Math.random() * data.items.length);
+            return data.items[randomIndex];
         }
     } catch (error) {
         console.error('Error fetching book from Google Books API:', error);
@@ -392,7 +543,12 @@ async function showRandomBook() {
     const book = await getRandomBook();
     const bookResult = document.getElementById('book-result');
     bookResult.style.display = 'block';
-    if (book && book.volumeInfo) {
+        let attempts = 0;
+        while (book && (!book.volumeInfo.imageLinks || !book.volumeInfo.imageLinks.thumbnail) && attempts < 10) {
+            book = await getRandomBook();
+            attempts++;
+        }
+        if (book && book.volumeInfo) {
         const info = book.volumeInfo;
         // Limit description to 300 characters
         let description = info.description || '';
@@ -404,8 +560,12 @@ async function showRandomBook() {
         document.getElementById('book-author').textContent = info.authors ? 'By ' + info.authors.join(', ') : '';
         document.getElementById('book-rating').textContent = info.averageRating ? 'Average rating: ' + info.averageRating : '';
         const cover = document.getElementById('book-cover');
-        if (cover && info.imageLinks && info.imageLinks.thumbnail) {
-            cover.src = info.imageLinks.thumbnail;
+        let coverUrl = null;
+        if (info.imageLinks) {
+            coverUrl = info.imageLinks.extraLarge || info.imageLinks.large || info.imageLinks.medium || info.imageLinks.thumbnail;
+        }
+        if (cover && coverUrl) {
+            cover.src = coverUrl;
             cover.style.display = 'block';
         } else if (cover) {
             cover.style.display = 'none';
