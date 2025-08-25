@@ -1,11 +1,17 @@
 // Clear movie result fields on page load
 window.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('movie-title').textContent = "";
-    document.getElementById('movie-overview').textContent = "";
-    document.getElementById('movie-release').textContent = "";
-    document.getElementById('movie-rating').textContent = "";
-    document.getElementById('movie-poster').style.display = 'none';
-    document.getElementById('trailer-btn').style.display = 'none';
+    const movieTitle = document.getElementById('movie-title');
+    if (movieTitle) movieTitle.textContent = "";
+    const movieOverview = document.getElementById('movie-overview');
+    if (movieOverview) movieOverview.textContent = "";
+    const movieRelease = document.getElementById('movie-release');
+    if (movieRelease) movieRelease.textContent = "";
+    const movieRating = document.getElementById('movie-rating');
+    if (movieRating) movieRating.textContent = "";
+    const moviePoster = document.getElementById('movie-poster');
+    if (moviePoster) moviePoster.style.display = 'none';
+    const trailerBtn = document.getElementById('trailer-btn');
+    if (trailerBtn) trailerBtn.style.display = 'none';
 });
 // Coded by RedEyedMonster.
 
@@ -341,8 +347,8 @@ async function getRandomBook() {
     // Minimum rating (Google Books does not provide ratings for all books)
     const minRatingInput = document.getElementById('book-rating');
     const minRating = minRatingInput ? parseFloat(minRatingInput.value) : 3;
-    // Random start index for variety
-    const startIndex = Math.floor(Math.random() * 30);
+    // Random start index for variety (increase range to 200)
+    const startIndex = Math.floor(Math.random() * 200);
     let url = `https://www.googleapis.com/books/v1/volumes?q=${subject ? subject : 'book'}&printType=books&maxResults=40&startIndex=${startIndex}&key=${GOOGLE_BOOKS_API_KEY}`;
     try {
         const response = await fetch(url);
@@ -367,11 +373,16 @@ async function getRandomBook() {
 async function showRandomBook() {
     const book = await getRandomBook();
     const bookResult = document.getElementById('book-result');
-    bookResult.style.display = 'block';
+    bookResult.style.display = 'block'; // Show the result section when a book is fetched
     if (book && book.volumeInfo) {
         const info = book.volumeInfo;
         document.getElementById('book-title').textContent = info.title || 'No title';
-        document.getElementById('book-description').textContent = info.description || '';
+        // Limit description to 300 characters
+        let description = info.description || '';
+        if (description.length > 300) {
+            description = description.substring(0, 297) + '...';
+        }
+        document.getElementById('book-description').textContent = description;
         document.getElementById('book-author').textContent = info.authors ? 'By ' + info.authors.join(', ') : '';
         document.getElementById('book-rating').textContent = info.averageRating ? 'Average rating: ' + info.averageRating : '';
         const cover = document.getElementById('book-cover');
