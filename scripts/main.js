@@ -303,4 +303,117 @@ window.addEventListener('DOMContentLoaded', function() {
             showRandomTMDbMovie();
         };
     }
+
+    // Next Book button functionality
+    const nextBookBtn = document.getElementById('next-book-btn');
+    if (nextBookBtn) {
+        nextBookBtn.onclick = function() {
+            showRandomBook();
+        };
+    }
+
+    // Random Book button functionality
+    const randomBookBtn = document.getElementById('Random-book-button');
+    if (randomBookBtn) {
+        randomBookBtn.onclick = function() {
+            showRandomBook();
+        };
+    }
+
+    // Apply Filters button for books
+    const applyBookFiltersBtn = document.getElementById('apply-book-filters');
+    if (applyBookFiltersBtn) {
+        applyBookFiltersBtn.onclick = function() {
+            showRandomBook();
+        };
+    }
 });
+
+// Google Books API Key
+const GOOGLE_BOOKS_API_KEY = 'AIzaSyBDTaZh_q4O7CgY4WzPPvUB5xOJC002XhQ'; // User's provided key
+
+// Helper to get a random book from Google Books API
+async function getRandomBook() {
+    // Genres mapped to Google Books subject terms
+    const genreSelect = document.getElementById('book-genre');
+    const genre = genreSelect ? genreSelect.value : 'all';
+    let subject = genre !== 'all' ? `subject:${genre}` : '';
+    // Minimum rating (Google Books does not provide ratings for all books)
+    const minRatingInput = document.getElementById('book-rating');
+    const minRating = minRatingInput ? parseFloat(minRatingInput.value) : 3;
+    // Random start index for variety
+    const startIndex = Math.floor(Math.random() * 30);
+    let url = `https://www.googleapis.com/books/v1/volumes?q=${subject ? subject : 'book'}&printType=books&maxResults=40&startIndex=${startIndex}&key=${GOOGLE_BOOKS_API_KEY}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.items && data.items.length > 0) {
+            // Filter by rating if available
+            let filtered = data.items.filter(item => {
+                const rating = item.volumeInfo.averageRating || 0;
+                return rating >= minRating;
+            });
+            if (filtered.length === 0) filtered = data.items; // fallback if no ratings
+            const randomIndex = Math.floor(Math.random() * filtered.length);
+            return filtered[randomIndex];
+        }
+    } catch (error) {
+        console.error('Error fetching books:', error);
+    }
+    return null;
+}
+
+// Show random book in the template
+async function showRandomBook() {
+    const book = await getRandomBook();
+    const bookResult = document.getElementById('book-result');
+    bookResult.style.display = 'block';
+    if (book && book.volumeInfo) {
+        const info = book.volumeInfo;
+        document.getElementById('book-title').textContent = info.title || 'No title';
+        document.getElementById('book-description').textContent = info.description || '';
+        document.getElementById('book-author').textContent = info.authors ? 'By ' + info.authors.join(', ') : '';
+        document.getElementById('book-rating').textContent = info.averageRating ? 'Average rating: ' + info.averageRating : '';
+        const cover = document.getElementById('book-cover');
+        if (cover && info.imageLinks && info.imageLinks.thumbnail) {
+            cover.src = info.imageLinks.thumbnail;
+            cover.style.display = 'block';
+        } else if (cover) {
+            cover.style.display = 'none';
+        }
+        // Goodreads link (if industryIdentifiers has ISBN)
+        const goodreadsLink = document.getElementById('goodreads-link');
+        if (goodreadsLink && info.industryIdentifiers) {
+            const isbn = info.industryIdentifiers.find(id => id.type === 'ISBN_13' || id.type === 'ISBN_10');
+            if (isbn) {
+                goodreadsLink.href = `https://www.goodreads.com/search?q=${isbn.identifier}`;
+                goodreadsLink.style.display = 'inline-block';
+            } else {
+                goodreadsLink.style.display = 'none';
+            }
+        }
+        // Preview button
+        const previewBtn = document.getElementById('preview-btn');
+        if (previewBtn && info.previewLink) {
+            previewBtn.style.display = 'inline-block';
+            previewBtn.onclick = () => {
+                window.open(info.previewLink, '_blank');
+            };
+        } else if (previewBtn) {
+            previewBtn.style.display = 'none';
+        }
+        bookResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+        document.getElementById('book-title').textContent = "Sorry, we couldn't find a book for you.";
+        document.getElementById('book-description').textContent = "";
+        document.getElementById('book-author').textContent = "";
+        document.getElementById('book-rating').textContent = "";
+        const cover = document.getElementById('book-cover');
+        if (cover) cover.style.display = 'none';
+        const goodreadsLink = document.getElementById('goodreads-link');
+        if (goodreadsLink) goodreadsLink.style.display = 'none';
+        const previewBtn = document.getElementById('preview-btn');
+        if (previewBtn) previewBtn.style.display = 'none';
+        bookResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
