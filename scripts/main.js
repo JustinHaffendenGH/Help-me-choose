@@ -1,3 +1,24 @@
+// Curated popular books list
+const popularBooks = [
+  { title: "Harry Potter and the Sorcerer's Stone", author: "J.K. Rowling" },
+  { title: "The Hunger Games", author: "Suzanne Collins" },
+  { title: "The Da Vinci Code", author: "Dan Brown" },
+  { title: "The Girl on the Train", author: "Paula Hawkins" },
+  { title: "Gone Girl", author: "Gillian Flynn" },
+  { title: "Twilight", author: "Stephenie Meyer" },
+  { title: "The Fault in Our Stars", author: "John Green" },
+  { title: "The Alchemist", author: "Paulo Coelho" },
+  { title: "To Kill a Mockingbird", author: "Harper Lee" },
+  { title: "The Great Gatsby", author: "F. Scott Fitzgerald" },
+  { title: "The Lord of the Rings", author: "J.R.R. Tolkien" },
+  { title: "Pride and Prejudice", author: "Jane Austen" },
+  { title: "1984", author: "George Orwell" },
+  { title: "The Catcher in the Rye", author: "J.D. Salinger" },
+  { title: "The Kite Runner", author: "Khaled Hosseini" },
+  { title: "Carrie", author: "Stephen King" },
+  { title: "The Shining", author: "Stephen King" }
+];
+
 // Clear movie result fields on page load
 window.addEventListener('DOMContentLoaded', function() {
     const movieTitle = document.getElementById('movie-title');
@@ -314,7 +335,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const nextBookBtn = document.getElementById('next-book-btn');
     if (nextBookBtn) {
         nextBookBtn.onclick = function() {
-            showRandomNYTBook();
+            showRandomBook();
         };
     }
 
@@ -325,53 +346,43 @@ window.addEventListener('DOMContentLoaded', function() {
             showRandomBook();
         };
     }
-
-    // Apply Filters button for NYT lists
-    const applyBookFiltersBtn = document.getElementById('apply-book-filters');
-    if (applyBookFiltersBtn) {
-        applyBookFiltersBtn.onclick = function() {
-            const nytListSelect = document.getElementById('nyt-list');
-            const selectedList = nytListSelect ? nytListSelect.value : 'hardcover-fiction';
-            showRandomNYTBook(selectedList);
-        };
-    }
 });
 
 // Google Books API Key
 const GOOGLE_BOOKS_API_KEY = 'AIzaSyBDTaZh_q4O7CgY4WzPPvUB5xOJC002XhQ'; // User's provided key
 
-// Helper to get a random book from Google Books API
+// Shuffle and cycle through all books before repeating
+let shuffledBooks = [];
+let bookIndex = 0;
+function shuffleBooks() {
+    shuffledBooks = popularBooks.slice();
+    for (let i = shuffledBooks.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledBooks[i], shuffledBooks[j]] = [shuffledBooks[j], shuffledBooks[i]];
+    }
+    bookIndex = 0;
+}
+
+// Call shuffleBooks once on load
+shuffleBooks();
+
 async function getRandomBook() {
-    // Get genre and rating from UI
-    const genreSelect = document.getElementById('book-genre');
-    const genre = genreSelect ? genreSelect.value : 'all';
-    const minRatingInput = document.getElementById('book-rating');
-    const minRating = minRatingInput ? parseFloat(minRatingInput.value) : 2.5; // 5/10 = 2.5/5
-
-    // Build a more targeted query
-    let keywords = "bestseller+popular+award+winning+classic";
-    let subject = genre !== 'all' ? `subject:${genre}` : '';
-    let query = subject ? `${keywords}+${subject}` : keywords;
-
-    // Randomize start index for variety
-    const startIndex = Math.floor(Math.random() * 200);
-    let url = `https://www.googleapis.com/books/v1/volumes?q=${query}&printType=books&maxResults=40&startIndex=${startIndex}&key=${GOOGLE_BOOKS_API_KEY}`;
-
+    // If we've cycled through all books, reshuffle
+    if (bookIndex >= shuffledBooks.length) {
+        shuffleBooks();
+    }
+    const bookChoice = shuffledBooks[bookIndex++];
+    const query = encodeURIComponent(`${bookChoice.title} ${bookChoice.author}`);
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&printType=books&maxResults=5&key=${GOOGLE_BOOKS_API_KEY}`;
     try {
         const response = await fetch(url);
         const data = await response.json();
         if (data.items && data.items.length > 0) {
-            // Filter for minimum rating
-            let filtered = data.items.filter(item => {
-                const rating = item.volumeInfo.averageRating || 0;
-                return rating >= minRating;
-            });
-            if (filtered.length === 0) filtered = data.items; // fallback if no ratings
-            const randomIndex = Math.floor(Math.random() * filtered.length);
-            return filtered[randomIndex];
+            // Return the first matching book
+            return data.items[0];
         }
     } catch (error) {
-        console.error('Error fetching books:', error);
+        console.error('Error fetching book from Google Books API:', error);
     }
     return null;
 }
@@ -380,15 +391,15 @@ async function getRandomBook() {
 async function showRandomBook() {
     const book = await getRandomBook();
     const bookResult = document.getElementById('book-result');
-    bookResult.style.display = 'block'; // Show the result section when a book is fetched
+    bookResult.style.display = 'block';
     if (book && book.volumeInfo) {
         const info = book.volumeInfo;
-        document.getElementById('book-title').textContent = info.title || 'No title';
         // Limit description to 300 characters
         let description = info.description || '';
         if (description.length > 300) {
             description = description.substring(0, 297) + '...';
         }
+        document.getElementById('book-title').textContent = info.title || 'No title';
         document.getElementById('book-description').textContent = description;
         document.getElementById('book-author').textContent = info.authors ? 'By ' + info.authors.join(', ') : '';
         document.getElementById('book-rating').textContent = info.averageRating ? 'Average rating: ' + info.averageRating : '';
@@ -420,71 +431,6 @@ async function showRandomBook() {
         } else if (previewBtn) {
             previewBtn.style.display = 'none';
         }
-        bookResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } else {
-        document.getElementById('book-title').textContent = "Sorry, we couldn't find a book for you.";
-        document.getElementById('book-description').textContent = "";
-        document.getElementById('book-author').textContent = "";
-        document.getElementById('book-rating').textContent = "";
-        const cover = document.getElementById('book-cover');
-        if (cover) cover.style.display = 'none';
-        const goodreadsLink = document.getElementById('goodreads-link');
-        if (goodreadsLink) goodreadsLink.style.display = 'none';
-        const previewBtn = document.getElementById('preview-btn');
-        if (previewBtn) previewBtn.style.display = 'none';
-        bookResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-}
-
-// NY Times Books API Key
-const NYT_API_KEY = 'adNTUAmUd86bUXmEdySFJgEFaIlPF2rk';
-
-// Fetch a random book from NYT bestseller list
-async function getRandomNYTBook(list = 'hardcover-fiction') {
-    const url = `https://api.nytimes.com/svc/books/v3/lists/current/${list}.json?api-key=${NYT_API_KEY}`;
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        if (data.results && data.results.books && data.results.books.length > 0) {
-            const books = data.results.books;
-            const randomIndex = Math.floor(Math.random() * books.length);
-            return books[randomIndex];
-        }
-    } catch (error) {
-        console.error('Error fetching NYT books:', error);
-    }
-    return null;
-}
-
-// Show a random NYT book in the template
-async function showRandomNYTBook(list) {
-    const book = await getRandomNYTBook(list);
-    const bookResult = document.getElementById('book-result');
-    bookResult.style.display = 'block';
-    if (book) {
-        document.getElementById('book-title').textContent = book.title || 'No title';
-        document.getElementById('book-description').textContent = book.description || '';
-        document.getElementById('book-author').textContent = book.author ? 'By ' + book.author : '';
-        document.getElementById('book-rating').textContent = book.rank ? 'NYT Rank: ' + book.rank : '';
-        const cover = document.getElementById('book-cover');
-        if (cover && book.book_image) {
-            cover.src = book.book_image;
-            cover.style.display = 'block';
-        } else if (cover) {
-            cover.style.display = 'none';
-        }
-        // Goodreads link
-        const goodreadsLink = document.getElementById('goodreads-link');
-        if (goodreadsLink && book.amazon_product_url) {
-            goodreadsLink.href = book.amazon_product_url;
-            goodreadsLink.textContent = 'View on Amazon';
-            goodreadsLink.style.display = 'inline-block';
-        } else if (goodreadsLink) {
-            goodreadsLink.style.display = 'none';
-        }
-        // Preview button (not available from NYT, so hide)
-        const previewBtn = document.getElementById('preview-btn');
-        if (previewBtn) previewBtn.style.display = 'none';
         bookResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
         document.getElementById('book-title').textContent = "Sorry, we couldn't find a book for you.";
