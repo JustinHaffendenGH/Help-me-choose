@@ -437,7 +437,7 @@ async function getRandomBook() {
 
 // Show random book in the template
 async function showRandomBook() {
-    const book = await getRandomBook();
+    let book = await getRandomBook();
     const bookResult = document.getElementById('book-result');
     bookResult.style.display = 'block';
         let attempts = 0;
