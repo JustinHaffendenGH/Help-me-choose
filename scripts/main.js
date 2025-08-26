@@ -1113,30 +1113,18 @@ async function showRandomBook() {
     const bookResult = document.getElementById('book-result');
     if (!bookResult) return;
     
-    // Show loading state
+    // Show elegant loading state
     bookResult.style.display = 'block';
-    document.getElementById('book-title').textContent = 'Finding a great book...';
-    document.getElementById('book-description').textContent = '';
-    document.getElementById('book-author').textContent = '';
-    document.getElementById('book-rating').textContent = '';
+    showBookLoadingState();
     
-    const cover = document.getElementById('book-cover');
-    if (cover) cover.style.display = 'none';
-    
-    const goodreadsLink = document.getElementById('goodreads-link');
-    if (goodreadsLink) goodreadsLink.style.display = 'none';
-    
-    const previewBtn = document.getElementById('preview-btn');
-    if (previewBtn) previewBtn.style.display = 'none';
-    
-    // INSTANT RESULT: Show curated book immediately for speed
+    // INSTANT RESULT: Get curated book for base data
     const curatedBook = getRandomCuratedBook();
-    displayBook(curatedBook);
+    let finalBook = curatedBook;
     
     // Flag to prevent multiple updates
     let hasUpdated = false;
     
-    // PARALLEL API CALLS: Try to get better results from APIs (but don't replace instantly)
+    // PARALLEL API CALLS: Try to get better results from APIs (but don't display yet)
     const promises = [
         getRandomGoogleBook(),
         getRandomOpenLibraryBook()
@@ -1176,7 +1164,7 @@ async function showRandomBook() {
                         bookCache.lastShownBooks.shift();
                     }
                     
-                    displayBook(bestBook);
+                    finalBook = bestBook;
                     hasUpdated = true;
                 }
             }
@@ -1184,14 +1172,275 @@ async function showRandomBook() {
         
     } catch (error) {
         console.log('Error fetching books:', error);
-        // Keep the curated book that's already showing
+        // Keep the curated book that we already have
     }
+    
+    // Now load all the book data and display everything together
+    await displayBookWithLoadingSequence(finalBook);
     
     // Trigger background preloading to keep cache full
     if (!bookCache.isPreloading && 
         (bookCache.google.length < 3 || bookCache.openLibrary.length < 3)) {
         setTimeout(() => preloadBooks(), 1000); // Delay to not interfere with current search
     }
+}
+
+function showBookLoadingState() {
+    // Clear all content and show loading message
+    document.getElementById('book-title').textContent = '📚 Finding your next read...';
+    document.getElementById('book-description').textContent = '';
+    document.getElementById('book-author').textContent = '';
+    document.getElementById('book-rating').textContent = '';
+    
+    const cover = document.getElementById('book-cover');
+    if (cover) cover.style.display = 'none';
+    
+    const goodreadsLink = document.getElementById('goodreads-link');
+    if (goodreadsLink) goodreadsLink.style.display = 'none';
+    
+    const previewBtn = document.getElementById('preview-btn');
+    if (previewBtn) previewBtn.style.display = 'none';
+}
+
+async function displayBookWithLoadingSequence(book) {
+    if (!book) return;
+    
+    // Prepare all the content first
+    const bookData = {
+        title: book.title || 'No title available',
+        authors: 'Unknown author',
+        description: book.description || 'No description available.',
+        publishInfo: '',
+        coverUrl: null,
+        previewConfig: null
+    };
+    
+    // Prepare authors
+    if (book.authors && book.authors.length > 0) {
+        bookData.authors = book.authors.map(author => author.name || author).join(', ');
+        bookData.authors = `By ${bookData.authors}`;
+    }
+    
+    // Prepare publication info and rating
+    if (book.first_publish_year) {
+        bookData.publishInfo = `Published ${book.first_publish_year}`;
+    }
+    if (book.rating) {
+        bookData.publishInfo += book.first_publish_year ? ` • Rating: ${book.rating.toFixed(1)}` : `Rating: ${book.rating.toFixed(1)}`;
+    }
+    
+    // Prepare cover URL
+    if (book.cover_url) {
+        bookData.coverUrl = book.cover_url; // Google Books cover
+    } else if (book.cover_id) {
+        bookData.coverUrl = `https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`; // Open Library cover
+    }
+    
+    // Prepare preview button config
+    const previewBtn = document.getElementById('preview-btn');
+    if (previewBtn) {
+        if (book.googleBooksId) {
+            bookData.previewConfig = {
+                text: 'View on Google Books',
+                url: `https://books.google.com/books?id=${book.googleBooksId}`
+            };
+        } else if (book.key) {
+            bookData.previewConfig = {
+                text: 'View on Open Library',
+                url: `https://openlibrary.org${book.key}`
+            };
+        } else {
+            // For curated books, search on Google
+            const searchQuery = `"${book.title}" "${book.authors[0]}" book`;
+            bookData.previewConfig = {
+                text: 'Search on Google',
+                url: `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`
+            };
+        }
+    }
+    
+    // Try to get better description if needed
+    if (book.source === 'curated' || (book.description && book.description.length < 100)) {
+        try {
+            const betterDescription = await getBetterDescription(book);
+            if (betterDescription && betterDescription.length > bookData.description.length) {
+                bookData.description = betterDescription;
+            }
+        } catch (error) {
+            console.log('Could not get better description:', error);
+        }
+    }
+    
+    // Load cover image if available (but don't wait for it to display content)
+    let coverLoaded = false;
+    const cover = document.getElementById('book-cover');
+    
+    if (cover && bookData.coverUrl) {
+        const coverPromise = new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                cover.src = bookData.coverUrl;
+                cover.alt = `Cover of ${bookData.title}`;
+                coverLoaded = true;
+                resolve(true);
+            };
+            img.onerror = () => {
+                coverLoaded = false;
+                resolve(false);
+            };
+            img.src = bookData.coverUrl;
+        });
+        
+        // Wait up to 2 seconds for cover to load, then proceed anyway
+        await Promise.race([
+            coverPromise,
+            new Promise(resolve => setTimeout(resolve, 2000))
+        ]);
+    } else if (cover && book.source === 'curated') {
+        // Try to get cover from Google Books for curated books
+        try {
+            await searchCoverForCuratedBookSynchronous(book, cover);
+            coverLoaded = cover.src && cover.src !== '';
+        } catch (error) {
+            console.log('Could not load curated book cover:', error);
+        }
+    }
+    
+    // Now display everything at once with a smooth reveal
+    displayAllBookContent(bookData, coverLoaded);
+}
+
+function displayAllBookContent(bookData, coverLoaded) {
+    // Display all text content at once
+    document.getElementById('book-title').textContent = bookData.title;
+    document.getElementById('book-description').textContent = bookData.description;
+    document.getElementById('book-author').textContent = bookData.authors;
+    document.getElementById('book-rating').textContent = bookData.publishInfo;
+    
+    // Display cover if loaded
+    const cover = document.getElementById('book-cover');
+    if (cover && coverLoaded) {
+        cover.style.display = 'block';
+    }
+    
+    // Setup preview button
+    const previewBtn = document.getElementById('preview-btn');
+    if (previewBtn && bookData.previewConfig) {
+        previewBtn.style.display = 'inline-block';
+        previewBtn.textContent = bookData.previewConfig.text;
+        previewBtn.onclick = () => {
+            window.open(bookData.previewConfig.url, '_blank');
+        };
+    }
+    
+    // Smooth scroll to result
+    const bookResult = document.getElementById('book-result');
+    if (bookResult) {
+        bookResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+// Helper function to get better description synchronously
+async function getBetterDescription(book) {
+    // For curated books, try Google Books first
+    if (book.source === 'curated' && GOOGLE_BOOKS_API_KEY) {
+        try {
+            const searchQuery = `"${book.title}" "${book.authors[0]}"`;
+            const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=5&key=${GOOGLE_BOOKS_API_KEY}`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.items && data.items.length > 0) {
+                const bestMatch = data.items.find(item => 
+                    item.volumeInfo.title && 
+                    item.volumeInfo.title.toLowerCase().includes(book.title.toLowerCase().substring(0, 10))
+                ) || data.items[0];
+                
+                const volumeInfo = bestMatch.volumeInfo;
+                if (volumeInfo.description && volumeInfo.description.length > 50) {
+                    let betterDescription = volumeInfo.description;
+                    betterDescription = betterDescription.replace(/<[^>]*>/g, '');
+                    if (betterDescription.length > 400) {
+                        betterDescription = betterDescription.substring(0, 397) + '...';
+                    }
+                    return betterDescription;
+                }
+            }
+        } catch (error) {
+            console.log('Could not fetch Google Books description:', error);
+        }
+    }
+    
+    // Try Open Library work page
+    if (book.key) {
+        try {
+            const workUrl = `https://openlibrary.org${book.key}.json`;
+            const response = await fetch(workUrl);
+            
+            if (response.ok) {
+                const workData = await response.json();
+                let betterDescription = null;
+                
+                if (workData.description) {
+                    if (typeof workData.description === 'string') {
+                        betterDescription = workData.description;
+                    } else if (workData.description.value) {
+                        betterDescription = workData.description.value;
+                    }
+                }
+                
+                if (betterDescription) {
+                    betterDescription = betterDescription.replace(/\n/g, ' ').trim();
+                    if (betterDescription.length > 400) {
+                        betterDescription = betterDescription.substring(0, 397) + '...';
+                    }
+                    return betterDescription;
+                }
+            }
+        } catch (error) {
+            console.log('Could not fetch Open Library description:', error);
+        }
+    }
+    
+    return null;
+}
+
+// Synchronous version of cover search for loading sequence
+async function searchCoverForCuratedBookSynchronous(book, coverElement) {
+    if (!GOOGLE_BOOKS_API_KEY) return false;
+    
+    try {
+        const searchQuery = `${book.title} ${book.authors[0]}`;
+        const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=1&key=${GOOGLE_BOOKS_API_KEY}`;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.items && data.items.length > 0 && data.items[0].volumeInfo.imageLinks) {
+            const imageLinks = data.items[0].volumeInfo.imageLinks;
+            const coverUrl = imageLinks.large || imageLinks.medium || imageLinks.thumbnail;
+            
+            if (coverUrl) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        coverElement.src = coverUrl;
+                        coverElement.alt = `Cover of ${book.title}`;
+                        resolve(true);
+                    };
+                    img.onerror = () => {
+                        resolve(false);
+                    };
+                    img.src = coverUrl;
+                });
+            }
+        }
+    } catch (error) {
+        console.log('Could not fetch cover for curated book:', error);
+    }
+    
+    return false;
 }
 
 function displayBook(book) {
