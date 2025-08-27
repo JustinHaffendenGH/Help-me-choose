@@ -348,6 +348,77 @@ const curatedBooks = [
         rating: 4.2,
         description: "A dark fairy tale retelling of three witches and the girls who serve them in a world inspired by Slavic folklore."
     }
+        ,
+        { 
+            title: "Tomorrow, and Tomorrow, and Tomorrow", 
+            author: "Gabrielle Zevin", 
+            year: 2022, 
+            rating: 4.3,
+            description: "A moving story about friendship and creativity, following two game designers over decades of collaboration and rivalry."
+        },
+        { 
+            title: "Lessons in Chemistry", 
+            author: "Bonnie Garmus", 
+            year: 2022, 
+            rating: 4.4,
+            description: "A quirky, empowering tale of a female scientist in the 1960s who becomes an unlikely TV cooking star."
+        },
+        { 
+            title: "Remarkably Bright Creatures", 
+            author: "Shelby Van Pelt", 
+            year: 2022, 
+            rating: 4.3,
+            description: "A heartwarming novel about a widow, a young man, and a clever octopus whose lives intertwine in unexpected ways."
+        },
+        { 
+            title: "The Lincoln Highway", 
+            author: "Amor Towles", 
+            year: 2021, 
+            rating: 4.2,
+            description: "An epic road trip adventure set in 1950s America, filled with unforgettable characters and twists."
+        },
+        { 
+            title: "A Little Life", 
+            author: "Hanya Yanagihara", 
+            year: 2015, 
+            rating: 4.3,
+            description: "A powerful, emotional story of four friends in New York City, exploring trauma, love, and survival."
+        },
+        { 
+            title: "The Goldfinch", 
+            author: "Donna Tartt", 
+            year: 2013, 
+            rating: 4.0,
+            description: "A Pulitzer Prize-winning novel about a boy whose life is changed by a tragic accident and a stolen painting."
+        },
+        { 
+            title: "The Night Circus", 
+            author: "Erin Morgenstern", 
+            year: 2011, 
+            rating: 4.2,
+            description: "A magical competition between two young illusionists set in a mysterious, wandering circus."
+        },
+        { 
+            title: "The Alchemist", 
+            author: "Paulo Coelho", 
+            year: 1988, 
+            rating: 4.3,
+            description: "A philosophical fable about following your dreams, as a young shepherd journeys to find his destiny."
+        },
+        { 
+            title: "To Kill a Mockingbird", 
+            author: "Harper Lee", 
+            year: 1960, 
+            rating: 4.5,
+            description: "A classic novel of justice and race in the American South, seen through the eyes of young Scout Finch."
+        },
+        { 
+            title: "1984", 
+            author: "George Orwell", 
+            year: 1949, 
+            rating: 4.4,
+            description: "A dystopian masterpiece about surveillance, truth, and rebellion in a totalitarian society."
+        }
 ];
 
 // Book preloading system
@@ -373,9 +444,17 @@ window.addEventListener('DOMContentLoaded', function() {
     if (moviePoster) moviePoster.style.display = 'none';
     const trailerBtn = document.getElementById('trailer-btn');
     if (trailerBtn) trailerBtn.style.display = 'none';
-    
-    // Start preloading books if we're on the books page
+
+    // Shuffle curatedBooks array for more randomness on each reload
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
     if (window.location.pathname.includes('books.html')) {
+        shuffleArray(curatedBooks);
         preloadBooks();
     }
 });
