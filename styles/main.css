@@ -49,32 +49,115 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background: #f4f4f4;
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 50%, #e8ebff 100%);
+    min-height: 100vh;
 }
 header {
-  background: linear-gradient(90deg, #008cff 0%, #5468ff 100%);
+  background: linear-gradient(135deg, #6c63ff 0%, #3a3768 100%);
   color: #fff;
-  padding: 1.5rem 1rem;
+  padding: 2rem 1rem;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+header h1 {
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 800;
+  font-size: 3.5rem;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(135deg, #fff 0%, #e8e3ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  letter-spacing: 3px;
+  position: relative;
+  z-index: 1;
+}
+
+header .header-tagline {
+  font-size: 1.2rem;
+  opacity: 0.95;
+  margin-bottom: 1.5rem;
+  font-weight: 300;
+  letter-spacing: 0.8px;
+  line-height: 1.4;
+  font-style: italic;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Remove underline and highlight from header nav links */
+header nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 header nav a {
   text-decoration: none;
   color: inherit;
   background: none;
   box-shadow: none;
-  transition: none;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  padding: 0.25em 0.75em;
+  border-radius: 6px;
+  font-weight: 400;
 }
+
 header nav a:hover {
   text-decoration: none;
   color: #fff;
-  background: #005bb5;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-  padding: 0.25em 0.75em;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  transform: translateY(-3px) scale(1.1);
+}
+
+/* Push away effect */
+header nav a:hover ~ a {
+  transform: translateX(15px);
+}
+
+header nav a:has(~ a:hover) {
+  transform: translateX(-15px);
+}
+
+/* Pipe separators */
+header nav::before,
+header nav::after {
+  content: '';
+  width: 1px;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  transition: height 0.3s ease;
+}
+
+header nav:hover::before,
+header nav:hover::after {
+  height: 20px;
 }
 
 .movie-header-logo {
@@ -213,36 +296,12 @@ h2 a {
     color: inherit;
 }
 
-/* Specific styling for the Read text */
-.index-links div:nth-child(1) h2 a {
+/* Remove link styling from index page h2 text */
+.index-links h2 {
     color: #3a3768;
-    transition: all 0.3s ease;
-    padding: 8px 16px;
-    border-radius: 8px;
-}
-
-/* Specific styling for the Watch text */
-.index-links div:nth-child(2) h2 a {
-    color: #3a3768;
-    transition: all 0.3s ease;
-    padding: 8px 16px;
-    border-radius: 8px;
-}
-
-/* Specific styling for the Eat text */
-.index-links div:nth-child(3) h2 a {
-    color: #3a3768;
-    transition: all 0.3s ease;
-    padding: 8px 16px;
-    border-radius: 8px;
-}
-
-/* Enhanced hover effect for index page links */
-.index-links h2 a:hover {
-    color: #fff;
-    background-color: #6c63ff;
-    box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
-    transform: translateY(-2px);
+    margin: 1rem 0 0 0;
+    font-size: 1.5rem;
+    font-weight: 600;
 }
 
 /* Highlight effect on hover for h2 links */
@@ -251,11 +310,58 @@ h2 a:hover {
     transition: background-color 0.3s, color 0.3s; /* Smooth transition */
 }
 
-.index-links{
-    display: flex; /* Enable Flexbox */
-    justify-content: space-around; /* Evenly space the items */
-    align-items: center; /* Align items vertically in the center */
-    margin-top: 200px; /* Adjust the value to lower the divs */
+.index-links {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 4rem;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.index-links div {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: all 0.4s ease;
+    box-shadow: 0 8px 32px rgba(108, 99, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.index-links div::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(108, 99, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.index-links div:hover::before {
+    left: 100%;
+}
+
+.index-links div:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 16px 40px rgba(108, 99, 255, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.index-links img {
+    transition: all 0.4s ease;
+    filter: drop-shadow(0 4px 8px rgba(108, 99, 255, 0.2));
+}
+
+.index-links div:hover img {
+    transform: scale(1.05);
+    filter: drop-shadow(0 8px 16px rgba(108, 99, 255, 0.3));
 }
 
 /* Subtle hover effect for IMDb and trailer buttons */
