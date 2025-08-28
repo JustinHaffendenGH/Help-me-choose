@@ -1,20 +1,189 @@
+/* Modern Movies Page Styling */
+.hero-section {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(58, 55, 104, 0.1) 100%);
+    border-radius: 20px;
+    margin: 2rem auto;
+    max-width: 800px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(108, 99, 255, 0.2);
+}
+
+.main-tagline {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    line-height: 1.2;
+}
+
+.tagline-highlight {
+    background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    display: block;
+}
+
+.main-tagline span:last-child {
+    color: #3a3768;
+    font-weight: 400;
+    font-size: 1.2rem;
+}
+
+.discover-btn {
+    background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+    transform: translateY(0);
+}
+
+.discover-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(108, 99, 255, 0.4);
+    background: linear-gradient(135deg, #7c73ff 0%, #ac98ff 100%);
+}
+
+.filters-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(108, 99, 255, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 600px;
+}
+
+.filters-title {
+    text-align: center;
+    color: #3a3768;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    color: #3a3768;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.filter-select, .filter-input {
+    padding: 0.75rem 1rem;
+    border: 2px solid rgba(108, 99, 255, 0.2);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.8);
+    color: #3a3768;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus, .filter-input:focus {
+    outline: none;
+    border-color: #6c63ff;
+    box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+}
+
+.apply-filters-btn {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    justify-self: center;
+    margin-top: 1rem;
+}
+
+.apply-filters-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+}
+
+.navigation-footer {
+    text-align: center;
+    margin: 3rem 0;
+}
+
+.home-btn {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(108, 99, 255, 0.3);
+    color: #6c63ff;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.home-btn:hover {
+    background: rgba(108, 99, 255, 0.1);
+    border-color: #6c63ff;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .filters-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .main-tagline {
+        font-size: 2rem;
+    }
+    
+    .hero-section {
+        padding: 2rem 1rem;
+    }
+}
+
 .movie-tagline span {
   display: block;
   margin-bottom: 1rem;
 }
 /* Movie suggestion styling */
 .movie-suggestion {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(58, 55, 104, 0.1) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(108, 99, 255, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(108, 99, 255, 0.15);
     padding: 2.5rem 2rem;
     max-width: 700px;
     margin: 2.5rem auto;
     text-align: center;
-    transition: box-shadow 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .movie-suggestion:hover {
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    box-shadow: 0 8px 32px rgba(108, 99, 255, 0.25);
+    transform: translateY(-2px);
+    border-color: rgba(108, 99, 255, 0.4);
 }
 .movie-suggestion img {
     display: block;
@@ -22,7 +191,37 @@
     margin-right: auto;
     margin-top: 1rem;
     max-width: 100%;
-    border-radius: 4px;
+    border-radius: 12px;
+    border: 2px solid rgba(108, 99, 255, 0.3);
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.2);
+    transition: all 0.3s ease;
+}
+.movie-suggestion img:hover {
+    transform: scale(1.02);
+    border-color: rgba(108, 99, 255, 0.6);
+    box-shadow: 0 8px 30px rgba(108, 99, 255, 0.4);
+}
+
+/* Next Movie Button Styling */
+#next-movie-btn {
+    background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+    margin-top: 1.5rem;
+    transform: translateY(0);
+}
+
+#next-movie-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(108, 99, 255, 0.4);
+    background: linear-gradient(135deg, #7c73ff 0%, #ac98ff 100%);
 }
 
 /* General styling */
@@ -365,23 +564,54 @@ h2 a:hover {
 }
 
 /* Subtle hover effect for IMDb and trailer buttons */
-#imdb-link,
-#trailer-btn {
-    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    border-radius: 6px;
-    padding: 8px 16px;
+#imdb-link {
+    background: linear-gradient(135deg, rgba(245, 197, 24, 0.1) 0%, rgba(245, 197, 24, 0.2) 100%);
+    border: 2px solid rgba(245, 197, 24, 0.4);
+    color: #f5c518;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(245, 197, 24, 0.2);
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
     cursor: pointer;
     text-decoration: none;
-    border: none;
     font-size: 1rem;
+    font-weight: 500;
+    display: inline-block;
+    margin: 0.5rem;
 }
-#imdb-link:hover,
+
+#imdb-link:hover {
+    background: linear-gradient(135deg, #f5c518 0%, #e6b000 100%);
+    color: #000;
+    border-color: #f5c518;
+    box-shadow: 0 4px 20px rgba(245, 197, 24, 0.4);
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+#trailer-btn {
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.1) 0%, rgba(255, 0, 0, 0.2) 100%);
+    border: 2px solid rgba(255, 0, 0, 0.4);
+    color: #ff0000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(255, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    display: inline-block;
+    margin: 0.5rem;
+}
+
 #trailer-btn:hover {
-    background-color: #008cff;
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
     color: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    text-decoration: underline;
+    border-color: #ff0000;
+    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.4);
+    text-decoration: none;
+    transform: translateY(-2px);
 }
 
 #movie-poster {
@@ -390,11 +620,18 @@ h2 a:hover {
     margin-right: auto;
     max-width: 320px;
     width: 100%;
-    border: 4px solid #008cff;
-    border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+    border: 4px solid #6c63ff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+#movie-poster:hover {
+    border-color: #9c88ff;
+    box-shadow: 0 8px 30px rgba(108, 99, 255, 0.4);
+    transform: scale(1.02);
 }
 
 #book-cover {
