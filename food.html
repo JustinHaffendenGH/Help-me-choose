@@ -8,23 +8,80 @@
 </head>
 <body>
     <header>
-        <a href="index.html" class="back-link">Back</a>
-        <h1 class="movie-header-logo">🍔 Eat</h1>
+        <h1>Eat</h1>
+        <p class="header-tagline">Discover your next obsession – books that captivate, meals that delight, movies that inspire.</p>
         <nav>
-            <a href="books.html">Read</a> |
-            <a href="food.html">Eat</a> |
+            <a href="books.html">Read</a>
+            <a href="food.html">Eat</a>
             <a href="movies.html">Watch</a>
         </nav>
     </header>
     <main>
+        <div class="hero-section">
+            <p class="main-tagline">
+                <span class="tagline-highlight">Culinary adventures await</span><br>
+                <span>Discover your next favorite meal</span>
+            </p>
+            <button id="Random-food-button" class="discover-btn" role="button" onclick="showRandomFood()">
+                🍽️ Discover Food
+            </button>
+        </div>
 
-        <p id="main-tag" class="center-horizontal movie-tagline">
-            <span>Dont know what to eat?</span><br>
-            <span>We can help.</span>
-        </p>
+        <div class="filters-container">
+            <h3 class="filters-title">Refine Your Search</h3>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="cuisine">Cuisine Type</label>
+                    <select id="cuisine" class="filter-select">
+                        <option value="all">All Cuisines</option>
+                        <option value="italian">Italian</option>
+                        <option value="chinese">Chinese</option>
+                        <option value="mexican">Mexican</option>
+                        <option value="japanese">Japanese</option>
+                        <option value="indian">Indian</option>
+                        <option value="thai">Thai</option>
+                        <option value="french">French</option>
+                        <option value="mediterranean">Mediterranean</option>
+                        <option value="american">American</option>
+                        <option value="korean">Korean</option>
+                        <option value="vietnamese">Vietnamese</option>
+                        <option value="greek">Greek</option>
+                        <option value="spanish">Spanish</option>
+                    </select>
+                </div>
 
-        <button class="center-horizontal" onclick="window.location.href='index.html'">Back to Home</button>
+                <div class="filter-group">
+                    <label for="price">Price Range</label>
+                    <select id="price" class="filter-select">
+                        <option value="all">Any Price</option>
+                        <option value="budget">$ - Budget Friendly</option>
+                        <option value="moderate">$$ - Moderate</option>
+                        <option value="expensive">$$$ - Expensive</option>
+                        <option value="luxury">$$$$ - Luxury</option>
+                    </select>
+                </div>
 
+                <button class="apply-filters-btn" onclick="applyFoodFilters()">Apply Filters</button>
+            </div>
+        </div>
+        <div id="food-result" class="center-horizontal movie-suggestion" style="display:none;">
+            <!-- Food details here -->
+            <h2 id="food-title"></h2>
+            <p id="food-description"></p>
+            <span id="food-cuisine"></span><br>
+            <span id="food-price"></span><br>
+            <span id="food-rating"></span><br>
+            <a id="menu-link" href="#" target="_blank" style="display:none; margin-right:8px;">View Menu</a>
+            <button id="directions-btn" style="display:none;">Get Directions</button>
+            <img id="food-image" alt="Food/Restaurant Image" />
+            <button id="next-food-btn" class="button-29 center-horizontal" style="margin-top:1.5rem;">Next Restaurant</button>
+        </div>
+
+        <div class="navigation-footer">
+            <button class="home-btn" onclick="window.location.href='index.html'">
+                ← Back to Decidr
+            </button>
+        </div>
     </main>
     <script src="scripts/main.js"></script>
 </body>

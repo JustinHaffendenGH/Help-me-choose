@@ -8,43 +8,55 @@
 </head>
 <body>
     <header>
-        <a href="index.html" class="back-link">Back</a>
-        <h1 class="movie-header-logo">📚 Read</h1>
+        <h1>Read</h1>
+        <p class="header-tagline">Discover your next obsession – books that captivate, meals that delight, movies that inspire.</p>
         <nav>
-            <a href="books.html">Read</a> |
-            <a href="food.html">Eat</a> |
+            <a href="books.html">Read</a>
+            <a href="food.html">Eat</a>
             <a href="movies.html">Watch</a>
         </nav>
     </header>
-    <main>
-        <p id="main-tag" class="center-horizontal movie-tagline">
-            <span>Don’t know what to read?</span><br>
-            <span>We can help.</span>
-        </p>
-    <button id="Random-book-button" class="center-horizontal button-29" role="button" onclick="showRandomBook()">Get Book Suggestions</button>
-        <div class="filters center-horizontal">
-            <label for="genre">Genre:</label>
-            <select id="genre">
-                <option value="all">All</option>
-                <option value="fiction">Fiction</option>
-                <option value="nonfiction">Non-Fiction</option>
-                <option value="fantasy">Fantasy</option>
-                <option value="mystery">Mystery</option>
-                <option value="romance">Romance</option>
-                <option value="science">Science</option>
-                <option value="history">History</option>
-                <option value="biography">Biography</option>
-                <option value="thriller">Thriller</option>
-                <option value="young-adult">Young Adult</option>
-                <option value="children">Children's</option>
-                <option value="classic">Classic</option>
-                <option value="self-help">Self-Help</option>
-            </select>
-
-            <label for="rating">Minimum Rating:</label>
-            <input type="number" id="rating" min="1" max="5" value="3" step="0.1">
-
-            <button>Apply Filters</button>
+        <main>
+        <div class="hero-section">
+            <p class="main-tagline">
+                <span class="tagline-highlight">Literary adventures await</span><br>
+                <span>Discover your next captivating read</span>
+            </p>
+            <button id="Random-book-button" class="discover-btn" role="button" onclick="showRandomBook()">
+                📚 Discover Books
+            </button>
+        </div>
+        
+        <div class="filters-container">
+            <h3 class="filters-title">Refine Your Search</h3>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="genre">Genre</label>
+                    <select id="genre" class="filter-select">
+                        <option value="all">All Genres</option>
+                        <option value="fiction">Fiction</option>
+                        <option value="nonfiction">Non-Fiction</option>
+                        <option value="fantasy">Fantasy</option>
+                        <option value="mystery">Mystery</option>
+                        <option value="romance">Romance</option>
+                        <option value="science">Science</option>
+                        <option value="history">History</option>
+                        <option value="biography">Biography</option>
+                        <option value="thriller">Thriller</option>
+                        <option value="young-adult">Young Adult</option>
+                        <option value="children">Children's</option>
+                        <option value="classic">Classic</option>
+                        <option value="self-help">Self-Help</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="rating">Minimum Rating</label>
+                    <input type="number" id="rating" class="filter-input" min="1" max="5" value="3" step="0.1">
+                </div>
+                
+                <button class="apply-filters-btn" onclick="applyBookFilters()">Apply Filters</button>
+            </div>
         </div>
     <div id="book-result" class="center-horizontal movie-suggestion" style="display:none;">
             <!-- Book details here -->
@@ -58,8 +70,11 @@
             <button id="next-book-btn" class="button-29 center-horizontal" style="margin-top:1.5rem;">Next Book</button>
         </div>
         
-    <button class="center-horizontal" onclick="window.location.href='index.html'">Back to Home</button>
-
+        <div class="navigation-footer">
+            <button class="home-btn" onclick="window.location.href='index.html'">
+                ← Back to Decidr
+            </button>
+        </div>
     </main>
     <script src="scripts/main.js"></script>
 </body>

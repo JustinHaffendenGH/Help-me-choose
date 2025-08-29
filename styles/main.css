@@ -203,7 +203,7 @@
 }
 
 /* Next Movie Button Styling */
-#next-movie-btn {
+#next-movie-btn, #next-book-btn {
     background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
     color: white;
     border: none;
@@ -218,7 +218,7 @@
     transform: translateY(0);
 }
 
-#next-movie-btn:hover {
+#next-movie-btn:hover, #next-book-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 30px rgba(108, 99, 255, 0.4);
     background: linear-gradient(135deg, #7c73ff 0%, #ac98ff 100%);
@@ -484,6 +484,46 @@ p#main-tag {
   display: inline-block;
 }
 
+/* Star Rating Styling */
+.star-rating {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    margin: 1rem 0;
+}
+
+.star {
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.star.full {
+    color: #6c63ff;
+    text-shadow: 0 2px 4px rgba(108, 99, 255, 0.4);
+}
+
+.star.half {
+    color: #6c63ff;
+    text-shadow: 0 2px 4px rgba(108, 99, 255, 0.4);
+}
+
+.star.empty {
+    color: rgba(108, 99, 255, 0.3);
+    text-shadow: 0 1px 2px rgba(108, 99, 255, 0.2);
+}
+
+.rating-text {
+    margin-left: 0.5rem;
+    color: #3a3768;
+    font-weight: 500;
+    font-size: 1rem;
+    background: rgba(108, 99, 255, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    border: 1px solid rgba(108, 99, 255, 0.2);
+}
+
 .index-links {
     display: flex;
     gap: 1rem;
@@ -634,15 +674,198 @@ h2 a:hover {
     transform: scale(1.02);
 }
 
+/* Book-specific styling */
+#goodreads-link {
+    background: linear-gradient(135deg, rgba(101, 75, 54, 0.1) 0%, rgba(101, 75, 54, 0.2) 100%);
+    border: 2px solid rgba(101, 75, 54, 0.4);
+    color: #654b36;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(101, 75, 54, 0.2);
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    display: inline-block;
+    margin: 0.5rem;
+}
+
+#goodreads-link:hover {
+    background: linear-gradient(135deg, #654b36 0%, #5a4230 100%);
+    color: #fff;
+    border-color: #654b36;
+    box-shadow: 0 4px 20px rgba(101, 75, 54, 0.4);
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+#preview-btn {
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(156, 136, 255, 0.1) 100%);
+    border: 2px solid rgba(108, 99, 255, 0.3);
+    color: #6c63ff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(108, 99, 255, 0.15);
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    display: inline-block;
+    margin: 0.5rem;
+}
+
+#preview-btn:hover {
+    background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
+    color: #fff;
+    border-color: #6c63ff;
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
 #book-cover {
     display: block;
     margin-left: auto;
     margin-right: auto;
     max-width: 180px;
     width: 100%;
-    border: 4px solid #008cff;
-    border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+    border: 4px solid #6c63ff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+#book-cover:hover {
+    border-color: #9c88ff;
+    box-shadow: 0 8px 30px rgba(108, 99, 255, 0.4);
+    transform: scale(1.02);
+}
+
+/* Food Page Specific Styles */
+#food-result {
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(58, 55, 104, 0.1) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(108, 99, 255, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(108, 99, 255, 0.15);
+    padding: 2.5rem 2rem;
+    max-width: 700px;
+    margin: 2.5rem auto;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#food-result:hover {
+    box-shadow: 0 8px 32px rgba(108, 99, 255, 0.25);
+    transform: translateY(-2px);
+    border-color: rgba(108, 99, 255, 0.4);
+}
+
+#food-result img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1rem;
+    max-width: 100%;
+    border-radius: 12px;
+    border: 2px solid rgba(108, 99, 255, 0.3);
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+#food-result img:hover {
+    transform: scale(1.02);
+    border-color: rgba(108, 99, 255, 0.6);
+    box-shadow: 0 8px 30px rgba(108, 99, 255, 0.4);
+}
+
+#food-title {
+    margin-bottom: 1rem;
+    color: #3a3768;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+#food-description {
+    margin-bottom: 1rem;
+    color: #3a3768;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+#food-cuisine, #food-price, #food-rating {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #6c63ff;
+    font-weight: 500;
+}
+
+#menu-link {
+    border: 2px solid rgba(108, 99, 255, 0.4);
+    color: #6c63ff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(108, 99, 255, 0.2);
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    display: inline-block;
+    margin: 0.5rem;
+}
+
+#menu-link:hover {
+    background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
+    color: white;
+    border-color: #6c63ff;
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.4);
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+#directions-btn {
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.1) 0%, rgba(255, 0, 0, 0.2) 100%);
+    border: 2px solid rgba(255, 0, 0, 0.4);
+    color: #ff0000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(255, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0.5rem;
+}
+
+#directions-btn:hover {
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+    color: white;
+    border-color: #ff0000;
+    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.4);
+    transform: translateY(-2px);
+}
+
+#next-food-btn {
+    background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+    transform: translateY(0);
+}
+
+#next-food-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(108, 99, 255, 0.4);
+    background: linear-gradient(135deg, #7c73ff 0%, #ac98ff 100%);
 }

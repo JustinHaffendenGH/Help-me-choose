@@ -14,490 +14,564 @@ window.addEventListener('DOMContentLoaded', function() {
     if (trailerBtn) trailerBtn.style.display = 'none';
 });
 
-// Google Books API configuration - using a test key (you'll need to get your own)
+// Google Books API configuration 
 const GOOGLE_BOOKS_API_KEY = 'AIzaSyBDTaZh_q4O7CgY4WzPPvUB5xOJC002XhQ';
 
 // Curated list of great books for instant results - EXPANDED
 const curatedBooks = [
-    { 
-        title: "The Seven Husbands of Evelyn Hugo", 
-        author: "Taylor Jenkins Reid", 
-        year: 2017, 
-        rating: 4.3,
-        description: "A reclusive Hollywood icon reveals her secrets to an unknown journalist, including the truth about her seven marriages and the love of her life."
-    },
+    // Contemporary Fiction
     { 
         title: "Where the Crawdads Sing", 
         author: "Delia Owens", 
         year: 2018, 
         rating: 4.4,
-        description: "A mystery about a young woman who grows up isolated in the marshes of North Carolina and becomes the prime suspect in a murder case."
-    },
-    { 
-        title: "The Midnight Library", 
-        author: "Matt Haig", 
-        year: 2020, 
-        rating: 4.1,
-        description: "Between life and death is a library where Nora Seed can explore infinite versions of the life she could have lived."
-    },
-    { 
-        title: "Project Hail Mary", 
-        author: "Andy Weir", 
-        year: 2021, 
-        rating: 4.5,
-        description: "A lone astronaut must save humanity from extinction in this thrilling science fiction adventure about friendship and sacrifice."
-    },
-    { 
-        title: "Klara and the Sun", 
-        author: "Kazuo Ishiguro", 
-        year: 2021, 
-        rating: 4.0,
-        description: "An artificial friend observes the human world with growing understanding in this moving story about love and hope."
-    },
-    { 
-        title: "The Thursday Murder Club", 
-        author: "Richard Osman", 
-        year: 2020, 
-        rating: 4.2,
-        description: "Four retirees meet weekly to investigate cold cases, but find themselves hunting a killer when a real murder occurs in their community."
-    },
-    { 
-        title: "The Invisible Life of Addie LaRue", 
-        author: "V.E. Schwab", 
-        year: 2020, 
-        rating: 4.2,
-        description: "A young woman makes a deal to live forever but is cursed to be forgotten by everyone she meets, until she finds someone who remembers her."
-    },
-    { 
-        title: "The Silent Patient", 
-        author: "Alex Michaelides", 
-        year: 2019, 
-        rating: 4.1,
-        description: "A woman refuses to speak after allegedly murdering her husband, and a psychotherapist becomes obsessed with treating her."
-    },
-    { 
-        title: "Educated", 
-        author: "Tara Westover", 
-        year: 2018, 
-        rating: 4.4,
-        description: "A memoir about a woman who grows up in a survivalist family and doesn't attend school until she educates herself enough to reach Harvard and Cambridge."
-    },
-    { 
-        title: "Circe", 
-        author: "Madeline Miller", 
-        year: 2018, 
-        rating: 4.3,
-        description: "The story of the Greek goddess who transforms from a minor deity into a powerful witch, finding her voice and strength in a man's world."
-    },
-    { 
-        title: "The Song of Achilles", 
-        author: "Madeline Miller", 
-        year: 2011, 
-        rating: 4.4,
-        description: "A reimagining of Homer's Iliad, told through the eyes of Patroclus as he falls in love with the golden prince Achilles."
+        genre: "Mystery",
+        description: "A girl who raised herself in the marshes becomes a murder suspect."
     },
     { 
         title: "Normal People", 
         author: "Sally Rooney", 
-        year: 2018,         
-        rating: 3.9,
-        description: "The complex relationship between two Irish teenagers as they navigate friendship, love, and class differences from high school to college."
-    },
-    { 
-        title: "The Poppy War", 
-        author: "R.F. Kuang", 
         year: 2018, 
-        rating: 4.2,
-        description: "A dark fantasy inspired by 20th-century Chinese history, following a war orphan who discovers her shamanic powers at a military academy."
-    },
-    { 
-        title: "The Ten Thousand Doors of January", 
-        author: "Alix E. Harrow", 
-        year: 2019, 
-        rating: 4.1,
-        description: "A young woman discovers magical doors to other worlds in this lush fantasy about belonging, family, and the power of words."
-    },
-    { 
-        title: "The Priory of the Orange Tree", 
-        author: "Samantha Shannon", 
-        year: 2019, 
-        rating: 4.2,
-        description: "An epic high fantasy featuring dragons, queens, and magic, inspired by medieval history and Arthurian legend."
-    },
-    { 
-        title: "Mexican Gothic", 
-        author: "Silvia Moreno-Garcia", 
-        year: 2020, 
         rating: 4.0,
-        description: "A young woman investigates her cousin's disturbing letter from a decaying English mansion in 1950s Mexico in this atmospheric horror novel."
+        genre: "Contemporary Fiction",
+        description: "Complex relationship between two Irish teenagers through school and university."
     },
     { 
-        title: "The House in the Cerulean Sea", 
-        author: "TJ Klune", 
-        year: 2020, 
-        rating: 4.4,
-        description: "A caseworker investigates a magical orphanage and finds a family he never knew he was looking for in this heartwarming fantasy."
-    },
-    { 
-        title: "Red, White & Royal Blue", 
-        author: "Casey McQuiston", 
-        year: 2019, 
-        rating: 4.3,
-        description: "The son of the first female US president falls in love with the Prince of Wales in this enemies-to-lovers romantic comedy."
+        title: "Little Fires Everywhere", 
+        author: "Celeste Ng", 
+        year: 2017, 
+        rating: 4.1,
+        genre: "Contemporary Fiction",
+        description: "Two families in 1990s Ohio clash over secrets and identity."
     },
     { 
         title: "The Vanishing Half", 
         author: "Brit Bennett", 
         year: 2020, 
-        rating: 4.2,
-        description: "Twin sisters take different paths in life, one living as white and the other as black, exploring identity and family across generations."
+        rating: 4.3,
+        genre: "Contemporary Fiction",
+        description: "Twin sisters choose different worlds, affecting their daughters."
     },
     { 
-        title: "Such a Fun Age", 
-        author: "Kiley Reid", 
-        year: 2019, 
-        rating: 4.0,
-        description: "A young black babysitter and her white employer navigate race, class, and privilege when a misunderstanding threatens their relationship."
-    },
-    { 
-        title: "The Water Dancer", 
-        author: "Ta-Nehisi Coates", 
-        year: 2019, 
-        rating: 4.1,
-        description: "A young slave discovers a mysterious power called conduction that allows him to travel through time and space in this historical fantasy."
-    },
-    { 
-        title: "The Testaments", 
-        author: "Margaret Atwood", 
-        year: 2019, 
-        rating: 4.1,
-        description: "The long-awaited sequel to The Handmaid's Tale, told through the eyes of three women from different backgrounds in Gilead."
-    },
-    { 
-        title: "The Institute", 
-        author: "Stephen King", 
-        year: 2019, 
-        rating: 4.1,
-        description: "Children with psychic abilities are held captive in a secret facility where they're trained to use their powers for dark purposes."
-    },
-    { 
-        title: "The Starless Sea", 
-        author: "Erin Morgenstern", 
-        year: 2019, 
-        rating: 4.0,
-        description: "A graduate student discovers a mysterious book that tells his own story and leads him to an underground world of stories and magic."
-    },
-    { 
-        title: "Ninth House", 
-        author: "Leigh Bardugo", 
-        year: 2019, 
-        rating: 4.1,
-        description: "A Yale student monitors the occult activities of secret societies while investigating a murder connected to the supernatural underworld."
-    },
-    { 
-        title: "The Giver of Stars", 
-        author: "Jojo Moyes", 
-        year: 2019, 
-        rating: 4.2,
-        description: "Based on true events, this novel follows the Pack Horse Librarians who brought books to remote areas of Kentucky during the Great Depression."
-    },
-    { 
-        title: "The Nickel Boys", 
-        author: "Colson Whitehead", 
-        year: 2019, 
-        rating: 4.2,
-        description: "A devastating novel about a reform school in Jim Crow-era Florida, based on the real story of the Dozier School for Boys."
-    },
-    { 
-        title: "The Dutch House", 
-        author: "Ann Patchett", 
-        year: 2019, 
-        rating: 4.2,
-        description: "A sweeping family saga about a brother and sister who are exiled from their childhood home and the house that haunts their memories."
-    },
-    { 
-        title: "The Guest List", 
-        author: "Lucy Foley", 
-        year: 2020, 
-        rating: 4.0,
-        description: "A psychological thriller set at a wedding on a remote island, where old grudges and dark secrets lead to murder."
-    },
-    { 
-        title: "Beach Read", 
-        author: "Emily Henry", 
+        title: "Anxious People", 
+        author: "Fredrik Backman", 
         year: 2020, 
         rating: 4.2,
-        description: "Two rival writers with opposite genres challenge each other to write outside their comfort zones during a summer by the lake."
-    },
-    { 
-        title: "The Four Winds", 
-        author: "Kristin Hannah", 
-        year: 2021, 
-        rating: 4.4,
-        description: "A powerful novel about a woman's struggle to save her family during the Great Depression and Dust Bowl era in Texas."
-    },
-    { 
-        title: "The Sanatorium", 
-        author: "Sarah Pearse", 
-        year: 2021, 
-        rating: 4.0,
-        description: "A detective investigates a disappearance at a luxury hotel in the Swiss Alps that was once a sinister sanatorium."
-    },
-    { 
-        title: "The Push", 
-        author: "Ashley Audrain", 
-        year: 2021, 
-        rating: 4.1,
-        description: "A psychological thriller about motherhood, exploring the fear that something might be wrong with your child."
-    },
-    { 
-        title: "People We Meet on Vacation", 
-        author: "Emily Henry", 
-        year: 2021, 
-        rating: 4.3,
-        description: "Best friends take one last vacation together to repair their friendship in this romantic comedy about love and second chances."
-    },
-    { 
-        title: "It Ends with Us", 
-        author: "Colleen Hoover", 
-        year: 2016, 
-        rating: 4.4,
-        description: "A young woman's relationship with a charming neurosurgeon becomes complicated when her first love returns to her life."
-    },
-    { 
-        title: "Verity", 
-        author: "Colleen Hoover", 
-        year: 2018, 
-        rating: 4.3,
-        description: "A struggling writer is hired to complete a bestselling author's series and discovers a disturbing manuscript that reveals dark secrets."
-    },
-    { 
-        title: "The Atlas Six", 
-        author: "Olivie Blake", 
-        year: 2022, 
-        rating: 4.1,
-        description: "Six young magicians compete for a place in an exclusive society that guards lost knowledge of the ancient world."
-    },
-    { 
-        title: "Book Lovers", 
-        author: "Emily Henry", 
-        year: 2022, 
-        rating: 4.2,
-        description: "A literary agent keeps running into the same grumpy editor during her small-town vacation in this enemies-to-lovers romance."
-    },
-    { 
-        title: "The Love Hypothesis", 
-        author: "Ali Hazel", 
-        year: 2021, 
-        rating: 4.3,
-        description: "A third-year PhD student enters a fake relationship with a professor to convince her best friend she's over her ex."
-    },
-    { 
-        title: "The Spanish Love Deception", 
-        author: "Elena Armas", 
-        year: 2021, 
-        rating: 4.2,
-        description: "An academic needs a date for her sister's wedding and reluctantly asks her colleague who she claims to hate."
+        genre: "Contemporary Fiction",
+        description: "A failed bank robbery reveals everyone's humanity."
     },
     { 
         title: "The Paper Palace", 
         author: "Miranda Cowley Heller", 
         year: 2021, 
         rating: 4.0,
-        description: "A woman must choose between her husband and her childhood love during one pivotal day at her family's summer house."
+        genre: "Contemporary Fiction",
+        description: "A woman must choose between her husband and childhood love."
     },
     { 
         title: "Malibu Rising", 
         author: "Taylor Jenkins Reid", 
         year: 2021, 
         rating: 4.2,
-        description: "The four famous Riva siblings throw an epic party that will change their lives forever in 1983 Malibu."
-    },
-    { 
-        title: "The Thursday Murder Club", 
-        author: "Richard Osman", 
-        year: 2020, 
-        rating: 4.2,
-        description: "Four unlikely friends meet weekly to investigate cold cases and find themselves solving a murder in their retirement community."
-    },
-    { 
-        title: "Atomic Habits", 
-        author: "James Clear", 
-        year: 2018, 
-        rating: 4.4,
-        description: "A practical guide to building good habits and breaking bad ones through small changes that deliver remarkable results."
-    },
-    { 
-        title: "Becoming", 
-        author: "Michelle Obama", 
-        year: 2018, 
-        rating: 4.5,
-        description: "The former First Lady's intimate memoir chronicles her journey from childhood on Chicago's South Side to the White House."
-    },
-    { 
-        title: "Untamed", 
-        author: "Glennon Doyle", 
-        year: 2020, 
-        rating: 4.3,
-        description: "A powerful memoir about breaking free from societal expectations and living authentically as your truest self."
-    },
-    { 
-        title: "The Midnight Girls", 
-        author: "Alicia Jasinska", 
-        year: 2022, 
-        rating: 4.2,
-        description: "A dark fairy tale retelling of three witches and the girls who serve them in a world inspired by Slavic folklore."
-    },
-    { 
-        title: "Tomorrow, and Tomorrow, and Tomorrow", 
-        author: "Gabrielle Zevin", 
-        year: 2022, 
-        rating: 4.3,
-        description: "A moving story about friendship and creativity, following two game designers over decades of collaboration and rivalry."
-    },
-    { 
-        title: "Lessons in Chemistry", 
-        author: "Bonnie Garmus", 
-        year: 2022, 
-        rating: 4.4,
-        description: "A quirky, empowering tale of a female scientist in the 1960s who becomes an unlikely TV cooking star."
+        genre: "Contemporary Fiction",
+        description: "Four siblings throw a party that changes everything in 1983 Malibu."
     },
     { 
         title: "Remarkably Bright Creatures", 
         author: "Shelby Van Pelt", 
         year: 2022, 
         rating: 4.3,
-        description: "A heartwarming novel about a widow, a young man, and a clever octopus whose lives intertwine in unexpected ways."
-    },
-    { 
-        title: "The Lincoln Highway", 
-        author: "Amor Towles", 
-        year: 2021, 
-        rating: 4.2,
-        description: "An epic road trip adventure set in 1950s America, filled with unforgettable characters and twists."
+        genre: "Contemporary Fiction",
+        description: "A widow, a young man, and a clever octopus."
     },
     { 
         title: "A Little Life", 
         author: "Hanya Yanagihara", 
         year: 2015, 
         rating: 4.3,
-        description: "A powerful, emotional story of four friends in New York City, exploring trauma, love, and survival."
+        genre: "Contemporary Fiction",
+        description: "Four friends in NYC exploring trauma, love, and survival."
     },
     { 
         title: "The Goldfinch", 
         author: "Donna Tartt", 
         year: 2013, 
         rating: 4.0,
-        description: "A Pulitzer Prize-winning novel about a boy whose life is changed by a tragic accident and a stolen painting."
+        genre: "Contemporary Fiction",
+        description: "A boy's life changed by tragedy and a stolen painting."
+    },
+
+    // Historical Fiction
+    { 
+        title: "The Seven Husbands of Evelyn Hugo", 
+        author: "Taylor Jenkins Reid", 
+        year: 2017, 
+        rating: 4.3,
+        genre: "Historical Fiction",
+        description: "A Hollywood icon reveals secrets about her seven marriages."
+    },
+    { 
+        title: "The Song of Achilles", 
+        author: "Madeline Miller", 
+        year: 2011, 
+        rating: 4.3,
+        genre: "Historical Fiction",
+        description: "Achilles and Patroclus during the Trojan War."
+    },
+    { 
+        title: "The Four Winds", 
+        author: "Kristin Hannah", 
+        year: 2021, 
+        rating: 4.4,
+        genre: "Historical Fiction",
+        description: "A woman fights for survival during the Great Depression."
+    },
+    { 
+        title: "The Lincoln Highway", 
+        author: "Amor Towles", 
+        year: 2021, 
+        rating: 4.2,
+        genre: "Historical Fiction",
+        description: "An epic 1950s road trip adventure."
+    },
+    { 
+        title: "Lessons in Chemistry", 
+        author: "Bonnie Garmus", 
+        year: 2022, 
+        rating: 4.4,
+        genre: "Historical Fiction",
+        description: "A 1960s female scientist becomes a TV cooking star."
+    },
+    { 
+        title: "The Book Thief", 
+        author: "Markus Zusak", 
+        year: 2005, 
+        rating: 4.4,
+        genre: "Historical Fiction",
+        description: "A girl steals books during WWII in Nazi Germany."
+    },
+
+    // Fantasy
+    { 
+        title: "Circe", 
+        author: "Madeline Miller", 
+        year: 2018, 
+        rating: 4.2,
+        genre: "Fantasy",
+        description: "The story of the witch Circe from Greek mythology."
+    },
+    { 
+        title: "The Invisible Life of Addie LaRue", 
+        author: "V.E. Schwab", 
+        year: 2020, 
+        rating: 4.2,
+        genre: "Fantasy",
+        description: "A woman cursed to be forgotten by everyone she meets."
+    },
+    { 
+        title: "The Midnight Library", 
+        author: "Matt Haig", 
+        year: 2020, 
+        rating: 4.2,
+        genre: "Fantasy",
+        description: "A library where Nora explores different versions of her life."
+    },
+    { 
+        title: "The Priory of the Orange Tree", 
+        author: "Samantha Shannon", 
+        year: 2019, 
+        rating: 4.2,
+        genre: "Fantasy",
+        description: "Epic fantasy about dragons, queens, and ancient magic."
+    },
+    { 
+        title: "The Atlas Six", 
+        author: "Olivie Blake", 
+        year: 2022, 
+        rating: 4.1,
+        genre: "Fantasy",
+        description: "Six magicians compete for an exclusive society."
     },
     { 
         title: "The Night Circus", 
         author: "Erin Morgenstern", 
         year: 2011, 
         rating: 4.2,
-        description: "A magical competition between two young illusionists set in a mysterious, wandering circus."
+        genre: "Fantasy",
+        description: "A magical competition between two illusionists."
     },
     { 
-        title: "The Alchemist", 
-        author: "Paulo Coelho", 
-        year: 1988, 
+        title: "The Hobbit", 
+        author: "J.R.R. Tolkien", 
+        year: 1937, 
         rating: 4.3,
-        description: "A philosophical fable about following your dreams, as a young shepherd journeys to find his destiny."
+        genre: "Fantasy",
+        description: "A hobbit's quest to reclaim treasure from a dragon."
+    },
+
+    // Romance
+    { 
+        title: "People We Meet on Vacation", 
+        author: "Emily Henry", 
+        year: 2021, 
+        rating: 4.3,
+        genre: "Romance",
+        description: "Best friends take one last vacation together."
     },
     { 
-        title: "To Kill a Mockingbird", 
-        author: "Harper Lee", 
-        year: 1960, 
+        title: "It Ends with Us", 
+        author: "Colleen Hoover", 
+        year: 2016, 
+        rating: 4.4,
+        genre: "Romance",
+        description: "A woman's complicated relationship story."
+    },
+    { 
+        title: "Book Lovers", 
+        author: "Emily Henry", 
+        year: 2022, 
+        rating: 4.2,
+        genre: "Romance",
+        description: "A literary agent and a grumpy editor during vacation."
+    },
+    { 
+        title: "The Love Hypothesis", 
+        author: "Ali Hazel", 
+        year: 2021, 
+        rating: 4.3,
+        genre: "Romance",
+        description: "A PhD student in a fake relationship with a professor."
+    },
+    { 
+        title: "Beach Read", 
+        author: "Emily Henry", 
+        year: 2020, 
+        rating: 4.1,
+        genre: "Romance",
+        description: "Two writers challenge each other to write outside their genres."
+    },
+
+    // Thriller/Mystery
+    { 
+        title: "The Silent Patient", 
+        author: "Alex Michaelides", 
+        year: 2019, 
+        rating: 4.1,
+        genre: "Thriller",
+        description: "A psychotherapist obsessed with a woman who won't speak."
+    },
+    { 
+        title: "The Guest List", 
+        author: "Lucy Foley", 
+        year: 2020, 
+        rating: 4.0,
+        genre: "Thriller",
+        description: "A wedding on a remote island turns deadly."
+    },
+    { 
+        title: "Gone Girl", 
+        author: "Gillian Flynn", 
+        year: 2012, 
+        rating: 4.0,
+        genre: "Thriller",
+        description: "A husband becomes suspect when his wife disappears."
+    },
+    { 
+        title: "The Girl on the Train", 
+        author: "Paula Hawkins", 
+        year: 2015, 
+        rating: 3.9,
+        genre: "Thriller",
+        description: "An unreliable narrator in a missing person case."
+    },
+    { 
+        title: "Big Little Lies", 
+        author: "Liane Moriarty", 
+        year: 2014, 
+        rating: 4.2,
+        genre: "Thriller",
+        description: "Three women's lives unravel to a deadly incident."
+    },
+    { 
+        title: "Verity", 
+        author: "Colleen Hoover", 
+        year: 2018, 
+        rating: 4.3,
+        genre: "Thriller",
+        description: "A writer discovers a disturbing manuscript."
+    },
+    { 
+        title: "The Thursday Murder Club", 
+        author: "Richard Osman", 
+        year: 2020, 
+        rating: 4.2,
+        genre: "Mystery",
+        description: "Four friends investigate cold cases in their retirement community."
+    },
+
+    // Science Fiction
+    { 
+        title: "Project Hail Mary", 
+        author: "Andy Weir", 
+        year: 2021, 
         rating: 4.5,
-        description: "A classic novel of justice and race in the American South, seen through the eyes of young Scout Finch."
+        genre: "Science Fiction",
+        description: "A man alone on a spaceship must save humanity."
+    },
+    { 
+        title: "Klara and the Sun", 
+        author: "Kazuo Ishiguro", 
+        year: 2021, 
+        rating: 3.9,
+        genre: "Science Fiction",
+        description: "An artificial friend caring for a sick girl."
+    },
+    { 
+        title: "The Martian", 
+        author: "Andy Weir", 
+        year: 2011, 
+        rating: 4.4,
+        genre: "Science Fiction",
+        description: "An astronaut stranded on Mars fights for survival."
+    },
+
+    // Horror
+    { 
+        title: "The Institute", 
+        author: "Stephen King", 
+        year: 2019, 
+        rating: 4.1,
+        genre: "Horror",
+        description: "Children with psychic abilities held captive."
+    },
+    { 
+        title: "Mexican Gothic", 
+        author: "Silvia Moreno-Garcia", 
+        year: 2020, 
+        rating: 4.0,
+        genre: "Horror",
+        description: "Gothic horror set in 1950s Mexico."
+    },
+
+    // Memoir/Biography
+    { 
+        title: "Educated", 
+        author: "Tara Westover", 
+        year: 2018, 
+        rating: 4.4,
+        genre: "Memoir",
+        description: "From survivalist family to Cambridge PhD."
+    },
+    { 
+        title: "Becoming", 
+        author: "Michelle Obama", 
+        year: 2018, 
+        rating: 4.5,
+        genre: "Memoir",
+        description: "Former First Lady's journey to the White House."
+    },
+    { 
+        title: "Untamed", 
+        author: "Glennon Doyle", 
+        year: 2020, 
+        rating: 4.3,
+        genre: "Memoir",
+        description: "Breaking free from societal expectations."
+    },
+    { 
+        title: "Born a Crime", 
+        author: "Trevor Noah", 
+        year: 2016, 
+        rating: 4.4,
+        genre: "Memoir",
+        description: "Growing up in apartheid South Africa."
+    },
+
+    // Self-Help/Non-Fiction
+    { 
+        title: "Atomic Habits", 
+        author: "James Clear", 
+        year: 2018, 
+        rating: 4.4,
+        genre: "Self-Help",
+        description: "Building good habits and breaking bad ones."
+    },
+    { 
+        title: "The Midnight Library", 
+        author: "Matt Haig", 
+        year: 2020, 
+        rating: 4.2,
+        genre: "Philosophy",
+        description: "Exploring infinite possibilities of life."
+    },
+
+    // Dystopian
+    { 
+        title: "The Handmaid's Tale", 
+        author: "Margaret Atwood", 
+        year: 1985, 
+        rating: 4.1,
+        genre: "Dystopian",
+        description: "Women forced into reproductive servitude."
     },
     { 
         title: "1984", 
         author: "George Orwell", 
         year: 1949, 
         rating: 4.4,
-        description: "A dystopian masterpiece about surveillance, truth, and rebellion in a totalitarian society."
+        genre: "Dystopian",
+        description: "Surveillance and rebellion in a totalitarian society."
     },
-    // --- Added books for minimum 100 curated entries ---
-            { title: "Carrie", author: "Stephen King", year: 1974, rating: 4.0, description: "A bullied teenager discovers her telekinetic powers with terrifying consequences." },
-            { title: "The Shining", author: "Stephen King", year: 1977, rating: 4.3, description: "A family heads to an isolated hotel for the winter where an evil presence influences the father into violence." },
-            { title: "It", author: "Stephen King", year: 1986, rating: 4.2, description: "A group of children face a shape-shifting monster that emerges from the sewer every 27 years." },
-            { title: "Misery", author: "Stephen King", year: 1987, rating: 4.1, description: "A famous author is held captive by his psychotic fan after a car accident." },
-            { title: "The Green Mile", author: "Stephen King", year: 1996, rating: 4.4, description: "A death row supervisor witnesses supernatural events after a gentle giant is sentenced to death." },
-            { title: "Harry Potter and the Philosopher's Stone", author: "J.K. Rowling", year: 1997, rating: 4.5, description: "A young boy discovers he is a wizard and attends Hogwarts School of Witchcraft and Wizardry." },
-            { title: "Harry Potter and the Chamber of Secrets", author: "J.K. Rowling", year: 1998, rating: 4.4, description: "Harry returns to Hogwarts and faces a mysterious monster hidden in the school's chamber." },
-            { title: "Harry Potter and the Prisoner of Azkaban", author: "J.K. Rowling", year: 1999, rating: 4.5, description: "Harry learns about Sirius Black, an escaped prisoner who may hold secrets about his past." },
-            { title: "Harry Potter and the Goblet of Fire", author: "J.K. Rowling", year: 2000, rating: 4.5, description: "Harry competes in a dangerous magical tournament and faces Lord Voldemort." },
-            { title: "Harry Potter and the Order of the Phoenix", author: "J.K. Rowling", year: 2003, rating: 4.5, description: "Harry and his friends form a secret group to fight against the rising threat of Voldemort." },
-            { title: "Harry Potter and the Half-Blood Prince", author: "J.K. Rowling", year: 2005, rating: 4.5, description: "Harry discovers a mysterious book and learns more about Voldemort's past." },
-            { title: "Harry Potter and the Deathly Hallows", author: "J.K. Rowling", year: 2007, rating: 4.6, description: "Harry, Ron, and Hermione go on a quest to destroy Voldemort's Horcruxes." },
-            { title: "Gangsta Granny", author: "David Walliams", year: 2011, rating: 4.2, description: "A boy discovers his grandmother is an international jewel thief." },
-            { title: "Mr Stink", author: "David Walliams", year: 2009, rating: 4.1, description: "A girl befriends a homeless man and learns about kindness and acceptance." },
-            { title: "Billionaire Boy", author: "David Walliams", year: 2010, rating: 4.0, description: "A boy who has everything except a friend learns the true value of friendship." },
-            { title: "Ratburger", author: "David Walliams", year: 2012, rating: 4.1, description: "A girl and her pet rat face a villainous burger shop owner." },
-            { title: "Awful Auntie", author: "David Walliams", year: 2014, rating: 4.2, description: "A young girl battles her evil aunt for her inheritance." },
-            { title: "The Boy in the Dress", author: "David Walliams", year: 2008, rating: 4.0, description: "A boy breaks gender norms and finds acceptance." },
-            { title: "Grandpa's Great Escape", author: "David Walliams", year: 2015, rating: 4.3, description: "A boy helps his grandfather escape from a care home." },
-            { title: "Demon Dentist", author: "David Walliams", year: 2013, rating: 4.1, description: "A mysterious dentist hands out strange gifts to children." },
-            { title: "The World's Worst Children", author: "David Walliams", year: 2016, rating: 4.2, description: "Ten tales of hilariously horrible children." },
-            { title: "The World's Worst Teachers", author: "David Walliams", year: 2019, rating: 4.1, description: "Ten tales of truly terrible teachers." },
-            { title: "The World's Worst Parents", author: "David Walliams", year: 2020, rating: 4.1, description: "Ten tales of the world's worst parents." },
-            { title: "Matilda", author: "Roald Dahl", year: 1988, rating: 4.3, description: "A gifted girl uses her powers to overcome her cruel parents and headmistress." },
-            { title: "Charlie and the Chocolate Factory", author: "Roald Dahl", year: 1964, rating: 4.4, description: "A poor boy wins a tour of a magical chocolate factory."},
-            { title: "The BFG", author: "Roald Dahl", year: 1982, rating: 4.3, description: "A girl befriends a big friendly giant and helps him stop evil giants." },
-            { title: "James and the Giant Peach", author: "Roald Dahl", year: 1961, rating: 4.2, description: "A boy escapes his cruel aunts on a magical peach." },
-            { title: "Fantastic Mr Fox", author: "Roald Dahl", year: 1970, rating: 4.1, description: "A clever fox outwits three farmers." },
-            { title: "The Witches", author: "Roald Dahl", year: 1983, rating: 4.2, description: "A boy and his grandmother battle child-hating witches." },
-            { title: "The Twits", author: "Roald Dahl", year: 1980, rating: 4.1, description: "A nasty couple get their comeuppance from clever animals." },
-            { title: "Northern Lights", author: "Philip Pullman", year: 1995, rating: 4.2, description: "A girl embarks on a journey to the Arctic to rescue her friend." },
-            { title: "The Subtle Knife", author: "Philip Pullman", year: 1997, rating: 4.2, description: "Lyra and Will discover a knife that can cut between worlds." },
-            { title: "The Amber Spyglass", author: "Philip Pullman", year: 2000, rating: 4.3, description: "Lyra and Will must save the universe from destruction." },
-            { title: "Percy Jackson & the Olympians: The Lightning Thief", author: "Rick Riordan", year: 2005, rating: 4.2, description: "A boy discovers he is a demigod and must prevent a war among the gods." },
-            { title: "Percy Jackson & the Olympians: Sea of Monsters", author: "Rick Riordan", year: 2006, rating: 4.2, description: "Percy and friends search for the mythical Golden Fleece." },
-            { title: "Percy Jackson & the Olympians: The Titan's Curse", author: "Rick Riordan", year: 2007, rating: 4.3, description: "Percy must rescue a goddess from the clutches of a monster." },
-            { title: "Percy Jackson & the Olympians: The Battle of the Labyrinth", author: "Rick Riordan", year: 2008, rating: 4.3, description: "Percy and friends navigate a deadly maze to stop an evil army." },
-            { title: "Percy Jackson & the Olympians: The Last Olympian", author: "Rick Riordan", year: 2009, rating: 4.4, description: "Percy faces his final battle against the Titans." },
-            { title: "The Hunger Games", author: "Suzanne Collins", year: 2008, rating: 4.3, description: "A girl fights for survival in a televised death match." },
-            { title: "Catching Fire", author: "Suzanne Collins", year: 2009, rating: 4.4, description: "Katniss returns to the arena for a second deadly competition." },
-            { title: "Mockingjay", author: "Suzanne Collins", year: 2010, rating: 4.2, description: "Katniss leads a rebellion against a tyrannical government." },
-            { title: "Twilight", author: "Stephenie Meyer", year: 2005, rating: 3.9, description: "A teenage girl falls in love with a vampire." },
-            { title: "New Moon", author: "Stephenie Meyer", year: 2006, rating: 3.8, description: "Bella faces heartbreak and danger as her vampire boyfriend leaves town." },
-            { title: "Eclipse", author: "Stephenie Meyer", year: 2007, rating: 3.9, description: "Bella must choose between her love for a vampire and a werewolf." },
-            { title: "Breaking Dawn", author: "Stephenie Meyer", year: 2008, rating: 3.9, description: "Bella and Edward face new challenges as they start a family." },
-            { title: "Diary of a Wimpy Kid", author: "Jeff Kinney", year: 2007, rating: 4.1, description: "A middle schooler chronicles his life in a hilarious diary." },
-            { title: "The Fault in Our Stars", author: "John Green", year: 2012, rating: 4.2, description: "Two teens with cancer fall in love and search for meaning." },
-            { title: "Wonder", author: "R.J. Palacio", year: 2012, rating: 4.4, description: "A boy with facial differences navigates school and acceptance." },
-            { title: "The Maze Runner", author: "James Dashner", year: 2009, rating: 4.0, description: "Teens wake up in a mysterious maze with no memory of their past." },
-            { title: "Divergent", author: "Veronica Roth", year: 2011, rating: 4.2, description: "A girl discovers she doesn't fit into her dystopian society's strict factions." },
-            { title: "Insurgent", author: "Veronica Roth", year: 2012, rating: 4.1, description: "Tris and her friends fight for survival against a corrupt government." },
-            { title: "Allegiant", author: "Veronica Roth", year: 2013, rating: 3.7, description: "Tris and Four discover the truth about their world." },
-            { title: "The Book Thief", author: "Markus Zusak", year: 2005, rating: 4.4, description: "A young girl steals books and shares them during WWII in Nazi Germany." },
-            { title: "Life of Pi", author: "Yann Martel", year: 2001, rating: 4.1, description: "A boy survives a shipwreck and shares a lifeboat with a tiger." },
-            { title: "The Kite Runner", author: "Khaled Hosseini", year: 2003, rating: 4.3, description: "A story of friendship and redemption set in Afghanistan." },
-            { title: "A Game of Thrones", author: "George R.R. Martin", year: 1996, rating: 4.5, description: "Noble families vie for control of the Iron Throne in a fantasy world." },
-            { title: "A Clash of Kings", author: "George R.R. Martin", year: 1998, rating: 4.4, description: "The battle for the Iron Throne intensifies as new players emerge." },
-            { title: "A Storm of Swords", author: "George R.R. Martin", year: 2000, rating: 4.5, description: "Betrayal and war threaten the Seven Kingdoms." },
-            { title: "A Feast for Crows", author: "George R.R. Martin", year: 2005, rating: 4.2, description: "The aftermath of war brings new challenges to Westeros." },
-            { title: "A Dance with Dragons", author: "George R.R. Martin", year: 2011, rating: 4.3, description: "Daenerys and Jon Snow face new threats in the North and East." },
-            { title: "The Girl on the Train", author: "Paula Hawkins", year: 2015, rating: 4.0, description: "A woman becomes entangled in a missing persons investigation." },
-            { title: "Gone Girl", author: "Gillian Flynn", year: 2012, rating: 4.1, description: "A woman's disappearance turns into a twisted psychological thriller." },
-            { title: "The Da Vinci Code", author: "Dan Brown", year: 2003, rating: 4.0, description: "A symbologist uncovers a religious mystery hidden in works of art." },
-            { title: "Angels & Demons", author: "Dan Brown", year: 2000, rating: 4.0, description: "A Harvard symbologist races to prevent a terrorist attack on the Vatican." },
-            { title: "The Lost Symbol", author: "Dan Brown", year: 2009, rating: 3.9, description: "A quest for a legendary secret hidden in Washington, D.C." },
-            { title: "Inferno", author: "Dan Brown", year: 2013, rating: 3.9, description: "A race against time to stop a global plague." },
-            { title: "Origin", author: "Dan Brown", year: 2017, rating: 3.8, description: "A discovery that could change the future of humanity." },
-            { title: "The Secret Garden", author: "Frances Hodgson Burnett", year: 1911, rating: 4.2, description: "A lonely girl discovers a hidden, magical garden." },
-            { title: "Anne of Green Gables", author: "L.M. Montgomery", year: 1908, rating: 4.3, description: "An imaginative orphan finds a home in Avonlea." },
-            { title: "Little Women", author: "Louisa May Alcott", year: 1868, rating: 4.2, description: "Four sisters grow up during the American Civil War." },
-            { title: "Pride and Prejudice", author: "Jane Austen", year: 1813, rating: 4.3, description: "A witty romantic tale of manners and marriage." },
-            { title: "Jane Eyre", author: "Charlotte Brontë", year: 1847, rating: 4.2, description: "An orphaned girl overcomes hardship to find love and independence." },
-            { title: "Wuthering Heights", author: "Emily Brontë", year: 1847, rating: 4.1, description: "A tale of passion and revenge on the Yorkshire moors." },
-            { title: "Dracula", author: "Bram Stoker", year: 1897, rating: 4.0, description: "A vampire terrorizes Victorian England." },
-            { title: "Frankenstein", author: "Mary Shelley", year: 1818, rating: 4.0, description: "A scientist creates a monster in his quest to conquer death." },
-            { title: "The Hobbit", author: "J.R.R. Tolkien", year: 1937, rating: 4.3, description: "A hobbit embarks on a quest to reclaim a lost treasure from a dragon." },
-            { title: "The Lord of the Rings: The Fellowship of the Ring", author: "J.R.R. Tolkien", year: 1954, rating: 4.5, description: "A group sets out to destroy a powerful ring and save Middle-earth." },
-            { title: "The Lord of the Rings: The Two Towers", author: "J.R.R. Tolkien", year: 1954, rating: 4.5, description: "The fellowship is split as evil forces gather strength." },
-            { title: "The Lord of the Rings: The Return of the King", author: "J.R.R. Tolkien", year: 1955, rating: 4.6, description: "The final battle for Middle-earth begins." }
+    { 
+        title: "The Hunger Games", 
+        author: "Suzanne Collins", 
+        year: 2008, 
+        rating: 4.3,
+        genre: "Dystopian",
+        description: "A girl volunteers for a deadly televised competition."
+    },
+
+    // Classic Literature
+    { 
+        title: "To Kill a Mockingbird", 
+        author: "Harper Lee", 
+        year: 1960, 
+        rating: 4.5,
+        genre: "Classic Literature",
+        description: "Justice and race in the American South."
+    },
+    { 
+        title: "Pride and Prejudice", 
+        author: "Jane Austen", 
+        year: 1813, 
+        rating: 4.3,
+        genre: "Classic Literature",
+        description: "Elizabeth Bennet and Mr. Darcy's romance."
+    },
+    { 
+        title: "The Great Gatsby", 
+        author: "F. Scott Fitzgerald", 
+        year: 1925, 
+        rating: 4.2,
+        genre: "Classic Literature",
+        description: "Jazz Age excess and the American Dream."
+    },
+
+    // Young Adult
+    { 
+        title: "The Fault in Our Stars", 
+        author: "John Green", 
+        year: 2012, 
+        rating: 4.2,
+        genre: "Young Adult",
+        description: "Two teens with cancer fall in love."
+    },
+    { 
+        title: "Eleanor Oliphant Is Completely Fine", 
+        author: "Gail Honeyman", 
+        year: 2017, 
+        rating: 4.2,
+        genre: "Contemporary Fiction",
+        description: "A socially awkward woman's journey to connection."
+    },
+    
+    // Children's Books
+    { 
+        title: "Wonder", 
+        author: "R.J. Palacio", 
+        year: 2012, 
+        rating: 4.4,
+        genre: "Children's",
+        description: "A boy with facial differences starts mainstream school for the first time."
+    },
+    { 
+        title: "Dog Man: Unleashed", 
+        author: "Dav Pilkey", 
+        year: 2016, 
+        rating: 4.7,
+        genre: "Children's",
+        description: "A dog-headed cop fights crime with humor and heart."
+    },
+    { 
+        title: "Diary of a Wimpy Kid", 
+        author: "Jeff Kinney", 
+        year: 2007, 
+        rating: 4.1,
+        genre: "Children's",
+        description: "Middle schooler Greg Heffley's hilarious adventures and misadventures."
+    },
+    { 
+        title: "The Wild Robot", 
+        author: "Peter Brown", 
+        year: 2016, 
+        rating: 4.6,
+        genre: "Children's",
+        description: "A robot stranded on an island learns to adapt and care for an orphaned gosling."
+    },
+    { 
+        title: "New Kid", 
+        author: "Jerry Craft", 
+        year: 2019, 
+        rating: 4.5,
+        genre: "Children's",
+        description: "Graphic novel about a Black student navigating a new prep school."
+    },
+    { 
+        title: "Wings of Fire: The Dragonet Prophecy", 
+        author: "Tui T. Sutherland", 
+        year: 2012, 
+        rating: 4.6,
+        genre: "Children's",
+        description: "Five dragonets must fulfill an ancient prophecy to save their world."
+    },
+    { 
+        title: "Hatchet", 
+        author: "Gary Paulsen", 
+        year: 1987, 
+        rating: 4.0,
+        genre: "Children's",
+        description: "A boy survives alone in the Canadian wilderness after a plane crash."
+    },
+    { 
+        title: "The One and Only Ivan", 
+        author: "Katherine Applegate", 
+        year: 2012, 
+        rating: 4.3,
+        genre: "Children's",
+        description: "A silverback gorilla tells his story of captivity and friendship."
+    },
+    { 
+        title: "Restart", 
+        author: "Gordon Korman", 
+        year: 2017, 
+        rating: 4.4,
+        genre: "Children's",
+        description: "A boy with amnesia gets a chance to reinvent himself completely."
+    },
+    { 
+        title: "Fish in a Tree", 
+        author: "Lynda Mullaly Hunt", 
+        year: 2015, 
+        rating: 4.5,
+        genre: "Children's",
+        description: "A girl with dyslexia discovers her unique strengths and talents."
+    },
+    { 
+        title: "The Girl Who Drank the Moon", 
+        author: "Kelly Barnhill", 
+        year: 2016, 
+        rating: 4.2,
+        genre: "Children's",
+        description: "A witch accidentally gives a baby magical powers in this fantasy tale."
+    },
+    { 
+        title: "Ghost", 
+        author: "Jason Reynolds", 
+        year: 2016, 
+        rating: 4.4,
+        genre: "Children's",
+        description: "A boy joins a track team and learns to run from his problems instead of away from them."
+    }
 ];
 
 // Book preloading system
@@ -631,6 +705,73 @@ async function updateImdbLink(movie) {
     }
 }
 
+function createStarRating(rating) {
+    // Convert rating from 0-10 scale to 0-5 stars
+    const starRating = (rating / 10) * 5;
+    const fullStars = Math.floor(starRating);
+    const hasHalfStar = starRating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    
+    let starsHTML = '';
+    
+    // Add full stars
+    for (let i = 0; i < fullStars; i++) {
+        starsHTML += '<span class="star full">★</span>';
+    }
+    
+    // Add half star if needed
+    if (hasHalfStar) {
+        starsHTML += '<span class="star half">☆</span>';
+    }
+    
+    // Add empty stars
+    for (let i = 0; i < emptyStars; i++) {
+        starsHTML += '<span class="star empty">☆</span>';
+    }
+    
+    return `<div class="star-rating">${starsHTML} <span class="rating-text">(${rating.toFixed(1)}/10)</span></div>`;
+}
+
+function createBookStarRating(rating) {
+    // Books already use 0-5 scale, no conversion needed
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    
+    let starsHTML = '';
+    
+    // Add full stars
+    for (let i = 0; i < fullStars; i++) {
+        starsHTML += '<span class="star full">★</span>';
+    }
+    
+    // Add half star if needed
+    if (hasHalfStar) {
+        starsHTML += '<span class="star half">☆</span>';
+    }
+    
+    // Add empty stars
+    for (let i = 0; i < emptyStars; i++) {
+        starsHTML += '<span class="star empty">☆</span>';
+    }
+    
+    return `<div class="star-rating">${starsHTML} <span class="rating-text">(${rating.toFixed(1)}/5)</span></div>`;
+}
+
+function formatDateToUK(dateString) {
+    // Convert YYYY-MM-DD to DD/MM/YYYY format
+    if (!dateString) return 'Unknown';
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString; // Return original if invalid
+    
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${day}/${month}/${year}`;
+}
+
 async function showRandomTMDbMovie() {
     const movie = await getRandomTMDbMovie();
     const movieResult = document.getElementById('movie-result');
@@ -648,11 +789,11 @@ async function showRandomTMDbMovie() {
         }
         const movieRelease = document.getElementById('movie-release');
         if (movieRelease) {
-            movieRelease.textContent = "Release date: " + movie.release_date;
+            movieRelease.textContent = "Release date: " + formatDateToUK(movie.release_date);
         }
         const movieRating = document.getElementById('movie-rating');
         if (movieRating) {
-            movieRating.textContent = "Average rating: " + movie.vote_average.toFixed(1);
+            movieRating.innerHTML = createStarRating(movie.vote_average);
         }
         const moviePoster = document.getElementById('movie-poster');
         if (moviePoster && posterUrl) {
@@ -765,11 +906,11 @@ function displayRandomFilteredMovie(movies) {
         }
         const movieRelease = document.getElementById('movie-release');
         if (movieRelease) {
-            movieRelease.textContent = "Release date: " + movie.release_date;
+            movieRelease.textContent = "Release date: " + formatDateToUK(movie.release_date);
         }
         const movieRating = document.getElementById('movie-rating');
         if (movieRating) {
-            movieRating.textContent = "Average rating: " + movie.vote_average.toFixed(1);
+            movieRating.innerHTML = createStarRating(movie.vote_average);
         }
         const moviePoster = document.getElementById('movie-poster');
         if (moviePoster && movie.poster_path) {
@@ -838,6 +979,8 @@ window.addEventListener('DOMContentLoaded', function() {
     const randomBookBtn = document.getElementById('Random-book-button');
     if (randomBookBtn) {
         randomBookBtn.onclick = function() {
+            // Reset filters when using main discover button
+            currentBookFilter.isActive = false;
             showRandomBook();
         };
     }
@@ -846,7 +989,12 @@ window.addEventListener('DOMContentLoaded', function() {
     const nextBookBtn = document.getElementById('next-book-btn');
     if (nextBookBtn) {
         nextBookBtn.onclick = function() {
-            showRandomBook();
+            // Check if filters are active, if so use filtered search
+            if (currentBookFilter.isActive) {
+                showRandomFilteredBook();
+            } else {
+                showRandomBook();
+            }
         };
     }
 });
@@ -906,8 +1054,7 @@ async function preloadGoogleBooks() {
                     const volumeInfo = item.volumeInfo;
                     return volumeInfo.description && 
                            volumeInfo.authors && 
-                           volumeInfo.averageRating >= 3.5 &&
-                           volumeInfo.description.length > 100;
+                           volumeInfo.averageRating >= 3.5;
                 }).map(item => {
                     const volumeInfo = item.volumeInfo;
                     return {
@@ -1022,7 +1169,7 @@ function getRandomCuratedBook() {
 function createBookObject(book) {
     return {
         title: book.title,
-        authors: [book.author],
+        authors: [{name: book.author}],
         description: book.description || `A highly rated book by ${book.author}, published in ${book.year}.`,
         first_publish_year: book.year,
         rating: book.rating,
@@ -1082,7 +1229,7 @@ async function getRandomGoogleBook() {
                 const publishedDate = volumeInfo.publishedDate;
                 const year = publishedDate ? parseInt(publishedDate.substring(0, 4)) : 0;
                 const hasRating = volumeInfo.averageRating && volumeInfo.averageRating >= 3.5;
-                const hasDescription = volumeInfo.description && volumeInfo.description.length > 50;
+                const hasDescription = volumeInfo.description;
                 const recentBook = year >= 2010;
                 
                 return hasRating && hasDescription && recentBook && volumeInfo.authors;
@@ -1327,28 +1474,32 @@ async function showRandomBook() {
                 }
             });
             
-            // If we got API results, pick the best one but only if it's significantly better
+            // If we got API results, pick the best one but only replace curated books 50% of the time
             if (validBooks.length > 0) {
-                // Prioritize Google Books for speed and quality, then Open Library
-                const bestBook = validBooks.find(book => book.source === 'google') || 
-                               validBooks.find(book => book.source === 'openlibrary') || 
-                               validBooks[0];
+                // Give curated books priority - only replace 50% of the time
+                const shouldUseApiBook = Math.random() < 0.5;
                 
-                // Only replace if the API book has a good description and wasn't recently shown
-                if (bestBook && 
-                    bestBook.description && 
-                    bestBook.description !== 'No description available.' &&
-                    bestBook.description.length > 100 &&
-                    !bookCache.lastShownBooks.includes(bestBook.title)) {
+                if (shouldUseApiBook) {
+                    // Prioritize Google Books for speed and quality, then Open Library
+                    const bestBook = validBooks.find(book => book.source === 'google') || 
+                                   validBooks.find(book => book.source === 'openlibrary') || 
+                                   validBooks[0];
                     
-                    // Add to recently shown to prevent duplicates
-                    bookCache.lastShownBooks.push(bestBook.title);
-                    if (bookCache.lastShownBooks.length > 20) {
-                        bookCache.lastShownBooks.shift();
+                    // Only replace if the API book has a good description and wasn't recently shown
+                    if (bestBook && 
+                        bestBook.description && 
+                        bestBook.description !== 'No description available.' &&
+                        !bookCache.lastShownBooks.includes(bestBook.title)) {
+                        
+                        // Add to recently shown to prevent duplicates
+                        bookCache.lastShownBooks.push(bestBook.title);
+                        if (bookCache.lastShownBooks.length > 20) {
+                            bookCache.lastShownBooks.shift();
+                        }
+                        
+                        finalBook = bestBook;
+                        hasUpdated = true;
                     }
-                    
-                    finalBook = bestBook;
-                    hasUpdated = true;
                 }
             }
         }
@@ -1409,7 +1560,11 @@ async function displayBookWithLoadingSequence(book) {
         bookData.publishInfo = `Published ${book.first_publish_year}`;
     }
     if (book.rating) {
-        bookData.publishInfo += book.first_publish_year ? ` • Rating: ${book.rating.toFixed(1)}` : `Rating: ${book.rating.toFixed(1)}`;
+        // Store rating separately for star display
+        bookData.rating = book.rating;
+        bookData.hasRating = true;
+    } else {
+        bookData.hasRating = false;
     }
     
     // Prepare cover URL
@@ -1445,7 +1600,7 @@ async function displayBookWithLoadingSequence(book) {
     }
     
     // Try to get better description if needed
-    if (book.source === 'curated' || (book.description && book.description.length < 100)) {
+    if (book.source === 'curated') {
         try {
             const betterDescription = await getBetterDescription(book);
             if (betterDescription && betterDescription.length > bookData.description.length) {
@@ -1500,7 +1655,21 @@ function displayAllBookContent(bookData, coverLoaded) {
     document.getElementById('book-title').textContent = bookData.title;
     document.getElementById('book-description').textContent = bookData.description;
     document.getElementById('book-author').textContent = bookData.authors;
-    document.getElementById('book-rating').textContent = bookData.publishInfo;
+    
+    // Handle rating display with stars
+    const ratingElement = document.getElementById('book-rating');
+    if (bookData.hasRating) {
+        if (bookData.publishInfo) {
+            // If we have publish year, show it as text and stars separately
+            ratingElement.innerHTML = bookData.publishInfo + '<br>' + createBookStarRating(bookData.rating);
+        } else {
+            // If no publish year, just show stars
+            ratingElement.innerHTML = createBookStarRating(bookData.rating);
+        }
+    } else {
+        // No rating available, just show publish info if any
+        ratingElement.textContent = bookData.publishInfo || '';
+    }
     
     // Display cover if loaded
     const cover = document.getElementById('book-cover');
@@ -1552,7 +1721,7 @@ async function getBetterDescription(book) {
                 ) || data.items[0];
                 
                 const volumeInfo = bestMatch.volumeInfo;
-                if (volumeInfo.description && volumeInfo.description.length > 50) {
+                if (volumeInfo.description) {
                     let betterDescription = volumeInfo.description;
                     betterDescription = betterDescription.replace(/<[^>]*>/g, '');
                     if (betterDescription.length > 400) {
@@ -1605,7 +1774,7 @@ async function searchCoverForCuratedBookSynchronous(book, coverElement) {
     if (!GOOGLE_BOOKS_API_KEY) return false;
     
     try {
-        const searchQuery = `${book.title} ${book.authors[0]}`;
+        const searchQuery = `${book.title} ${book.authors[0].name || book.authors[0]}`;
         const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=1&key=${GOOGLE_BOOKS_API_KEY}`;
         
         const response = await fetch(url);
@@ -1659,10 +1828,21 @@ function displayBook(book) {
     if (book.first_publish_year) {
         publishInfo = `Published ${book.first_publish_year}`;
     }
+    
+    // Handle rating display with stars
+    const ratingElement = document.getElementById('book-rating');
     if (book.rating) {
-        publishInfo += book.first_publish_year ? ` • Rating: ${book.rating.toFixed(1)}` : `Rating: ${book.rating.toFixed(1)}`;
+        if (publishInfo) {
+            // If we have publish year, show it as text and stars separately
+            ratingElement.innerHTML = publishInfo + '<br>' + createBookStarRating(book.rating);
+        } else {
+            // If no publish year, just show stars
+            ratingElement.innerHTML = createBookStarRating(book.rating);
+        }
+    } else {
+        // No rating available, just show publish info if any
+        ratingElement.textContent = publishInfo;
     }
-    document.getElementById('book-rating').textContent = publishInfo;
     
     // Display cover image with better error handling
     const cover = document.getElementById('book-cover');
@@ -1733,8 +1913,8 @@ function displayBook(book) {
         }
     }
     
-    // Try to get better description for curated and some API books
-    if (book.source === 'curated' || (book.description && book.description.length < 100)) {
+    // Try to get better description for curated books
+    if (book.source === 'curated') {
         getBookDescription(book);
     }
 }
@@ -1747,7 +1927,7 @@ async function searchCoverForCuratedBook(book, coverElement) {
     }
     
     try {
-        const searchQuery = `${book.title} ${book.authors[0]}`;
+        const searchQuery = `${book.title} ${book.authors[0].name || book.authors[0]}`;
         const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=1&key=${GOOGLE_BOOKS_API_KEY}`;
         
         const response = await fetch(url);
@@ -1809,7 +1989,7 @@ async function getBookDescription(book) {
                 ) || data.items[0];
                 
                 const volumeInfo = bestMatch.volumeInfo;
-                if (volumeInfo.description && volumeInfo.description.length > 50) {
+                if (volumeInfo.description) {
                     let betterDescription = volumeInfo.description;
                     
                     // Clean up HTML tags if present
@@ -1902,4 +2082,206 @@ async function getBookDescription(book) {
             console.log('Could not fetch broader Google Books description:', error);
         }
     }
+}
+
+// Book filtering functionality
+let currentBookFilter = {
+    genre: 'all',
+    minRating: 3,
+    isActive: false
+};
+
+function applyBookFilters() {
+    const genre = document.getElementById('genre').value;
+    const minRating = parseFloat(document.getElementById('rating').value);
+
+    // Store the current filter settings
+    currentBookFilter = {
+        genre: genre,
+        minRating: minRating,
+        isActive: true
+    };
+
+    // Get a random book with the new filter applied
+    showRandomFilteredBook();
+}
+
+async function showRandomFilteredBook() {
+    const bookResult = document.getElementById('book-result');
+    if (!bookResult) return;
+    
+    // Show loading state
+    bookResult.style.display = 'block';
+    showBookLoadingState();
+    
+    try {
+        // Get filtered books from APIs
+        const promises = [
+            getFilteredGoogleBooks(),
+            getFilteredOpenLibraryBooks()
+        ];
+        
+        const results = await Promise.allSettled(promises);
+        let allBooks = [];
+        
+        // Collect books from all successful API calls
+        results.forEach(result => {
+            if (result.status === 'fulfilled' && result.value && result.value.length > 0) {
+                allBooks = allBooks.concat(result.value);
+            }
+        });
+        
+        // If no API results, fall back to filtered curated books
+        if (allBooks.length === 0) {
+            allBooks = getFilteredCuratedBooks();
+        }
+        
+        if (allBooks.length > 0) {
+            // Select random book from filtered results
+            const randomIndex = Math.floor(Math.random() * allBooks.length);
+            const book = allBooks[randomIndex];
+            displayBook(book);
+        } else {
+            displayNoBookResults();
+        }
+        
+    } catch (error) {
+        console.error('Error getting filtered books:', error);
+        // Fallback to curated books
+        const curatedBooks = getFilteredCuratedBooks();
+        if (curatedBooks.length > 0) {
+            const randomIndex = Math.floor(Math.random() * curatedBooks.length);
+            displayBook(curatedBooks[randomIndex]);
+        } else {
+            displayNoBookResults();
+        }
+    }
+}
+
+async function getFilteredGoogleBooks() {
+    const { genre, minRating } = currentBookFilter;
+    
+    // Build search query based on genre
+    let query = 'subject:';
+    if (genre === 'all') {
+        const genres = ['fiction', 'mystery', 'romance', 'fantasy', 'science', 'history'];
+        query += genres[Math.floor(Math.random() * genres.length)];
+    } else {
+        query += genre;
+    }
+    
+    // Add quality filters
+    query += '+inauthor:*&orderBy=relevance&maxResults=20';
+    
+    try {
+        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}`);
+        const data = await response.json();
+        
+        if (data.items) {
+            const filteredBooks = data.items.filter(item => {
+                const volumeInfo = item.volumeInfo;
+                const rating = volumeInfo.averageRating || 0;
+                const hasImage = volumeInfo.imageLinks && volumeInfo.imageLinks.thumbnail;
+                const hasAuthors = volumeInfo.authors && volumeInfo.authors.length > 0;
+                
+                return rating >= minRating && hasImage && hasAuthors && volumeInfo.title;
+            }).map(item => ({
+                title: item.volumeInfo.title,
+                authors: item.volumeInfo.authors,
+                description: item.volumeInfo.description || 'No description available.',
+                image: item.volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:'),
+                rating: item.volumeInfo.averageRating,
+                goodreadsUrl: `https://www.goodreads.com/search?q=${encodeURIComponent(item.volumeInfo.title)}`,
+                previewUrl: item.volumeInfo.previewLink,
+                source: 'google'
+            }));
+            
+            return filteredBooks;
+        }
+    } catch (error) {
+        console.error('Error fetching filtered Google books:', error);
+    }
+    
+    return [];
+}
+
+async function getFilteredOpenLibraryBooks() {
+    const { genre, minRating } = currentBookFilter;
+    
+    // Build search query based on genre
+    let query = '';
+    if (genre === 'all') {
+        const subjects = ['fiction', 'mystery', 'romance', 'fantasy', 'science', 'history'];
+        query = `subject:${subjects[Math.floor(Math.random() * subjects.length)]}`;
+    } else {
+        query = `subject:${genre}`;
+    }
+    
+    try {
+        const response = await fetch(`https://openlibrary.org/search.json?${query}&has_fulltext=true&limit=20`);
+        const data = await response.json();
+        
+        if (data.docs) {
+            const filteredBooks = data.docs.filter(book => {
+                const rating = book.ratings_average || 0;
+                return rating >= minRating && 
+                       book.cover_i && 
+                       book.title && 
+                       book.author_name &&
+                       book.author_name.length > 0;
+            }).map(book => ({
+                title: book.title,
+                authors: book.author_name,
+                description: book.first_sentence ? book.first_sentence.join(' ') : 'No description available.',
+                image: `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`,
+                rating: book.ratings_average,
+                goodreadsUrl: `https://www.goodreads.com/search?q=${encodeURIComponent(book.title)}`,
+                previewUrl: `https://openlibrary.org${book.key}`,
+                source: 'openlibrary'
+            }));
+            
+            return filteredBooks;
+        }
+    } catch (error) {
+        console.error('Error fetching filtered Open Library books:', error);
+    }
+    
+    return [];
+}
+
+function getFilteredCuratedBooks() {
+    const { genre, minRating } = currentBookFilter;
+    
+    return curatedBooks.filter(book => {
+        // Safely check genre match with null/undefined protection
+        const bookGenre = book.genre || '';
+        const genreMatch = genre === 'all' || 
+                          bookGenre.toLowerCase().includes(genre.toLowerCase()) ||
+                          (genre === 'young-adult' && bookGenre.toLowerCase().includes('young adult')) ||
+                          (genre === 'self-help' && bookGenre.toLowerCase().includes('self-help'));
+        
+        // Check rating match with null/undefined protection
+        const bookRating = book.rating || 0;
+        const ratingMatch = bookRating >= minRating;
+        
+        return genreMatch && ratingMatch;
+    });
+}
+
+function displayNoBookResults() {
+    const bookResult = document.getElementById('book-result');
+    const bookTitle = document.getElementById('book-title');
+    const bookDescription = document.getElementById('book-description');
+    const bookCover = document.getElementById('book-cover');
+    
+    if (bookTitle) bookTitle.textContent = 'No books found';
+    if (bookDescription) bookDescription.textContent = 'Try adjusting your filters to find more books.';
+    if (bookCover) bookCover.style.display = 'none';
+    
+    // Hide other elements
+    const elements = ['book-author', 'book-rating', 'goodreads-link', 'preview-btn'];
+    elements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.style.display = 'none';
+    });
 }
