@@ -36,11 +36,25 @@ function setCached(key, value, ttlMs) {
 app.get('/api/nearby', async (req, res) => {
   try {
     if (!GOOGLE_KEY) return res.status(500).json({ error: 'Missing GOOGLE_API_KEY in server environment' });
-    const { lat, lng, radius = 1500, type = 'restaurant', keyword } = req.query;
+    const { lat, lng, radius = 1500, type = 'restaurant', keyword, cuisine, price } = req.query;
     if (!lat || !lng) return res.status(400).json({ error: 'lat and lng query params required' });
 
+    // Map incoming filter params into Places API params
     const qs = new URLSearchParams({ location: `${lat},${lng}`, radius: String(radius), type, key: GOOGLE_KEY });
+    // Use 'keyword' or 'cuisine' (keyword is more general search term)
     if (keyword) qs.append('keyword', keyword);
+    else if (cuisine) qs.append('keyword', cuisine);
+
+    // Map price like '$', '$$' to numeric minprice/maxprice (0-4 scale supported by Places API)
+    if (price && price !== 'all') {
+      const priceMap = { '$': 0, '$$': 1, '$$$': 2, '$$$$': 3 };
+      const mapped = priceMap[price] !== undefined ? priceMap[price] : null;
+      if (mapped !== null) {
+        // Use the same value for minprice and maxprice to approximate the level
+        qs.append('minprice', String(mapped));
+        qs.append('maxprice', String(mapped));
+      }
+    }
     const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?${qs.toString()}`;
 
     // Cache key uses the full URL
@@ -102,3 +116,6 @@ app.get('/api/photo', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Proxy + static server listening on http://localhost:${PORT}`));
+
+// Foursquare Places proxy (optional). Requires FOURSQUARE_API_KEY in .env
+// Foursquare support removed per user request.

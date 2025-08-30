@@ -261,46 +261,6 @@ const curatedBooks = [
         description: "A psychotherapist obsessed with a woman who won't speak."
     },
     { 
-        title: "The Guest List", 
-        author: "Lucy Foley", 
-        year: 2020, 
-        rating: 4.0,
-        genre: "Thriller",
-        description: "A wedding on a remote island turns deadly."
-    },
-    { 
-        title: "Gone Girl", 
-        author: "Gillian Flynn", 
-        year: 2012, 
-        rating: 4.0,
-        genre: "Thriller",
-        description: "A husband becomes suspect when his wife disappears."
-    },
-    { 
-        title: "The Girl on the Train", 
-        author: "Paula Hawkins", 
-        year: 2015, 
-        rating: 3.9,
-        genre: "Thriller",
-        description: "An unreliable narrator in a missing person case."
-    },
-    { 
-        title: "Big Little Lies", 
-        author: "Liane Moriarty", 
-        year: 2014, 
-        rating: 4.2,
-        genre: "Thriller",
-        description: "Three women's lives unravel to a deadly incident."
-    },
-    { 
-        title: "Verity", 
-        author: "Colleen Hoover", 
-        year: 2018, 
-        rating: 4.3,
-        genre: "Thriller",
-        description: "A writer discovers a disturbing manuscript."
-    },
-    { 
         title: "The Thursday Murder Club", 
         author: "Richard Osman", 
         year: 2020, 
@@ -2625,7 +2585,10 @@ async function getRandomGooglePlacesFood() {
         const location = foodCache.userLocation || { lat: 40.7128, lng: -74.0060 }; // Default to NYC
 
         try {
-            const resp = await fetch(`/api/nearby?lat=${encodeURIComponent(location.lat)}&lng=${encodeURIComponent(location.lng)}&radius=1500&type=restaurant`);
+            // If the user has an active price filter, forward it to the proxy so server-side
+            // filtering can be applied (minprice/maxprice mapping is handled in server.js).
+            const priceParam = (currentFoodFilter && currentFoodFilter.price && currentFoodFilter.price !== 'all') ? `&price=${encodeURIComponent(currentFoodFilter.price)}` : '';
+            const resp = await fetch(`/api/nearby?lat=${encodeURIComponent(location.lat)}&lng=${encodeURIComponent(location.lng)}&radius=1500&type=restaurant${priceParam}`);
             if (resp.ok) {
                 const json = await resp.json();
                 // Map Google Places results to our food object shape
@@ -2673,6 +2636,8 @@ async function getRandomGooglePlacesFood() {
     }
 }
 
+// Foursquare client removed per user request.
+
 // Filtered versions with location
 async function getFilteredGooglePlacesFoods() {
     if (!foodCache.locationPermission || !foodCache.userLocation) {
@@ -2708,7 +2673,8 @@ async function showRandomFood() {
 
         // PARALLEL API CALLS: Always try to get local restaurants
         const promises = [
-            getRandomGooglePlacesFood()
+            getRandomGooglePlacesFood(),
+            // foursquare removed
         ];
 
         try {
@@ -3050,6 +3016,14 @@ function showFoodLoadingState() {
 
     const directionsBtn = document.getElementById('directions-btn');
     if (directionsBtn) directionsBtn.style.display = 'none';
+
+    // Hide any filter warning while loading
+    const fw = document.getElementById('filter-warning');
+    if (fw) fw.style.display = 'none';
+
+    // Hide active filters pill while loading
+    const af = document.getElementById('active-filters');
+    if (af) af.style.display = 'none';
 }
 
 // Apply food filters
@@ -3064,8 +3038,44 @@ function applyFoodFilters() {
         isActive: true
     };
 
+    // Update the visible active filters pill so users see what will be sent to the server
+    updateActiveFiltersDisplay();
+
     // Get a random food with the new filter applied
     showRandomFilteredFood();
+}
+
+// Update active filters UI
+function updateActiveFiltersDisplay() {
+    try {
+        const container = document.getElementById('active-filters');
+        if (!container) return;
+        const { cuisine, price } = currentFoodFilter || { cuisine: 'all', price: 'all' };
+        const pills = [];
+        if (cuisine && cuisine !== 'all') pills.push(`<span class="filter-pill">Cuisine: ${escapeHtml(String(cuisine))}</span>`);
+        if (price && price !== 'all') pills.push(`<span class="filter-pill">Price: ${escapeHtml(String(price))}</span>`);
+        if (pills.length === 0) {
+            container.style.display = 'none';
+            container.innerHTML = '';
+        } else {
+            container.style.display = 'flex';
+            container.innerHTML = pills.join('');
+        }
+    } catch (e) { /* ignore UI update failures */ }
+}
+
+function clearActiveFiltersDisplay() {
+    try {
+        const container = document.getElementById('active-filters');
+        if (!container) return;
+        container.style.display = 'none';
+        container.innerHTML = '';
+    } catch (e) {}
+}
+
+// Small helper to escape text inserted into innerHTML
+function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, function (m) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[m]; });
 }
 
 // Show filtered food
@@ -3093,6 +3103,7 @@ async function showRandomFilteredFood() {
         if (foodCache.locationPermission && foodCache.userLocation) {
             const promises = [
                 getFilteredGooglePlacesFoods(),
+                // foursquare removed
                 getFilteredYelpFoods()
             ];
 
@@ -3112,19 +3123,34 @@ async function showRandomFilteredFood() {
                     const { cuisine, price } = currentFoodFilter;
 
                     // Cuisine filter
-                    if (cuisine !== 'all' && !food.types?.some(type =>
-                        type.toLowerCase().includes(cuisine.toLowerCase()))) {
-                        return false;
+                    if (cuisine !== 'all') {
+                        const c = cuisine.toLowerCase();
+                        // If server returned this item as a keyword match, accept it
+                        if (food.matchedKeyword) {
+                            // accept
+                        } else {
+                            const matchesCuisineField = !!(food.cuisine && String(food.cuisine).toLowerCase().includes(c));
+                            const matchesTypes = !!(food.types && Array.isArray(food.types) && food.types.some(type => String(type).toLowerCase().includes(c)));
+                            const matchesTitle = !!(food.title && String(food.title).toLowerCase().includes(c));
+                            if (!(matchesCuisineField || matchesTypes || matchesTitle)) {
+                                return false;
+                            }
+                        }
                     }
 
-                    // Price filter
+                    // Price filter (compare numeric levels reliably)
                     if (price !== 'all') {
-                        const foodPrice = food.price_level || food.price;
-                        if (!foodPrice) return false;
-
                         const priceMap = {'$': 1, '$$': 2, '$$$': 3, '$$$$': 4};
                         const filterPrice = priceMap[price];
-                        if (foodPrice !== filterPrice) return false;
+
+                        // Derive numeric price for the food entry
+                        let numericFoodPrice = null;
+                        if (typeof food.price_level === 'number') numericFoodPrice = food.price_level;
+                        else if (typeof food.price === 'string') numericFoodPrice = food.price.replace(/[^$]/g, '').length || null;
+                        else if (typeof food.price === 'number') numericFoodPrice = food.price;
+
+                        if (!numericFoodPrice) return false;
+                        if (numericFoodPrice !== filterPrice) return false;
                     }
 
                     return true;
@@ -3138,28 +3164,45 @@ async function showRandomFilteredFood() {
 
         // Fallback to filtered curated foods if no local results
         if (!finalFood) {
-            const curatedFood = getRandomCuratedFood();
-            // Apply basic filtering to curated foods
-            const { cuisine, price } = currentFoodFilter;
+            // Try to find a curated food that matches the active filters (up to N attempts)
+            const { cuisine, price } = currentFoodFilter || { cuisine: 'all', price: 'all' };
+            const maxAttempts = 10;
+            let found = null;
+            for (let i = 0; i < maxAttempts; i++) {
+                const candidate = getRandomCuratedFood();
 
-            // Simple cuisine matching for curated foods
-            if (cuisine !== 'all' && !curatedFood.cuisine.toLowerCase().includes(cuisine.toLowerCase())) {
-                // Get another curated food that might match
-                finalFood = getRandomCuratedFood();
-            } else {
-                finalFood = curatedFood;
+                // Cuisine check
+                if (cuisine !== 'all') {
+                    const c = cuisine.toLowerCase();
+                    const matchesCuisine = !!(candidate.cuisine && candidate.cuisine.toLowerCase().includes(c)) || !!(candidate.title && candidate.title.toLowerCase().includes(c));
+                    if (!matchesCuisine) continue; // try another
+                }
+
+                // Price check
+                if (price !== 'all') {
+                    const numericCandidatePrice = (typeof candidate.price_level === 'number') ? candidate.price_level : (typeof candidate.price === 'string' ? candidate.price.replace(/[^$]/g, '').length : null);
+                    const priceMap = {'$': 1, '$$': 2, '$$$': 3, '$$$$': 4};
+                    const wanted = priceMap[price];
+                    if (!numericCandidatePrice || numericCandidatePrice !== wanted) continue;
+                }
+
+                found = candidate;
+                break;
             }
 
-            // Price filtering for curated foods
-            if (price !== 'all' && finalFood.price !== price) {
-                // Try to find a matching price, but don't loop forever
-                for (let i = 0; i < 5; i++) {
-                    const testFood = getRandomCuratedFood();
-                    if (testFood.price === price) {
-                        finalFood = testFood;
-                        break;
-                    }
+            if (found) finalFood = found;
+            else {
+                // No curated match found; pick a curated fallback and log for visibility
+                console.log('No curated restaurants matched filters; showing a fallback result.');
+                // Show a brief on-page warning so users know we fell back
+                const fw = document.getElementById('filter-warning');
+                if (fw) {
+                    fw.style.display = 'block';
+                    setTimeout(() => { try { fw.style.display = 'none'; } catch (e) {} }, 6000);
                 }
+                // Clear active filters display because we are showing a closest match instead
+                try { clearActiveFiltersDisplay(); } catch (e) {}
+                finalFood = getRandomCuratedFood();
             }
         }
 
@@ -3260,41 +3303,49 @@ function getCuisineImage(cuisine) {
 
 // Filtered versions
 async function getFilteredGooglePlacesFoods() {
-    if (!foodCache.locationPermission || !foodCache.userLocation) {
-        return [];
-    }
     try {
-        // Try using proxy nearby search with optional keyword from current filters
+        // Try using proxy nearby search with optional keyword from current filters, only if we have a location
         const loc = foodCache.userLocation;
         const keyword = currentFoodFilter && currentFoodFilter.cuisine && currentFoodFilter.cuisine !== 'all' ? `&keyword=${encodeURIComponent(currentFoodFilter.cuisine)}` : '';
-        try {
-            const resp = await fetch(`/api/nearby?lat=${encodeURIComponent(loc.lat)}&lng=${encodeURIComponent(loc.lng)}&radius=1500&type=restaurant${keyword}`);
-            if (resp.ok) {
-                const json = await resp.json();
-                if (json && Array.isArray(json.results)) {
-                    return json.results.map(r => ({
-                        title: r.name,
-                        description: r.vicinity || r.formatted_address || '',
-                        cuisine: (r.types && r.types[0]) || 'Restaurant',
-                        price: r.price_level ? '$'.repeat(r.price_level) : '$$',
-                        rating: r.rating || null,
-                        image: null,
-                        photo_reference: r.photos && r.photos[0] && r.photos[0].photo_reference ? r.photos[0].photo_reference : null,
-                        place_id: r.place_id || null,
-                        website: r.website || '#',
-                        types: r.types || [],
-                        vicinity: r.vicinity,
-                        formatted_address: r.formatted_address
-                    }));
+        if (loc) {
+                    try {
+                    // Forward both cuisine keyword and price to the proxy when present so the server
+                    // can ask Google Places for already-filtered results.
+                    const priceParam = (currentFoodFilter && currentFoodFilter.price && currentFoodFilter.price !== 'all') ? `&price=${encodeURIComponent(currentFoodFilter.price)}` : '';
+                    const resp = await fetch(`/api/nearby?lat=${encodeURIComponent(loc.lat)}&lng=${encodeURIComponent(loc.lng)}&radius=1500&type=restaurant${keyword}${priceParam}`);
+                if (resp.ok) {
+                    const json = await resp.json();
+                    if (json && Array.isArray(json.results)) {
+                        return json.results.map(r => {
+                            const numericPrice = (typeof r.price_level === 'number') ? r.price_level : (r.price_level ? Number(r.price_level) : null);
+                            const priceString = numericPrice ? '$'.repeat(numericPrice) : (r.price_level ? String(r.price_level) : '$$');
+                            return {
+                                title: r.name,
+                                description: r.vicinity || r.formatted_address || '',
+                                cuisine: (r.types && r.types[0]) || 'Restaurant',
+                                price: priceString,
+                                rating: r.rating || null,
+                                image: null,
+                                photo_reference: r.photos && r.photos[0] && r.photos[0].photo_reference ? r.photos[0].photo_reference : null,
+                                place_id: r.place_id || null,
+                                website: r.website || '#',
+                                types: r.types || [],
+                                vicinity: r.vicinity,
+                                formatted_address: r.formatted_address,
+                                price_level: numericPrice,
+                                matchedKeyword: !!(currentFoodFilter && currentFoodFilter.cuisine && currentFoodFilter.cuisine !== 'all')
+                            };
+                        });
+                    }
                 }
+            } catch (proxyErr) {
+                console.warn('Filtered nearby proxy failed, falling back to mock list:', proxyErr);
             }
-        } catch (proxyErr) {
-            console.warn('Filtered nearby proxy failed, falling back to mock list:', proxyErr);
         }
 
-        // Fallback to combining generated local and yelp mock restaurants
-        const localRestaurants = generateLocalRestaurants(foodCache.userLocation);
-        const yelpRestaurants = generateYelpRestaurants(foodCache.userLocation);
+        // Fallback to combining generated local and yelp mock restaurants (works even without real location)
+        const localRestaurants = generateLocalRestaurants(foodCache.userLocation || { lat: 40.7128, lng: -74.0060 });
+        const yelpRestaurants = generateYelpRestaurants(foodCache.userLocation || { lat: 40.7128, lng: -74.0060 });
         const allRestaurants = [...localRestaurants, ...yelpRestaurants];
         return allRestaurants;
 

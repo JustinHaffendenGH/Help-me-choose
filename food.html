@@ -55,16 +55,22 @@
                     <label for="price">Price Range</label>
                     <select id="price" class="filter-select">
                         <option value="all">Any Price</option>
-                        <option value="budget">$ - Budget Friendly</option>
-                        <option value="moderate">$$ - Moderate</option>
-                        <option value="expensive">$$$ - Expensive</option>
-                        <option value="luxury">$$$$ - Luxury</option>
+                        <option value="$">$ - Budget Friendly</option>
+                        <option value="$$">$$ - Moderate</option>
+                        <option value="$$$">$$$ - Expensive</option>
+                        <option value="$$$$">$$$$ - Luxury</option>
+
                     </select>
                 </div>
 
                 <button class="apply-filters-btn" onclick="applyFoodFilters()">Apply Filters</button>
             </div>
         </div>
+    <div id="filter-warning" class="filter-warning" style="display:none;">No exact matches for your filters — showing a closest match.</div>
+
+    <!-- Active filters display: reflects what will be sent to the server (keyword/price) -->
+    <div id="active-filters" class="active-filters" style="display:none;" aria-live="polite"></div>
+
         <div id="food-result" class="center-horizontal movie-suggestion" style="display:none;">
             <!-- Food details here -->
             <h2 id="food-title"></h2>

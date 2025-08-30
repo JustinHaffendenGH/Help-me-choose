@@ -806,6 +806,37 @@ h2 a:hover {
     font-weight: 500;
 }
 
+/* Filter warning shown when no exact match is found */
+.filter-warning {
+    margin: 1rem auto;
+    max-width: 720px;
+    background: rgba(255, 243, 205, 0.9);
+    border: 1px solid rgba(250, 204, 21, 0.4);
+    padding: 0.6rem 0.9rem;
+    color: #92400e;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+/* Active filter pill */
+.active-filters {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+    margin: 0.75rem auto;
+}
+.filter-pill {
+    background: #eef6ff;
+    color: #084298;
+    border: 1px solid #cfe0ff;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    box-shadow: 0 1px 0 rgba(13, 110, 253, 0.04);
+}
+
 #menu-link {
     border: 2px solid rgba(108, 99, 255, 0.4);
     color: #6c63ff;
