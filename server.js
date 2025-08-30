@@ -142,6 +142,33 @@ app.get('/api/googlebooks/volumes', async (req, res) => {
   }
 });
 
+// Google Places search proxy (for food.js)
+app.get('/api/places/search', async (req, res) => {
+  try {
+    if (!GOOGLE_KEY) return res.status(500).json({ error: 'Missing GOOGLE_API_KEY in server environment' });
+
+    const { query, location = '40.7128,-74.0060', type = 'restaurant' } = req.query;
+    if (!query) return res.status(400).json({ error: 'query parameter required' });
+
+    // Use Google Places Text Search API
+    const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=${location}&type=${type}&key=${GOOGLE_KEY}`;
+
+    const cacheKey = `places_search_${query}_${location}_${type}`;
+    let data = getCached(cacheKey);
+
+    if (!data) {
+      const response = await fetch(url);
+      data = await response.json();
+      setCached(cacheKey, data, 5 * 60 * 1000); // Cache for 5 minutes
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error('Places search error:', error);
+    res.status(500).json({ error: 'Failed to search places' });
+  }
+});
+
 // Photo proxy - will fetch the photo and stream it back (don't cache image bytes here)
 app.get('/api/photo', async (req, res) => {
   try {

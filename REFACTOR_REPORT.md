@@ -17,11 +17,7 @@ Summary of high-level findings
 - `add-genres.js` is a one-off script that mutates `scripts/main.js`—this implies the source data is embedded in JS rather than JSON/data files.
 - HTML pages are simple and use the large `main.js` for behavior by id selectors (fragile). Repeated IDs across pages (`genre`, `rating`) are reused but mean the same `main.js` must guard for missing elements.
 
-Immediate (high-priority) recommendations
-1. Remove hardcoded API keys from client code (critical)
-   - Files: `scripts/main.js`
-   - Why: keys in public JS expose accounts and usage to abuse.
-   - Action: move keys to server-side (use `.env`), or require the user to inject them at build time. Example: create server endpoints `/api/books`, `/api/tmdb/search` that call external APIs using keys from `.env` and return sanitized JSON to the client.
+
 
 2. Split `scripts/main.js` into modules (high)
    - Files: `scripts/main.js` -> split into `scripts/books.js`, `scripts/movies.js`, `scripts/food.js`, `scripts/utils.js`, `scripts/data/curated-books.js`

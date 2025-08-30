@@ -91,6 +91,20 @@
     </main>
     <!-- Optional local secrets loader: copy scripts/secrets.local.example.js -> scripts/secrets.local.js and populate keys for local testing -->
     <script src="scripts/secrets.local.js"></script>
-    <script src="scripts/main.js"></script>
+    <script type="module" src="scripts/utils.js"></script>
+    <script type="module" src="scripts/food.js"></script>
+    <script type="module">
+        // Import the functions we need
+        import { showRandomFood, applyFoodFilters, initFoods } from './scripts/food.js';
+
+        // Make functions available globally for onclick handlers
+        window.showRandomFood = showRandomFood;
+        window.applyFoodFilters = applyFoodFilters;
+
+        // Initialize food functionality when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initFoods();
+        });
+    </script>
 </body>
 </html>
