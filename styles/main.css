@@ -10,6 +10,22 @@
     border: 1px solid rgba(108, 99, 255, 0.2);
 }
 
+/* Site logo styling */
+.site-logo {
+    height: 48px;
+    width: auto;
+    vertical-align: middle;
+}
+
+/* Utility: visually hidden but accessible */
+.visually-hidden {
+    position: absolute !important;
+    height: 1px; width: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    white-space: nowrap;
+}
+
 .main-tagline {
     font-size: 2.5rem;
     font-weight: 700;
