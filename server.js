@@ -13,6 +13,8 @@ app.use(cors());
 app.use(express.json());
 
 const GOOGLE_KEY = process.env.GOOGLE_API_KEY;
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
+const GOOGLE_BOOKS_API_KEY = process.env.GOOGLE_BOOKS_API_KEY;
 
 // Serve static files from project root so a single process can serve the site + proxy
 app.use(express.static(path.join(__dirname)));
@@ -70,6 +72,68 @@ app.get('/api/nearby', async (req, res) => {
     const json = await r.json();
 
     // Cache successful responses for 2 minutes
+    setCached(cacheKey, json, 2 * 60 * 1000);
+    return res.json(json);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Server error', detail: err.message });
+  }
+});
+
+// Proxy for TMDb endpoints (keeps API key server-side)
+app.get('/api/tmdb/popular', async (req, res) => {
+  try {
+    if (!TMDB_API_KEY) return res.status(500).json({ error: 'Missing TMDB_API_KEY in server environment' });
+    const page = req.query.page || '1';
+    const url = `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=${encodeURIComponent(page)}`;
+    const cacheKey = `tmdb:popular:${page}`;
+    const cached = getCached(cacheKey);
+    if (cached) return res.json(cached);
+    const r = await fetch(url);
+    if (!r.ok) return res.status(502).send(await r.text());
+    const json = await r.json();
+    setCached(cacheKey, json, 2 * 60 * 1000);
+    return res.json(json);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Server error', detail: err.message });
+  }
+});
+
+// Proxy for TMDb external IDs (keeps API key server-side)
+app.get('/api/tmdb/movie/:id/external_ids', async (req, res) => {
+  try {
+    if (!TMDB_API_KEY) return res.status(500).json({ error: 'Missing TMDB_API_KEY in server environment' });
+    const movieId = req.params.id;
+    if (!movieId) return res.status(400).json({ error: 'movie id required' });
+    const url = `https://api.themoviedb.org/3/movie/${encodeURIComponent(movieId)}/external_ids?api_key=${TMDB_API_KEY}`;
+    const cacheKey = `tmdb:external:${movieId}`;
+    const cached = getCached(cacheKey);
+    if (cached) return res.json(cached);
+    const r = await fetch(url);
+    if (!r.ok) return res.status(502).send(await r.text());
+    const json = await r.json();
+    setCached(cacheKey, json, 2 * 60 * 1000);
+    return res.json(json);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Server error', detail: err.message });
+  }
+});
+
+// Proxy for Google Books volumes endpoint
+app.get('/api/googlebooks/volumes', async (req, res) => {
+  try {
+    if (!GOOGLE_BOOKS_API_KEY) return res.status(500).json({ error: 'Missing GOOGLE_BOOKS_API_KEY in server environment' });
+    const q = req.query.q || '';
+    const maxResults = req.query.maxResults || '10';
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=${encodeURIComponent(maxResults)}&key=${GOOGLE_BOOKS_API_KEY}`;
+    const cacheKey = `gbooks:${q}:${maxResults}`;
+    const cached = getCached(cacheKey);
+    if (cached) return res.json(cached);
+    const r = await fetch(url);
+    if (!r.ok) return res.status(502).send(await r.text());
+    const json = await r.json();
     setCached(cacheKey, json, 2 * 60 * 1000);
     return res.json(json);
   } catch (err) {

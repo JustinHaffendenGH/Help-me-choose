@@ -14,8 +14,9 @@ window.addEventListener('DOMContentLoaded', function() {
     if (trailerBtn) trailerBtn.style.display = 'none';
 });
 
-// Google Books API configuration 
-const GOOGLE_BOOKS_API_KEY = 'AIzaSyBDTaZh_q4O7CgY4WzPPvUB5xOJC002XhQ';
+// Google Books API configuration - moved to server-side proxy for security
+// Do NOT keep API keys in client-side JS. Client calls the server at /api/googlebooks/volumes
+const GOOGLE_BOOKS_API_KEY = null; // keys removed; use server proxy
 
 // Curated list of great books for instant results - EXPANDED
 const curatedBooks = [
@@ -589,7 +590,8 @@ let currentFilter = {
     isActive: false
 };
 
-const TMDB_API_KEY = 'e2a3d53d839bb5d20ef4dca2d7c5ec3b'; // My Api key.
+// TMDB API key removed from client and moved server-side. Use /api/tmdb endpoints.
+const TMDB_API_KEY = null;
 
 async function getRandomTMDbMovie() {
     let attempts = 0;
@@ -597,7 +599,8 @@ async function getRandomTMDbMovie() {
     
     while (attempts < maxAttempts) {
         const randomPage = Math.floor(Math.random() * 500) + 1;
-        const url = `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=${randomPage}`;
+    // Use server-side proxy to avoid exposing TMDb API key
+    const url = `/api/tmdb/popular?page=${randomPage}`;
         
         try {
             const response = await fetch(url);
@@ -634,7 +637,8 @@ async function getRandomTMDbMovie() {
 
 async function getMovieExternalIDs(movieId) {
     try {
-        const url = `https://api.themoviedb.org/3/movie/${movieId}/external_ids?api_key=${TMDB_API_KEY}`;
+    // Use server proxy for external IDs
+    const url = `/api/tmdb/movie/${movieId}/external_ids`;
         const response = await fetch(url);
         const data = await response.json();
         return data; // contains imdb_id if available
@@ -810,8 +814,8 @@ async function showRandomTMDbMovie() {
 }
 
 async function fetchMovies() {
-    const TMDB_API_KEY = 'e2a3d53d839bb5d20ef4dca2d7c5ec3b'; // Replace with your API key
-    const url = `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=1`;
+    // Server-side proxy will handle TMDb API key
+    const url = `/api/tmdb/popular?page=1`;
 
     try {
         const response = await fetch(url);
@@ -971,10 +975,8 @@ async function preloadBooks() {
     // Preload books in background
     const preloadPromises = [];
     
-    // Preload Google Books
-    if (GOOGLE_BOOKS_API_KEY) {
-        preloadPromises.push(preloadGoogleBooks());
-    }
+    // Preload Google Books via server proxy (no client key required)
+    preloadPromises.push(preloadGoogleBooks());
     
     // Preload Open Library books
     preloadPromises.push(preloadOpenLibraryBooks());
@@ -1004,7 +1006,7 @@ async function preloadGoogleBooks() {
         for (const searchTerm of searches) {
             if (bookCache.google.length >= 20) break; // Increased cache size
             
-            const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchTerm)}&maxResults=10&key=${GOOGLE_BOOKS_API_KEY}&langRestrict=en&orderBy=relevance`;
+            const url = `/api/googlebooks/volumes?q=${encodeURIComponent(searchTerm)}&maxResults=10&langRestrict=en&orderBy=relevance`;
             
             const response = await fetch(url);
             const data = await response.json();
@@ -1151,10 +1153,7 @@ async function getRandomGoogleBook() {
         return cachedBook;
     }
     
-    // Skip Google Books if no API key
-    if (!GOOGLE_BOOKS_API_KEY) {
-        return null;
-    }
+    // Client may not have an API key; use server proxy which does the work.
     
     const searchTerms = [
         'bestseller fiction 2020..2024',
@@ -1177,7 +1176,7 @@ async function getRandomGoogleBook() {
         const randomTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)];
         const startIndex = Math.floor(Math.random() * 500); // Increased from 100 to 500
         
-        const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(randomTerm)}&startIndex=${startIndex}&maxResults=20&key=${GOOGLE_BOOKS_API_KEY}&langRestrict=en&orderBy=relevance`;
+    const url = `/api/googlebooks/volumes?q=${encodeURIComponent(randomTerm)}&startIndex=${startIndex}&maxResults=20&langRestrict=en&orderBy=relevance`;
         
         const response = await fetch(url);
         const data = await response.json();
@@ -1665,11 +1664,11 @@ function displayAllBookContent(bookData, coverLoaded) {
 
 // Helper function to get better description synchronously
 async function getBetterDescription(book) {
-    // For curated books, try Google Books first
-    if (book.source === 'curated' && GOOGLE_BOOKS_API_KEY) {
+    // For curated books, try Google Books first via server proxy
+    if (book.source === 'curated') {
         try {
             const searchQuery = `"${book.title}" "${book.authors[0]}"`;
-            const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=5&key=${GOOGLE_BOOKS_API_KEY}`;
+            const url = `/api/googlebooks/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=5`;
             
             const response = await fetch(url);
             const data = await response.json();
@@ -1731,11 +1730,11 @@ async function getBetterDescription(book) {
 
 // Synchronous version of cover search for loading sequence
 async function searchCoverForCuratedBookSynchronous(book, coverElement) {
-    if (!GOOGLE_BOOKS_API_KEY) return false;
+    // Use server proxy to search Google Books for covers (no client key required)
     
     try {
         const searchQuery = `${book.title} ${book.authors[0].name || book.authors[0]}`;
-        const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=1&key=${GOOGLE_BOOKS_API_KEY}`;
+    const url = `/api/googlebooks/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=1`;
         
         const response = await fetch(url);
         const data = await response.json();
@@ -1881,14 +1880,11 @@ function displayBook(book) {
 
 // Helper function to search for cover images for curated books
 async function searchCoverForCuratedBook(book, coverElement) {
-    // Skip if no Google Books API key
-    if (!GOOGLE_BOOKS_API_KEY) {
-        return;
-    }
+    // Use server proxy to search Google Books for covers (no client key required)
     
     try {
         const searchQuery = `${book.title} ${book.authors[0].name || book.authors[0]}`;
-        const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=1&key=${GOOGLE_BOOKS_API_KEY}`;
+    const url = `/api/googlebooks/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=1`;
         
         const response = await fetch(url);
         const data = await response.json();
@@ -1933,10 +1929,10 @@ async function getBookDescription(book) {
     descriptionElement.textContent = description;
     
     // For curated books, try Google Books first
-    if (book.source === 'curated' && GOOGLE_BOOKS_API_KEY) {
+    if (book.source === 'curated') {
         try {
             const searchQuery = `"${book.title}" "${book.authors[0]}"`;
-            const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=5&key=${GOOGLE_BOOKS_API_KEY}`;
+            const url = `/api/googlebooks/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=5`;
             
             const response = await fetch(url);
             const data = await response.json();
@@ -2009,11 +2005,11 @@ async function getBookDescription(book) {
     }
     
     // For curated books without success, try a broader Google Books search
-    if (book.source === 'curated' && description === 'No description available.' && GOOGLE_BOOKS_API_KEY) {
+    if (book.source === 'curated' && description === 'No description available.') {
         try {
             const authorLastName = book.authors[0].split(' ').pop();
             const searchQuery = `${book.title} ${authorLastName}`;
-            const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=10&key=${GOOGLE_BOOKS_API_KEY}`;
+            const url = `/api/googlebooks/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=10`;
             
             const response = await fetch(url);
             const data = await response.json();
@@ -2134,7 +2130,7 @@ async function getFilteredGoogleBooks() {
     query += '+inauthor:*&orderBy=relevance&maxResults=20';
     
     try {
-        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}`);
+    const response = await fetch(`/api/googlebooks/volumes?q=${encodeURIComponent(query)}`);
         const data = await response.json();
         
         if (data.items) {
