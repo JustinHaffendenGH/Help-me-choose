@@ -22,6 +22,10 @@
                 <span class="tagline-highlight">Culinary adventures await</span><br>
                 <span>Discover your next favorite meal</span>
             </p>
+            <div id="location-status" class="location-indicator" style="margin: 1rem 0; padding: 0.75rem; border-radius: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(108,99,255,0.3);">
+                <span id="location-icon">📍</span>
+                <span id="location-text">Checking location access...</span>
+            </div>
             <button id="Random-food-button" class="discover-btn" role="button" onclick="showRandomFood()">
                 🍽️ Discover Food
             </button>
@@ -83,6 +87,8 @@
             </button>
         </div>
     </main>
+    <!-- Optional local secrets loader: copy scripts/secrets.local.example.js -> scripts/secrets.local.js and populate keys for local testing -->
+    <script src="scripts/secrets.local.js"></script>
     <script src="scripts/main.js"></script>
 </body>
 </html>

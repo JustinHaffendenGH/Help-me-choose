@@ -1,0 +1,9 @@
+# Node / env
+node_modules/
+.env
+
+# Local secrets for front-end testing
+/scripts/secrets.local.js
+
+# Mac
+.DS_Store

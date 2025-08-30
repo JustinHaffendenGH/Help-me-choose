@@ -1,0 +1,17 @@
+{
+  "name": "help-me-choose-proxy",
+  "version": "0.1.0",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+  "start": "node server.js",
+  "start:daemon": "nohup node server.js > proxy.log 2>&1 &",
+  "stop:daemon": "pids=$(lsof -ti :3000) || true; if [ -n \"$pids\" ]; then kill $pids; fi"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^2.6.7",
+    "express": "^4.18.2"
+  }
+}
