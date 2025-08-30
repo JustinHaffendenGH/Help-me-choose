@@ -2819,8 +2819,11 @@ async function displayFoodWithLoadingSequence(food) {
     // Display all text content at once
     document.getElementById('food-title').textContent = foodData.title;
     document.getElementById('food-description').textContent = foodData.description;
-    document.getElementById('food-cuisine').textContent = `Cuisine: ${foodData.cuisine}`;
-    document.getElementById('food-price').textContent = `Price Range: ${foodData.price}`;
+    // Localize price symbol based on place or browser locale
+    const currencySymbol = getCurrencySymbolForPlace(food);
+    // foodData.price contains strings like '$', '$$', '$$$' in our mock data
+    const priceVisual = (foodData.price || '').replace(/\$/g, currencySymbol);
+    document.getElementById('food-price').textContent = `Price Range: ${priceVisual}`;
 
     // Add location indicator to show if it's local or curated
     const isLocal = food.place_id && (food.place_id.startsWith('local_') || food.place_id.startsWith('yelp_'));
@@ -2835,7 +2838,8 @@ async function displayFoodWithLoadingSequence(food) {
         locationIndicator = '🏛️ Curated Selection';
     }
     
-    document.getElementById('food-cuisine').textContent = `Cuisine: ${foodData.cuisine} • ${locationIndicator}`;
+    // cuisine display removed from DOM; location indicator logged for developers
+    try { console.log(`Cuisine: ${foodData.cuisine} • ${locationIndicator}`); } catch (e) {}
 
     // Handle rating display with stars
     const ratingElement = document.getElementById('food-rating');
@@ -2928,19 +2932,7 @@ async function displayFoodWithLoadingSequence(food) {
             if (foodResultElement) {
                 foodResultElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-            // Debug overlay: show which URL was used (helpful during testing)
-            try {
-                let debugEl = document.getElementById('image-source-debug');
-                if (!debugEl) {
-                    debugEl = document.createElement('div');
-                    debugEl.id = 'image-source-debug';
-                    debugEl.style.cssText = 'font-size:0.75rem;color:#333;background:rgba(255,255,255,0.9);padding:6px;border-radius:6px;margin-top:8px;display:inline-block;max-width:96%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
-                    foodResultElement.appendChild(debugEl);
-                }
-                debugEl.textContent = `Image source: ${workingUrl}`;
-            } catch (e) {
-                // ignore overlay failures
-            }
+            // (debug overlay removed)
         } else {
             // If none of the remote sources worked, hide the image to avoid ugly placeholders
             foodImage.style.display = 'none';
@@ -3006,12 +2998,46 @@ function createFoodStarRating(rating) {
     return `<div class="star-rating">${starsHTML} <span class="rating-text">(${rating.toFixed(1)}/5)</span></div>`;
 }
 
+// Determine a currency symbol based on place address or browser locale
+function getCurrencySymbolForPlace(place) {
+    try {
+        const addr = (place && (place.formatted_address || place.vicinity)) || '';
+        const locale = (navigator && navigator.language) ? navigator.language : '';
+        const combined = (addr + '|' + locale).toLowerCase();
+
+        const mapping = {
+            'united kingdom': '£', 'uk': '£', 'england': '£', 'scotland': '£',
+            'united states': '$', 'usa': '$', 'us': '$',
+            'australia': 'A$', 'canada': 'C$', 'japan': '¥',
+            'germany': '€', 'france': '€', 'spain': '€', 'italy': '€', 'netherlands': '€', 'portugal': '€', 'ireland': '€'
+        };
+
+        for (const key in mapping) {
+            if (combined.indexOf(key) !== -1) return mapping[key];
+        }
+
+        // Fallback: check region in locale (en-GB, en-US, etc.)
+        if (locale && locale.indexOf('-') !== -1) {
+            const region = locale.split('-')[1].toUpperCase();
+            if (['GB','UK'].includes(region)) return '£';
+            if (['US'].includes(region)) return '$';
+            if (['AU'].includes(region)) return 'A$';
+            if (['CA'].includes(region)) return 'C$';
+            if (['JP'].includes(region)) return '¥';
+            if (['DE','FR','ES','IT','NL','PT','IE','BE','AT','LU'].includes(region)) return '€';
+        }
+
+    } catch (e) {
+        // ignore
+    }
+    return '$';
+}
+
 // Food loading state
 function showFoodLoadingState() {
     // Clear all content and show loading message
     document.getElementById('food-title').textContent = '🍽️ Finding your next meal...';
     document.getElementById('food-description').textContent = '';
-    document.getElementById('food-cuisine').textContent = '';
     document.getElementById('food-price').textContent = '';
     document.getElementById('food-rating').textContent = '';
 
@@ -3328,40 +3354,23 @@ window.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Update location status indicator
+// Update location status (console-only; UI element removed)
 async function updateLocationStatus() {
-    const locationIndicator = document.getElementById('location-status');
-    const locationIcon = document.getElementById('location-icon');
-    const locationText = document.getElementById('location-text');
-
-    if (!locationIndicator) return;
-
-    // Set initial checking state
-    locationIndicator.className = 'location-indicator location-checking';
-    locationIcon.textContent = '⏳';
-    locationText.textContent = 'Checking location access...';
+    // Emit a console log instead of showing UI text for location checking
+    try { console.log('Checking location access...'); } catch (e) {}
 
     try {
-        // Try to get location
+        // Try to get location if we don't already have it
         if (!foodCache.locationPermission && foodCache.userLocation === null) {
             await getUserLocation();
         }
 
         if (foodCache.locationPermission && foodCache.userLocation) {
-            // Location granted
-            locationIndicator.className = 'location-indicator location-granted';
-            locationIcon.textContent = '✅';
-            locationText.textContent = `Local restaurants available! 🌟 (Lat: ${foodCache.userLocation.lat.toFixed(2)}, Lng: ${foodCache.userLocation.lng.toFixed(2)})`;
+            try { console.log('Local restaurants available (location granted)'); } catch (e) {}
         } else {
-            // Location denied
-            locationIndicator.className = 'location-indicator location-denied';
-            locationIcon.textContent = '❌';
-            locationText.textContent = 'Location access denied - showing local restaurants from NYC area';
+            try { console.log('Location access denied - using fallback restaurants'); } catch (e) {}
         }
     } catch (error) {
-        // Location denied or error
-        locationIndicator.className = 'location-indicator location-denied';
-        locationIcon.textContent = '❌';
-        locationText.textContent = 'Location access denied - showing local restaurants from NYC area';
+        try { console.log('Location access denied or error - using fallback restaurants'); } catch (e) {}
     }
 }
