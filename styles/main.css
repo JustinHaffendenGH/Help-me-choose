@@ -793,19 +793,27 @@ h2 a:hover {
     border-color: rgba(108, 99, 255, 0.4);
 }
 
-#food-result img {
+#food-image {
     display: block;
     margin-left: auto;
     margin-right: auto;
     margin-top: 1rem;
-    max-width: 100%;
+    width: 400px;
+    height: 267px;
+    object-fit: cover;
     border-radius: 12px;
     border: 2px solid rgba(108, 99, 255, 0.3);
     box-shadow: 0 4px 20px rgba(108, 99, 255, 0.2);
     transition: all 0.3s ease;
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(58, 55, 104, 0.1) 100%);
+    opacity: 0;
 }
 
-#food-result img:hover {
+#food-image.loaded {
+    opacity: 1;
+}
+
+#food-image:hover {
     transform: scale(1.02);
     border-color: rgba(108, 99, 255, 0.6);
     box-shadow: 0 8px 30px rgba(108, 99, 255, 0.4);

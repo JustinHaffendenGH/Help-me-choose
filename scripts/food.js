@@ -493,7 +493,12 @@ function showFoodLoadingState() {
   document.getElementById('food-rating').textContent = '';
 
   const cover = document.getElementById('food-image');
-  if (cover) cover.style.display = 'none';
+  if (cover) {
+    cover.style.display = 'block';
+    cover.classList.remove('loaded');
+    cover.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5YTNhZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkxvYWRpbmcuLi48L3RleHQ+PC9zdmc+';
+    cover.alt = 'Loading image...';
+  }
 
   const menuLink = document.getElementById('menu-link');
   if (menuLink) menuLink.style.display = 'none';
@@ -947,7 +952,7 @@ function displayFood(food) {
 
     if (coverUrl) {
       cover.onload = function () {
-        cover.style.display = 'block';
+        cover.classList.add('loaded');
         const foodResultElement = document.getElementById('food-result');
         if (foodResultElement) {
           foodResultElement.scrollIntoView({
@@ -968,8 +973,10 @@ function displayFood(food) {
       };
       cover.src = coverUrl;
       cover.alt = `Image of ${food.name}`;
+      cover.style.display = 'block'; // Always show the image element to maintain space
     } else {
-      // If no cover, scroll immediately
+      // If no cover, hide the image element
+      cover.style.display = 'none';
       const foodResultElement = document.getElementById('food-result');
       if (foodResultElement) {
         foodResultElement.scrollIntoView({
