@@ -38,19 +38,38 @@ function setCached(key, value, ttlMs) {
 // Nearby search proxy with caching
 app.get('/api/nearby', async (req, res) => {
   try {
-    if (!GOOGLE_KEY) return res.status(500).json({ error: 'Missing GOOGLE_API_KEY in server environment' });
-    const { lat, lng, radius = 1500, type = 'restaurant', keyword, cuisine, price } = req.query;
-    if (!lat || !lng) return res.status(400).json({ error: 'lat and lng query params required' });
+    if (!GOOGLE_KEY)
+      return res
+        .status(500)
+        .json({ error: 'Missing GOOGLE_API_KEY in server environment' });
+    const {
+      lat,
+      lng,
+      radius = 1500,
+      type = 'restaurant',
+      keyword,
+      cuisine,
+      price,
+    } = req.query;
+    if (!lat || !lng)
+      return res
+        .status(400)
+        .json({ error: 'lat and lng query params required' });
 
     // Map incoming filter params into Places API params
-    const qs = new URLSearchParams({ location: `${lat},${lng}`, radius: String(radius), type, key: GOOGLE_KEY });
+    const qs = new URLSearchParams({
+      location: `${lat},${lng}`,
+      radius: String(radius),
+      type,
+      key: GOOGLE_KEY,
+    });
     // Use 'keyword' or 'cuisine' (keyword is more general search term)
     if (keyword) qs.append('keyword', keyword);
     else if (cuisine) qs.append('keyword', cuisine);
 
     // Map price like '$', '$$' to numeric minprice/maxprice (0-4 scale supported by Places API)
     if (price && price !== 'all') {
-      const priceMap = { '$': 0, '$$': 1, '$$$': 2, '$$$$': 3 };
+      const priceMap = { $: 0, $$: 1, $$$: 2, $$$$: 3 };
       const mapped = priceMap[price] !== undefined ? priceMap[price] : null;
       if (mapped !== null) {
         // Use the same value for minprice and maxprice to approximate the level
@@ -84,7 +103,10 @@ app.get('/api/nearby', async (req, res) => {
 // Proxy for TMDb endpoints (keeps API key server-side)
 app.get('/api/tmdb/popular', async (req, res) => {
   try {
-    if (!TMDB_API_KEY) return res.status(500).json({ error: 'Missing TMDB_API_KEY in server environment' });
+    if (!TMDB_API_KEY)
+      return res
+        .status(500)
+        .json({ error: 'Missing TMDB_API_KEY in server environment' });
     const page = req.query.page || '1';
     const url = `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=${encodeURIComponent(page)}`;
     const cacheKey = `tmdb:popular:${page}`;
@@ -104,7 +126,10 @@ app.get('/api/tmdb/popular', async (req, res) => {
 // Proxy for TMDb external IDs (keeps API key server-side)
 app.get('/api/tmdb/movie/:id/external_ids', async (req, res) => {
   try {
-    if (!TMDB_API_KEY) return res.status(500).json({ error: 'Missing TMDB_API_KEY in server environment' });
+    if (!TMDB_API_KEY)
+      return res
+        .status(500)
+        .json({ error: 'Missing TMDB_API_KEY in server environment' });
     const movieId = req.params.id;
     if (!movieId) return res.status(400).json({ error: 'movie id required' });
     const url = `https://api.themoviedb.org/3/movie/${encodeURIComponent(movieId)}/external_ids?api_key=${TMDB_API_KEY}`;
@@ -125,7 +150,10 @@ app.get('/api/tmdb/movie/:id/external_ids', async (req, res) => {
 // Proxy for Google Books volumes endpoint
 app.get('/api/googlebooks/volumes', async (req, res) => {
   try {
-    if (!GOOGLE_BOOKS_API_KEY) return res.status(500).json({ error: 'Missing GOOGLE_BOOKS_API_KEY in server environment' });
+    if (!GOOGLE_BOOKS_API_KEY)
+      return res
+        .status(500)
+        .json({ error: 'Missing GOOGLE_BOOKS_API_KEY in server environment' });
     const q = req.query.q || '';
     const maxResults = req.query.maxResults || '10';
     const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=${encodeURIComponent(maxResults)}&key=${GOOGLE_BOOKS_API_KEY}`;
@@ -146,7 +174,10 @@ app.get('/api/googlebooks/volumes', async (req, res) => {
 // Proxy for Hardcover API search
 app.get('/api/hardcover/search', async (req, res) => {
   try {
-    if (!HARDCOVER_API_KEY) return res.status(500).json({ error: 'Missing HARDCOVER_API_KEY in server environment' });
+    if (!HARDCOVER_API_KEY)
+      return res
+        .status(500)
+        .json({ error: 'Missing HARDCOVER_API_KEY in server environment' });
     const query = req.query.q || 'bestseller';
     const perPage = req.query.per_page || '10';
     const page = req.query.page || '1';
@@ -164,9 +195,9 @@ app.get('/api/hardcover/search', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${HARDCOVER_API_KEY}`
+        Authorization: `Bearer ${HARDCOVER_API_KEY}`,
       },
-      body: JSON.stringify({ query: graphqlQuery })
+      body: JSON.stringify({ query: graphqlQuery }),
     });
     if (!response.ok) return res.status(502).send(await response.text());
     const json = await response.json();
@@ -181,10 +212,18 @@ app.get('/api/hardcover/search', async (req, res) => {
 // Google Places search proxy (for food.js)
 app.get('/api/places/search', async (req, res) => {
   try {
-    if (!GOOGLE_KEY) return res.status(500).json({ error: 'Missing GOOGLE_API_KEY in server environment' });
+    if (!GOOGLE_KEY)
+      return res
+        .status(500)
+        .json({ error: 'Missing GOOGLE_API_KEY in server environment' });
 
-    const { query, location = '40.7128,-74.0060', type = 'restaurant' } = req.query;
-    if (!query) return res.status(400).json({ error: 'query parameter required' });
+    const {
+      query,
+      location = '40.7128,-74.0060',
+      type = 'restaurant',
+    } = req.query;
+    if (!query)
+      return res.status(400).json({ error: 'query parameter required' });
 
     // Use Google Places Text Search API
     const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=${location}&type=${type}&key=${GOOGLE_KEY}`;
@@ -208,9 +247,15 @@ app.get('/api/places/search', async (req, res) => {
 // Photo proxy - will fetch the photo and stream it back (don't cache image bytes here)
 app.get('/api/photo', async (req, res) => {
   try {
-    if (!GOOGLE_KEY) return res.status(500).json({ error: 'Missing GOOGLE_API_KEY in server environment' });
+    if (!GOOGLE_KEY)
+      return res
+        .status(500)
+        .json({ error: 'Missing GOOGLE_API_KEY in server environment' });
     const { photoreference, maxwidth = 400 } = req.query;
-    if (!photoreference) return res.status(400).json({ error: 'photoreference query param required' });
+    if (!photoreference)
+      return res
+        .status(400)
+        .json({ error: 'photoreference query param required' });
 
     const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${encodeURIComponent(maxwidth)}&photoreference=${encodeURIComponent(photoreference)}&key=${GOOGLE_KEY}`;
 
@@ -221,18 +266,18 @@ app.get('/api/photo', async (req, res) => {
       return res.status(502).send(text);
     }
 
-  // Forward content-type and add CORS + cache headers to help browser image loading
-  const contentType = r.headers.get('content-type') || 'image/jpeg';
-  res.setHeader('Content-Type', contentType);
-  // Allow requests from any origin (local dev). In production scope this down to your domain.
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  // Expose Content-Type (not strictly necessary) and any other headers
-  res.setHeader('Access-Control-Expose-Headers', 'Content-Type');
-  // Cache images for a short time to reduce repeated requests (1 minute)
-  res.setHeader('Cache-Control', 'public, max-age=60');
+    // Forward content-type and add CORS + cache headers to help browser image loading
+    const contentType = r.headers.get('content-type') || 'image/jpeg';
+    res.setHeader('Content-Type', contentType);
+    // Allow requests from any origin (local dev). In production scope this down to your domain.
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Expose Content-Type (not strictly necessary) and any other headers
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Type');
+    // Cache images for a short time to reduce repeated requests (1 minute)
+    res.setHeader('Cache-Control', 'public, max-age=60');
 
-  // Stream body
-  r.body.pipe(res);
+    // Stream body
+    r.body.pipe(res);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Server error', detail: err.message });
@@ -242,7 +287,9 @@ app.get('/api/photo', async (req, res) => {
 // Yelp proxy removed for now (disabled until a Yelp API key is provided)
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Proxy + static server listening on http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`Proxy + static server listening on http://localhost:${PORT}`)
+);
 
 // Foursquare Places proxy (optional). Requires FOURSQUARE_API_KEY in .env
 // Foursquare support removed per user request.

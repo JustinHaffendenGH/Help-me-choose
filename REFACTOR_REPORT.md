@@ -19,18 +19,6 @@ Summary of high-level findings
 
 
 
-
-
-
-4. Establish a minimal dev toolchain (medium)
-   - Files: project root
-   - Additions: ESLint + Prettier, a test runner (Jest or Playwright for E2E), and scripts in `package.json`:
-     - `npm run lint`, `npm run test`, `npm run build` (if bundling)
-
-5. Add small server endpoints for Books/TMDB (recommended)
-   - Files: `server.js` (extend) and `.env` (local keys)
-   - Why: keeps keys secure and allows server-side caching and sanitizing. The server already proxies Places and photos; follow same pattern for Google Books and TMDB.
-
 Code-quality and maintainability suggestions
 - Reduce global state: avoid big global objects `bookCache`, `foodCache`, `currentFilter`. Encapsulate caches behind small modules/classes with clear methods: get, set, preload, clear.
 - Replace repeated DOM ready blocks with per-page initializers: each page's script runs only the handlers it needs (guarding for missing elements is fine but avoid duplicating checks).

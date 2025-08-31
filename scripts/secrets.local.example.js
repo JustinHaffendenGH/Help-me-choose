@@ -9,4 +9,6 @@
 window.GOOGLE_PLACES_API_KEY = '';
 window.YELP_API_KEY = '';
 
-console.warn('Loaded secrets.local.example.js - copy to secrets.local.js and populate keys to enable API-sourced images locally.');
+console.warn(
+  'Loaded secrets.local.example.js - copy to secrets.local.js and populate keys to enable API-sourced images locally.'
+);
