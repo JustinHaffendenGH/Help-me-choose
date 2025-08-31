@@ -22,6 +22,7 @@ async function loadCuratedBooks() {
 let bookCache = {
     google: [],
     openLibrary: [],
+    hardcover: [],
     isPreloading: false,
     lastShownBooks: [] // Track recently shown books to avoid duplicates
 };
@@ -47,6 +48,9 @@ export async function preloadBooks() {
 
     // Preload Open Library books
     preloadPromises.push(preloadOpenLibraryBooks());
+
+    // Preload Hardcover books
+    preloadPromises.push(preloadHardcoverBooks());
 
     // Run preloading in parallel
     await Promise.allSettled(preloadPromises);
@@ -148,6 +152,61 @@ async function preloadOpenLibraryBooks() {
         }
     } catch (error) {
         console.log('Error preloading Open Library books:', error);
+    }
+}
+
+async function preloadHardcoverBooks() {
+    try {
+        const searches = [
+            'bestseller fiction',
+            'popular novels',
+            'award winning books',
+            'contemporary literature',
+            'new releases fiction',
+            'literary fiction',
+            'popular books',
+            'romance novels',
+            'fantasy books',
+            'mystery thriller books'
+        ];
+
+        for (const searchTerm of searches) {
+            if (bookCache.hardcover.length >= 20) break;
+
+            const url = `/api/hardcover/search?q=${encodeURIComponent(searchTerm)}&per_page=10&page=1`;
+
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.data && data.data.search && data.data.search.results && data.data.search.results.hits) {
+                const goodBooks = data.data.search.results.hits.filter(hit => {
+                    const book = hit.document;
+                    return book.title &&
+                           book.author_names &&
+                           book.description &&
+                           book.rating >= 3.5;
+                }).map(hit => {
+                    const book = hit.document;
+                    return {
+                        title: book.title,
+                        authors: book.author_names || ['Unknown Author'],
+                        description: book.description?.substring(0, 400) + (book.description?.length > 400 ? '...' : ''),
+                        first_publish_year: book.release_year || null,
+                        rating: book.rating || null,
+                        cover_url: book.image?.url || null,
+                        hardcoverSlug: book.slug,
+                        source: 'hardcover'
+                    };
+                });
+
+                bookCache.hardcover.push(...goodBooks);
+            }
+
+            // Small delay between requests
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+    } catch (error) {
+        console.log('Error preloading Hardcover books:', error);
     }
 }
 
@@ -320,6 +379,56 @@ async function getRandomOpenLibraryBook() {
     }
 }
 
+async function getRandomHardcoverBook() {
+    // Try cached book first for instant results
+    const cachedBook = getCachedBook('hardcover');
+    if (cachedBook) {
+        // Trigger background preloading to refill cache
+        if (!bookCache.isPreloading && bookCache.hardcover.length < 3) {
+            preloadHardcoverBooks();
+        }
+        return cachedBook;
+    }
+
+    // Fallback to a direct search if cache is empty
+    try {
+        const searchTerm = 'bestseller fiction';
+        const url = `/api/hardcover/search?q=${encodeURIComponent(searchTerm)}&per_page=10&page=1`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.data && data.data.search && data.data.search.results && data.data.search.results.hits && data.data.search.results.hits.length > 0) {
+            const books = data.data.search.results.hits.filter(hit => {
+                const book = hit.document;
+                return book.title &&
+                       book.author_names &&
+                       book.description &&
+                       book.rating >= 3.5;
+            });
+
+            if (books.length > 0) {
+                const randomHit = books[Math.floor(Math.random() * books.length)];
+                const book = randomHit.document;
+                return {
+                    title: book.title,
+                    authors: book.author_names || ['Unknown Author'],
+                    description: book.description?.substring(0, 400) + (book.description?.length > 400 ? '...' : ''),
+                    first_publish_year: book.release_year || null,
+                    rating: book.rating || null,
+                    cover_url: book.image?.url || null,
+                    hardcoverSlug: book.slug,
+                    source: 'hardcover'
+                };
+            }
+        }
+    } catch (error) {
+        console.error('Error in getRandomHardcoverBook fallback:', error);
+    }
+
+    return null;
+}
+
 async function getPopularRecentBooks() {
     // Focus on popular, well-rated books from recent years with simpler search
     const currentYear = new Date().getFullYear();
@@ -484,7 +593,8 @@ export async function showRandomBook() {
     // PARALLEL API CALLS: Try to get better results from APIs (but don't display yet)
     const promises = [
         getRandomGoogleBook(),
-        getRandomOpenLibraryBook()
+        getRandomOpenLibraryBook(),
+        getRandomHardcoverBook()
     ];
 
     try {

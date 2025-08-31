@@ -15,6 +15,7 @@ app.use(express.json());
 const GOOGLE_KEY = process.env.GOOGLE_API_KEY;
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const GOOGLE_BOOKS_API_KEY = process.env.GOOGLE_BOOKS_API_KEY;
+const HARDCOVER_API_KEY = process.env.HARDCOVER_API_KEY;
 
 // Serve static files from project root so a single process can serve the site + proxy
 app.use(express.static(path.join(__dirname)));
@@ -134,6 +135,41 @@ app.get('/api/googlebooks/volumes', async (req, res) => {
     const r = await fetch(url);
     if (!r.ok) return res.status(502).send(await r.text());
     const json = await r.json();
+    setCached(cacheKey, json, 2 * 60 * 1000);
+    return res.json(json);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Server error', detail: err.message });
+  }
+});
+
+// Proxy for Hardcover API search
+app.get('/api/hardcover/search', async (req, res) => {
+  try {
+    if (!HARDCOVER_API_KEY) return res.status(500).json({ error: 'Missing HARDCOVER_API_KEY in server environment' });
+    const query = req.query.q || 'bestseller';
+    const perPage = req.query.per_page || '10';
+    const page = req.query.page || '1';
+    const graphqlQuery = `
+      query SearchBooks {
+        search(query: "${query}", query_type: "Book", per_page: ${perPage}, page: ${page}) {
+          results
+        }
+      }
+    `;
+    const cacheKey = `hardcover:${query}:${perPage}:${page}`;
+    const cached = getCached(cacheKey);
+    if (cached) return res.json(cached);
+    const response = await fetch('https://api.hardcover.app/v1/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${HARDCOVER_API_KEY}`
+      },
+      body: JSON.stringify({ query: graphqlQuery })
+    });
+    if (!response.ok) return res.status(502).send(await response.text());
+    const json = await response.json();
     setCached(cacheKey, json, 2 * 60 * 1000);
     return res.json(json);
   } catch (err) {
