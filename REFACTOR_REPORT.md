@@ -19,14 +19,8 @@ Summary of high-level findings
 
 
 
-2. Split `scripts/main.js` into modules (high)
-   - Files: `scripts/main.js` -> split into `scripts/books.js`, `scripts/movies.js`, `scripts/food.js`, `scripts/utils.js`, `scripts/data/curated-books.js`
-   - Why: reduces cognitive load, improves testability, and allows lazy-loading on pages.
-   - Action: export small functions from each module and load only what's needed in `books.html`, `movies.html`, and `food.html` (use ES modules or a simple bundler).
 
-3. Move curated data into JSON files (medium)
-   - Files: `scripts/main.js` (curatedBooks, curatedFoods) -> `data/curated-books.json`, `data/curated-foods.json`
-   - Why: data vs logic separation, easier to author and update, simpler tests.
+
 
 4. Establish a minimal dev toolchain (medium)
    - Files: project root

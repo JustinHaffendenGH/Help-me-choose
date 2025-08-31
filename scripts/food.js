@@ -1,6 +1,23 @@
 // Food functionality
 import { shuffleArray, createStarRating } from './utils.js';
 
+// Load curated foods data
+let curatedFoodsData = null;
+
+async function loadCuratedFoods() {
+    if (curatedFoodsData) return curatedFoodsData;
+
+    try {
+        const response = await fetch('./scripts/data/curated-foods.json');
+        curatedFoodsData = await response.json();
+        return curatedFoodsData;
+    } catch (error) {
+        console.error('Error loading curated foods:', error);
+        // Fallback to empty array
+        return [];
+    }
+}
+
 // Food preloading system
 let foodCache = {
     googlePlaces: [],
@@ -190,21 +207,8 @@ function getCachedFood(source) {
 }
 
 // Get a random food from curated list (instant results) - NO DUPLICATES
-function getRandomCuratedFood() {
-    // For now, we'll use a simple curated list approach
-    // In a real implementation, you'd have a curated foods array
-    const curatedFoods = [
-        { name: 'Margherita Pizza', cuisine: 'Italian', rating: 4.5, description: 'Classic Italian pizza with tomato sauce, mozzarella, and fresh basil.' },
-        { name: 'Pad Thai', cuisine: 'Thai', rating: 4.3, description: 'Stir-fried rice noodles with shrimp, tofu, peanuts, and tamarind sauce.' },
-        { name: 'Tacos al Pastor', cuisine: 'Mexican', rating: 4.4, description: 'Marinated pork tacos with pineapple, onions, and cilantro.' },
-        { name: 'Butter Chicken', cuisine: 'Indian', rating: 4.6, description: 'Creamy tomato-based curry with tender chicken pieces.' },
-        { name: 'Sushi Rolls', cuisine: 'Japanese', rating: 4.2, description: 'Fresh fish and vegetables wrapped in seasoned rice and seaweed.' },
-        { name: 'Coq au Vin', cuisine: 'French', rating: 4.5, description: 'Chicken braised in red wine with mushrooms and onions.' },
-        { name: 'Falafel Wrap', cuisine: 'Middle Eastern', rating: 4.1, description: 'Crispy chickpea patties with tahini sauce in pita bread.' },
-        { name: 'Paella', cuisine: 'Spanish', rating: 4.4, description: 'Saffron-infused rice with seafood, chicken, and vegetables.' },
-        { name: 'Bibimbap', cuisine: 'Korean', rating: 4.3, description: 'Mixed rice bowl with vegetables, meat, and spicy gochujang sauce.' },
-        { name: 'Feijoada', cuisine: 'Brazilian', rating: 4.2, description: 'Slow-cooked black beans with pork and served with rice.' }
-    ];
+async function getRandomCuratedFood() {
+    const curatedFoods = await loadCuratedFoods();
 
     // Filter out recently shown foods to avoid duplicates
     const availableFoods = curatedFoods.filter(food =>
@@ -415,7 +419,7 @@ export async function showRandomFood() {
 
     // FALLBACK: Use curated food only if APIs fail
     console.log('Using curated food as fallback');
-    const curatedFood = getRandomCuratedFood();
+    const curatedFood = await getRandomCuratedFood();
     displayFood(curatedFood);
 
     // Trigger background preloading to keep cache fresh
@@ -629,7 +633,7 @@ export async function showRandomFilteredFood() {
 
         // If no API results, fall back to filtered curated foods
         if (allFoods.length === 0) {
-            allFoods = getFilteredCuratedFoods();
+            allFoods = await getFilteredCuratedFoods();
         }
 
         if (allFoods.length > 0) {
@@ -644,7 +648,7 @@ export async function showRandomFilteredFood() {
     } catch (error) {
         console.error('Error getting filtered foods:', error);
         // Fallback to curated foods
-        const curatedFoodsFiltered = getFilteredCuratedFoods();
+        const curatedFoodsFiltered = await getFilteredCuratedFoods();
         if (curatedFoodsFiltered.length > 0) {
             const randomIndex = Math.floor(Math.random() * curatedFoodsFiltered.length);
             displayFood(curatedFoodsFiltered[randomIndex]);
@@ -754,21 +758,9 @@ async function getFilteredOpenFoodFactsFoods() {
     return [];
 }
 
-function getFilteredCuratedFoods() {
+async function getFilteredCuratedFoods() {
     const { cuisine, minRating } = currentFoodFilter;
-
-    const curatedFoods = [
-        { name: 'Margherita Pizza', cuisine: 'italian', rating: 4.5, description: 'Classic Italian pizza with tomato sauce, mozzarella, and fresh basil.' },
-        { name: 'Pad Thai', cuisine: 'thai', rating: 4.3, description: 'Stir-fried rice noodles with shrimp, tofu, peanuts, and tamarind sauce.' },
-        { name: 'Tacos al Pastor', cuisine: 'mexican', rating: 4.4, description: 'Marinated pork tacos with pineapple, onions, and cilantro.' },
-        { name: 'Butter Chicken', cuisine: 'indian', rating: 4.6, description: 'Creamy tomato-based curry with tender chicken pieces.' },
-        { name: 'Sushi Rolls', cuisine: 'japanese', rating: 4.2, description: 'Fresh fish and vegetables wrapped in seasoned rice and seaweed.' },
-        { name: 'Coq au Vin', cuisine: 'french', rating: 4.5, description: 'Chicken braised in red wine with mushrooms and onions.' },
-        { name: 'Falafel Wrap', cuisine: 'middle eastern', rating: 4.1, description: 'Crispy chickpea patties with tahini sauce in pita bread.' },
-        { name: 'Paella', cuisine: 'spanish', rating: 4.4, description: 'Saffron-infused rice with seafood, chicken, and vegetables.' },
-        { name: 'Bibimbap', cuisine: 'korean', rating: 4.3, description: 'Mixed rice bowl with vegetables, meat, and spicy gochujang sauce.' },
-        { name: 'Feijoada', cuisine: 'brazilian', rating: 4.2, description: 'Slow-cooked black beans with pork and served with rice.' }
-    ];
+    const curatedFoods = await loadCuratedFoods();
 
     return curatedFoods.filter(food => {
         // Safely check cuisine match

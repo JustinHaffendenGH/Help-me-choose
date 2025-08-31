@@ -1,0 +1,82 @@
+[
+  {
+    "title": "Where the Crawdads Sing",
+    "author": "Delia Owens",
+    "year": 2018,
+    "rating": 4.4,
+    "genre": "Mystery",
+    "description": "A girl who raised herself in the marshes becomes a murder suspect."
+  },
+  {
+    "title": "Normal People",
+    "author": "Sally Rooney",
+    "year": 2018,
+    "rating": 4.0,
+    "genre": "Contemporary Fiction",
+    "description": "Complex relationship between two Irish teenagers through school and university."
+  },
+  {
+    "title": "Little Fires Everywhere",
+    "author": "Celeste Ng",
+    "year": 2017,
+    "rating": 4.1,
+    "genre": "Contemporary Fiction",
+    "description": "Two families in 1990s Ohio clash over secrets and identity."
+  },
+  {
+    "title": "The Seven Husbands of Evelyn Hugo",
+    "author": "Taylor Jenkins Reid",
+    "year": 2017,
+    "rating": 4.3,
+    "genre": "Historical Fiction",
+    "description": "A Hollywood icon reveals secrets about her seven marriages."
+  },
+  {
+    "title": "The Song of Achilles",
+    "author": "Madeline Miller",
+    "year": 2011,
+    "rating": 4.3,
+    "genre": "Historical Fiction",
+    "description": "Achilles and Patroclus during the Trojan War."
+  },
+  {
+    "title": "The Midnight Library",
+    "author": "Matt Haig",
+    "year": 2020,
+    "rating": 4.1,
+    "genre": "Fantasy",
+    "description": "A woman gets to explore alternate lives she could have lived."
+  },
+  {
+    "title": "Atomic Habits",
+    "author": "James Clear",
+    "year": 2018,
+    "rating": 4.4,
+    "genre": "Self-Help",
+    "description": "Small changes that make a big difference in your life."
+  },
+  {
+    "title": "Educated",
+    "author": "Tara Westover",
+    "year": 2018,
+    "rating": 4.5,
+    "genre": "Memoir",
+    "description": "A woman raised in isolation by survivalist parents goes to college."
+  },
+  {
+    "title": "Sapiens",
+    "author": "Yuval Noah Harari",
+    "year": 2014,
+    "rating": 4.4,
+    "genre": "History",
+    "description": "A brief history of humankind from the Stone Age to the modern age."
+  },
+  {
+    "title": "The Psychology of Money",
+    "author": "Morgan Housel",
+    "year": 2020,
+    "rating": 4.3,
+    "genre": "Finance",
+    "description": "Timeless lessons on wealth, greed, and happiness."
+  }
+]

@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Margherita Pizza",
+    "cuisine": "Italian",
+    "rating": 4.5,
+    "description": "Classic Italian pizza with tomato sauce, mozzarella, and fresh basil."
+  },
+  {
+    "name": "Pad Thai",
+    "cuisine": "Thai",
+    "rating": 4.3,
+    "description": "Stir-fried rice noodles with shrimp, tofu, peanuts, and tamarind sauce."
+  },
+  {
+    "name": "Tacos al Pastor",
+    "cuisine": "Mexican",
+    "rating": 4.4,
+    "description": "Marinated pork tacos with pineapple, onions, and cilantro."
+  },
+  {
+    "name": "Butter Chicken",
+    "cuisine": "Indian",
+    "rating": 4.6,
+    "description": "Creamy tomato-based curry with tender chicken pieces."
+  },
+  {
+    "name": "Sushi Rolls",
+    "cuisine": "Japanese",
+    "rating": 4.2,
+    "description": "Fresh fish and vegetables wrapped in seasoned rice and seaweed."
+  },
+  {
+    "name": "Coq au Vin",
+    "cuisine": "French",
+    "rating": 4.5,
+    "description": "Chicken braised in red wine with mushrooms and onions."
+  },
+  {
+    "name": "Falafel Wrap",
+    "cuisine": "Middle Eastern",
+    "rating": 4.1,
+    "description": "Crispy chickpea patties with tahini sauce in pita bread."
+  },
+  {
+    "name": "Paella",
+    "cuisine": "Spanish",
+    "rating": 4.4,
+    "description": "Saffron-infused rice with seafood, chicken, and vegetables."
+  },
+  {
+    "name": "Bibimbap",
+    "cuisine": "Korean",
+    "rating": 4.3,
+    "description": "Mixed rice bowl with vegetables, meat, and spicy gochujang sauce."
+  },
+  {
+    "name": "Feijoada",
+    "cuisine": "Brazilian",
+    "rating": 4.2,
+    "description": "Slow-cooked black beans with pork and served with rice."
+  }
+]

@@ -1,6 +1,22 @@
 // Books functionality
-import { curatedBooks } from './data/curated-books.js';
 import { shuffleArray, createBookStarRating } from './utils.js';
+
+// Load curated books data
+let curatedBooksData = null;
+
+async function loadCuratedBooks() {
+    if (curatedBooksData) return curatedBooksData;
+
+    try {
+        const response = await fetch('./scripts/data/curated-books.json');
+        curatedBooksData = await response.json();
+        return curatedBooksData;
+    } catch (error) {
+        console.error('Error loading curated books:', error);
+        // Fallback to empty array
+        return [];
+    }
+}
 
 // Book preloading system
 let bookCache = {
@@ -147,7 +163,9 @@ function getCachedBook(source) {
 }
 
 // Get a random book from curated list (instant results) - NO DUPLICATES
-function getRandomCuratedBook() {
+async function getRandomCuratedBook() {
+    const curatedBooks = await loadCuratedBooks();
+
     // Filter out recently shown books to avoid duplicates
     const availableBooks = curatedBooks.filter(book =>
         !bookCache.lastShownBooks.includes(book.title)
@@ -457,7 +475,7 @@ export async function showRandomBook() {
     showBookLoadingState();
 
     // INSTANT RESULT: Get curated book for base data
-    const curatedBook = getRandomCuratedBook();
+    const curatedBook = await getRandomCuratedBook();
     let finalBook = curatedBook;
 
     // Flag to prevent multiple updates
@@ -857,7 +875,7 @@ export async function showRandomFilteredBook() {
 
         // If no API results, fall back to filtered curated books
         if (allBooks.length === 0) {
-            allBooks = getFilteredCuratedBooks();
+            allBooks = await getFilteredCuratedBooks();
         }
 
         if (allBooks.length > 0) {
@@ -872,7 +890,7 @@ export async function showRandomFilteredBook() {
     } catch (error) {
         console.error('Error getting filtered books:', error);
         // Fallback to curated books
-        const curatedBooksFiltered = getFilteredCuratedBooks();
+        const curatedBooksFiltered = await getFilteredCuratedBooks();
         if (curatedBooksFiltered.length > 0) {
             const randomIndex = Math.floor(Math.random() * curatedBooksFiltered.length);
             displayBook(curatedBooksFiltered[randomIndex]);
@@ -973,8 +991,9 @@ async function getFilteredOpenLibraryBooks() {
     return [];
 }
 
-function getFilteredCuratedBooks() {
+async function getFilteredCuratedBooks() {
     const { genre, minRating } = currentBookFilter;
+    const curatedBooks = await loadCuratedBooks();
 
     return curatedBooks.filter(book => {
         // Safely check genre match with null/undefined protection
@@ -1286,9 +1305,10 @@ async function getBookDescription(book) {
 }
 
 // Initialize books functionality
-export function initBooks() {
+export async function initBooks() {
     // Shuffle curated books on page load
     if (window.location.pathname.includes('books.html')) {
+        const curatedBooks = await loadCuratedBooks();
         shuffleArray(curatedBooks);
         preloadBooks();
     }
