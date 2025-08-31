@@ -12,6 +12,30 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Security headers
+app.use((req, res, next) => {
+  // Content Security Policy
+  res.setHeader('Content-Security-Policy', 
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline'; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    "img-src 'self' data: https:; " +
+    "connect-src 'self' https://api.themoviedb.org https://www.googleapis.com https://maps.googleapis.com https://api.hardcover.app; " +
+    "frame-src 'none'; " +
+    "object-src 'none';"
+  );
+  
+  // Other security headers
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  
+  next();
+});
+
 const GOOGLE_KEY = process.env.GOOGLE_API_KEY;
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const GOOGLE_BOOKS_API_KEY = process.env.GOOGLE_BOOKS_API_KEY;
@@ -19,6 +43,16 @@ const HARDCOVER_API_KEY = process.env.HARDCOVER_API_KEY;
 
 // Serve static files from project root so a single process can serve the site + proxy
 app.use(express.static(path.join(__dirname)));
+
+// Health check endpoint
+app.get('/healthz', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    version: require('./package.json').version
+  });
+});
 
 // Simple in-memory cache for JSON API responses
 const cache = new Map();
