@@ -24,13 +24,6 @@ async function loadCuratedBooks() {
   }
 }
 
-// Book preloading system
-let bookCache = {
-  hardcover: [],
-  isPreloading: false,
-  lastShownBooks: [], // Track recently shown books to avoid duplicates
-};
-
 // Store current filter settings
 let currentBookFilter = {
   genre: 'all',
@@ -38,131 +31,17 @@ let currentBookFilter = {
   isActive: false,
 };
 
-async function preloadBooks() {
-  if (bookCache.isPreloading) return;
-
-  bookCache.isPreloading = true;
-  console.log('Starting book preloading...');
-
-  // Preload books in background
-  const preloadPromises = [];
-
-  // Preload Hardcover books
-  preloadPromises.push(preloadHardcoverBooks());
-
-  // Run preloading in parallel
-  await Promise.allSettled(preloadPromises);
-
-  bookCache.isPreloading = false;
-  console.log('Book preloading completed');
-}
-
-async function preloadHardcoverBooks() {
-  try {
-    const searches = [
-      'bestseller fiction',
-      'popular novels',
-      'award winning books',
-      'contemporary literature',
-      'new releases fiction',
-      'literary fiction',
-      'popular books',
-      'romance novels',
-      'fantasy books',
-      'mystery thriller books',
-    ];
-
-    for (const searchTerm of searches) {
-      if (bookCache.hardcover.length >= 20) break;
-
-      const url = `/api/hardcover/search?q=${encodeURIComponent(searchTerm)}&per_page=10&page=1`;
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (
-        data.data &&
-        data.data.search &&
-        data.data.search.results &&
-        data.data.search.results.hits
-      ) {
-        const goodBooks = data.data.search.results.hits
-          .filter((hit) => {
-            const book = hit.document;
-            return (
-              book.title &&
-              book.author_names &&
-              book.description &&
-              book.rating >= 3.5
-            );
-          })
-          .map((hit) => {
-            const book = hit.document;
-            return {
-              title: book.title,
-              authors: book.author_names || ['Unknown Author'],
-              description:
-                book.description?.substring(0, 400) +
-                (book.description?.length > 400 ? '...' : ''),
-              first_publish_year: book.release_year || null,
-              rating: book.rating || null,
-              cover_url: book.image?.url || null,
-              hardcoverSlug: book.slug,
-              source: 'hardcover',
-            };
-          });
-
-        bookCache.hardcover.push(...goodBooks);
-      }
-
-      // Small delay between requests
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-  } catch (error) {
-    console.log('Error preloading Hardcover books:', error);
-  }
-}
-
-// Get a book from cache or fallback to real-time search
-function getCachedBook(source) {
-  const cache = bookCache[source];
-  if (cache && cache.length > 0) {
-    // Pick a random book from cache for more variety
-    const randomIndex = Math.floor(Math.random() * cache.length);
-    return cache.splice(randomIndex, 1)[0];
-  }
-  return null;
-}
+// Cache for recently shown books to prevent duplicates
+let recentBooksCache = [];
+const MAX_CACHE_SIZE = 20;
 
 // Get a random book from curated list (instant results) - NO DUPLICATES
 async function getRandomCuratedBook() {
   const curatedBooks = await loadCuratedBooks();
 
-  // Filter out recently shown books to avoid duplicates
-  const availableBooks = curatedBooks.filter(
-    (book) => !bookCache.lastShownBooks.includes(book.title)
-  );
-
-  // If we've shown too many books, reset the tracking
-  if (availableBooks.length === 0) {
-    bookCache.lastShownBooks = [];
-    // Use all books again
-    const randomIndex = Math.floor(Math.random() * curatedBooks.length);
-    const book = curatedBooks[randomIndex];
-    bookCache.lastShownBooks.push(book.title);
-    return createBookObject(book);
-  }
-
-  const randomIndex = Math.floor(Math.random() * availableBooks.length);
-  const book = availableBooks[randomIndex];
-
-  // Track this book to avoid showing it again soon
-  bookCache.lastShownBooks.push(book.title);
-
-  // Keep only last 20 shown books in memory
-  if (bookCache.lastShownBooks.length > 20) {
-    bookCache.lastShownBooks.shift();
-  }
+  // Pick a random book from curated list
+  const randomIndex = Math.floor(Math.random() * curatedBooks.length);
+  const book = curatedBooks[randomIndex];
 
   return createBookObject(book);
 }
@@ -182,232 +61,227 @@ function createBookObject(book) {
   };
 }
 
-// Google Books API search - now uses cache first
+// Simplified and reliable book fetching using Google Books API
 async function getRandomHardcoverBook() {
-  // Try cached book first for instant results
-  const cachedBook = getCachedBook('hardcover');
-  if (cachedBook) {
-    // Trigger background preloading to refill cache
-    if (!bookCache.isPreloading && bookCache.hardcover.length < 3) {
-      preloadHardcoverBooks();
-    }
-    return cachedBook;
-  }
-
-  // Fallback to a direct search if cache is empty
   try {
-    const searchTerm = 'bestseller fiction';
-    const url = `/api/hardcover/search?q=${encodeURIComponent(searchTerm)}&per_page=10&page=1`;
+    // Use Google Books API for reliable, modern books with covers
+    const searchTerms = [
+      'fiction bestseller 2024',
+      'novel bestseller 2023',
+      'best fiction books 2024',
+      'award winning novels 2023',
+      'popular novels 2022',
+      'contemporary novel bestseller',
+      'literary fiction bestseller 2024',
+      'thriller novel bestseller 2023',
+      'mystery novel bestseller 2024',
+      'romance novel bestseller 2023',
+      'historical fiction bestseller 2024',
+      'crime fiction bestseller 2023'
+    ];
+
+    const randomTerm = searchTerms[Math.floor(Math.random() * searchTerms.length)];
+    console.log(`Searching Google Books for: ${randomTerm}`);
+
+    const url = `/api/googlebooks/volumes?q=${encodeURIComponent(randomTerm)}&maxResults=40&orderBy=relevance`;
 
     const response = await fetch(url);
     const data = await response.json();
 
-    if (
-      data.data &&
-      data.data.search &&
-      data.data.search.results &&
-      data.data.search.results.hits &&
-      data.data.search.results.hits.length > 0
-    ) {
-      const books = data.data.search.results.hits.filter((hit) => {
-        const book = hit.document;
+    if (data.items && data.items.length > 0) {
+      console.log(`Found ${data.items.length} books from Google Books`);
+
+      // Filter for quality books with covers and good metadata
+      const qualityBooks = data.items.filter(book => {
+        const volumeInfo = book.volumeInfo;
+        const title = volumeInfo.title?.toLowerCase() || '';
+        const description = volumeInfo.description?.toLowerCase() || '';
+
+        // Exclude academic, reference, and educational books
+        const excludePatterns = [
+          'who\'s who', 'encyclopedia', 'dictionary', 'handbook', 'guide to',
+          'teaching', 'education', 'academic', 'reference', 'textbook',
+          'study', 'research', 'analysis', 'criticism', 'theory',
+          'history of', 'introduction to', 'fictions of', 'useful fictions',
+          'creating identity', 'idealism', 'mestizos', 'states firms',
+          'international who', 'science fiction and fantasy literature'
+        ];
+
+        const isAcademic = excludePatterns.some(pattern =>
+          title.includes(pattern) || description.includes(pattern)
+        );
+
         return (
-          book.title &&
-          book.author_names &&
-          book.description &&
-          book.rating >= 3.5
+          volumeInfo.title &&
+          volumeInfo.authors &&
+          volumeInfo.authors.length > 0 &&
+          volumeInfo.publishedDate &&
+          volumeInfo.imageLinks && // Must have cover
+          volumeInfo.description && // Must have description
+          volumeInfo.description.length > 50 && // Description must be substantial
+          !isAcademic && // Exclude academic/reference books
+          (!volumeInfo.averageRating || volumeInfo.averageRating >= 3.0) && // Optional rating, but if present must be decent
+          parseInt(volumeInfo.publishedDate.substring(0, 4)) >= 2000 // Modern books
         );
       });
 
-      if (books.length > 0) {
-        const randomHit = books[Math.floor(Math.random() * books.length)];
-        const book = randomHit.document;
+      console.log(`After filtering: ${qualityBooks.length} quality books with covers from 2000+`);
+
+      if (qualityBooks.length > 0) {
+        // Filter out recently shown books
+        const availableBooks = qualityBooks.filter(book => {
+          const bookId = book.id;
+          return !recentBooksCache.includes(bookId);
+        });
+
+        // If we filtered out all books, use the original list
+        const booksToChooseFrom = availableBooks.length > 0 ? availableBooks : qualityBooks;
+
+        // Pick a random quality book
+        const randomBook = booksToChooseFrom[Math.floor(Math.random() * booksToChooseFrom.length)];
+        const volumeInfo = randomBook.volumeInfo;
+
+        // Add to cache
+        recentBooksCache.push(randomBook.id);
+        if (recentBooksCache.length > MAX_CACHE_SIZE) {
+          recentBooksCache.shift(); // Remove oldest
+        }
+
         return {
-          title: book.title,
-          authors: book.author_names || ['Unknown Author'],
-          description:
-            book.description?.substring(0, 400) +
-            (book.description?.length > 400 ? '...' : ''),
-          first_publish_year: book.release_year || null,
-          rating: book.rating || null,
-          cover_url: book.image?.url || null,
-          hardcoverSlug: book.slug,
-          source: 'hardcover',
+          title: volumeInfo.title,
+          authors: volumeInfo.authors.map(author => ({ name: author })),
+          description: volumeInfo.description.length > 500
+            ? volumeInfo.description.substring(0, 497) + '...'
+            : volumeInfo.description,
+          first_publish_year: parseInt(volumeInfo.publishedDate.substring(0, 4)),
+          rating: volumeInfo.averageRating,
+          cover_url: (volumeInfo.imageLinks.large || volumeInfo.imageLinks.medium || volumeInfo.imageLinks.thumbnail).replace('http://', 'https://'),
+          googleBooksId: randomBook.id,
+          source: 'googlebooks',
         };
       }
     }
-  } catch (error) {
-    console.error('Error in getRandomHardcoverBook fallback:', error);
-  }
 
-  return null;
-}
+    // Fallback: Try a more specific search for recent novels
+    console.log('Primary search failed, trying fallback search...');
+    const fallbackTerms = [
+      'best novels 2023',
+      'award winning novels 2024',
+      'popular fiction books 2022',
+      'contemporary novels 2023',
+      'literary novels 2024'
+    ];
+    const fallbackTerm = fallbackTerms[Math.floor(Math.random() * fallbackTerms.length)];
+    const fallbackUrl = `/api/googlebooks/volumes?q=${encodeURIComponent(fallbackTerm)}&maxResults=40&orderBy=newest`;
 
-async function getBestsellerBooks() {
-  // Search for known bestseller lists and popular books with simpler parameters
-  const bestsellerTerms = [
-    'fiction',
-    'fantasy',
-    'mystery',
-    'romance',
-    'thriller',
-    'science fiction',
-    'historical fiction',
-    'contemporary fiction',
-    'literary fiction',
-    'young adult',
-  ];
-  const randomTerm =
-    bestsellerTerms[Math.floor(Math.random() * bestsellerTerms.length)];
+    const fallbackResponse = await fetch(fallbackUrl);
+    const fallbackData = await fallbackResponse.json();
 
-  const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(randomTerm)}&language=eng&limit=30`; // Increased from 15 to 30
+    if (fallbackData.items && fallbackData.items.length > 0) {
+      const fallbackBooks = fallbackData.items.filter(book => {
+        const volumeInfo = book.volumeInfo;
+        const title = volumeInfo.title?.toLowerCase() || '';
+        const description = volumeInfo.description?.toLowerCase() || '';
 
-  try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`API Error: ${response.status}`);
+        // Exclude academic, reference, and educational books
+        const excludePatterns = [
+          'who\'s who', 'encyclopedia', 'dictionary', 'handbook', 'guide to',
+          'teaching', 'education', 'academic', 'reference', 'textbook',
+          'study', 'research', 'analysis', 'criticism', 'theory',
+          'history of', 'introduction to', 'fictions of', 'useful fictions',
+          'creating identity', 'idealism', 'mestizos', 'states firms',
+          'international who', 'science fiction and fantasy literature'
+        ];
 
-    const data = await response.json();
+        const isAcademic = excludePatterns.some(pattern =>
+          title.includes(pattern) || description.includes(pattern)
+        );
 
-    if (data.docs && data.docs.length > 0) {
-      const goodBooks = data.docs.filter(
-        (book) =>
-          book.cover_i &&
-          book.title &&
-          book.author_name &&
-          book.first_publish_year >= 2000 &&
-          book.title.length > 3 &&
-          !book.title.toLowerCase().includes('test')
-      );
+        return (
+          volumeInfo.title &&
+          volumeInfo.authors &&
+          volumeInfo.authors.length > 0 &&
+          volumeInfo.imageLinks &&
+          volumeInfo.description &&
+          volumeInfo.description.length > 50 &&
+          !isAcademic &&
+          parseInt(volumeInfo.publishedDate?.substring(0, 4) || '2000') >= 2000
+        );
+      });
 
-      if (goodBooks.length > 0) {
-        const randomBook =
-          goodBooks[Math.floor(Math.random() * goodBooks.length)];
-        return formatBookData(randomBook);
+      if (fallbackBooks.length > 0) {
+        console.log(`Fallback found ${fallbackBooks.length} quality books`);
+
+        // Filter out recently shown books
+        const availableBooks = fallbackBooks.filter(book => {
+          const bookId = book.id;
+          return !recentBooksCache.includes(bookId);
+        });
+
+        // If we filtered out all books, use the original list
+        const booksToChooseFrom = availableBooks.length > 0 ? availableBooks : fallbackBooks;
+
+        const randomBook = booksToChooseFrom[Math.floor(Math.random() * booksToChooseFrom.length)];
+        const volumeInfo = randomBook.volumeInfo;
+
+        // Add to cache
+        recentBooksCache.push(randomBook.id);
+        if (recentBooksCache.length > MAX_CACHE_SIZE) {
+          recentBooksCache.shift(); // Remove oldest
+        }
+
+        return {
+          title: volumeInfo.title,
+          authors: volumeInfo.authors.map(author => ({ name: author })),
+          description: volumeInfo.description.length > 500
+            ? volumeInfo.description.substring(0, 497) + '...'
+            : volumeInfo.description,
+          first_publish_year: parseInt(volumeInfo.publishedDate?.substring(0, 4) || '2000'),
+          rating: volumeInfo.averageRating || null,
+          cover_url: (volumeInfo.imageLinks.large || volumeInfo.imageLinks.medium || volumeInfo.imageLinks.thumbnail).replace('http://', 'https://'),
+          googleBooksId: randomBook.id,
+          source: 'googlebooks',
+        };
       }
     }
+
   } catch (error) {
-    console.error('Error in getBestsellerBooks:', error);
+    console.error('Error fetching from Google Books:', error);
   }
 
   return null;
-}
-
-async function getFeaturedBooks() {
-  // Search popular genres for featured/trending books with simpler parameters
-  const genres = [
-    'fantasy',
-    'mystery',
-    'romance',
-    'thriller',
-    'science fiction',
-    'historical fiction',
-    'contemporary fiction',
-    'literary fiction',
-    'horror',
-    'adventure',
-  ];
-  const randomGenre = genres[Math.floor(Math.random() * genres.length)];
-
-  const url = `https://openlibrary.org/search.json?q=subject:${randomGenre}&language=eng&limit=30`; // Increased from 20 to 30
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`API Error: ${response.status}`);
-
-    const data = await response.json();
-
-    if (data.docs && data.docs.length > 0) {
-      const recentBooks = data.docs.filter(
-        (book) =>
-          book.cover_i &&
-          book.title &&
-          book.author_name &&
-          book.first_publish_year >= 2010 && // More recent for this method
-          book.title.length > 3 &&
-          !book.title.toLowerCase().includes('test')
-      );
-
-      if (recentBooks.length > 0) {
-        const randomBook =
-          recentBooks[Math.floor(Math.random() * recentBooks.length)];
-        return formatBookData(randomBook);
-      }
-    }
-  } catch (error) {
-    console.error('Error in getFeaturedBooks:', error);
-  }
-
-  return null;
-}
-
-async function getSimpleRecentBook() {
-  // Simple fallback - just get any decent recent book
-  const currentYear = new Date().getFullYear();
-  const randomYear = currentYear - Math.floor(Math.random() * 10);
-
-  const url = `https://openlibrary.org/search.json?q=fiction&publish_year=${randomYear}&language=eng&limit=10`;
-
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (data.docs && data.docs.length > 0) {
-      const books = data.docs.filter(
-        (book) => book.cover_i && book.title && book.author_name
-      );
-      if (books.length > 0) {
-        const randomBook = books[Math.floor(Math.random() * books.length)];
-        return formatBookData(randomBook);
-      }
-    }
-  } catch (error) {
-    console.error('Error in getSimpleRecentBook:', error);
-  }
-
-  return null;
-}
-
-function formatBookData(book) {
-  return {
-    title: book.title,
-    authors: book.author_name ? book.author_name.map((name) => ({ name })) : [],
-    cover_id: book.cover_i,
-    first_publish_year: book.first_publish_year,
-    key: book.key,
-    first_sentence: book.first_sentence || [],
-    rating: book.ratings_average || null,
-    source: 'openlibrary',
-  };
 }
 
 async function showRandomBook() {
   const bookResult = document.getElementById('book-result');
   if (!bookResult) return;
 
+  console.log('Fetching fresh random book from API...');
+
   // Show elegant loading state
   bookResult.style.display = 'block';
   showBookLoadingState();
 
-  // Get book from Hardcover API
+  // Get book directly from Hardcover API
   let finalBook = null;
 
   try {
     finalBook = await getRandomHardcoverBook();
+    if (finalBook) {
+      const authorNames = finalBook.authors.map(author => author.name || author).join(', ');
+      console.log(`Found book: "${finalBook.title}" by ${authorNames} (${finalBook.first_publish_year})`);
+    }
   } catch (error) {
     console.log('Error fetching book from Hardcover:', error);
   }
 
   if (finalBook) {
     // Now load all the book data and display everything together
-    await displayBookWithLoadingSequence(finalBook);
+    displayBook(finalBook);
   } else {
     // Show no results if Hardcover fails
+    console.log('No book found, showing no results message');
     displayNoBookResults();
-  }
-
-  // Trigger background preloading to keep cache full
-  if (!bookCache.isPreloading && bookCache.hardcover.length < 3) {
-    setTimeout(() => preloadBooks(), 1000); // Delay to not interfere with current search
   }
 }
 
@@ -417,6 +291,7 @@ function showBookLoadingState() {
     '📚 Finding your next read...';
   document.getElementById('book-description').textContent = '';
   document.getElementById('book-author').textContent = '';
+  document.getElementById('book-year').textContent = '';
   document.getElementById('book-rating').textContent = '';
 
   const cover = document.getElementById('book-cover');
@@ -429,179 +304,7 @@ function showBookLoadingState() {
   if (previewBtn) previewBtn.style.display = 'none';
 }
 
-async function displayBookWithLoadingSequence(book) {
-  if (!book) return;
-
-  // Prepare all the content first
-  const bookData = {
-    title: book.title || 'No title available',
-    authors: 'Unknown author',
-    description: book.description || 'No description available.',
-    publishInfo: '',
-    coverUrl: null,
-    previewConfig: null,
-  };
-
-  // Prepare authors
-  if (book.authors && book.authors.length > 0) {
-    bookData.authors = book.authors
-      .map((author) => author.name || author)
-      .join(', ');
-    bookData.authors = `By ${bookData.authors}`;
-  }
-
-  // Prepare publication info and rating
-  if (book.first_publish_year) {
-    bookData.publishInfo = `Published ${book.first_publish_year}`;
-  }
-  if (book.rating) {
-    // Store rating separately for star display
-    bookData.rating = book.rating;
-    bookData.hasRating = true;
-  } else {
-    bookData.hasRating = false;
-  }
-
-  // Prepare cover URL
-  if (book.cover_asset) {
-    bookData.coverUrl = book.cover_asset; // Local asset
-  } else if (book.cover_url) {
-    bookData.coverUrl = book.cover_url; // Google Books cover
-  } else if (book.cover_id) {
-    bookData.coverUrl = `https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`; // Open Library cover
-  }
-
-  // Prepare preview button config
-  const previewBtn = document.getElementById('preview-btn');
-  if (previewBtn) {
-    if (book.googleBooksId) {
-      bookData.previewConfig = {
-        text: 'View on Google Books',
-        url: `https://books.google.com/books?id=${book.googleBooksId}`,
-      };
-    } else if (book.key) {
-      bookData.previewConfig = {
-        text: 'View on Open Library',
-        url: `https://openlibrary.org${book.key}`,
-      };
-    } else {
-      // For curated books, search on Google
-      const searchQuery = `"${book.title}" "${book.authors[0]}" book`;
-      bookData.previewConfig = {
-        text: 'Search on Google',
-        url: `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`,
-      };
-    }
-  }
-
-  // Try to get better description if needed
-  if (book.source === 'curated') {
-    try {
-      const betterDescription = await getBetterDescription(book);
-      if (
-        betterDescription &&
-        betterDescription.length > bookData.description.length
-      ) {
-        bookData.description = betterDescription;
-      }
-    } catch (error) {
-      console.log('Could not get better description:', error);
-    }
-  }
-
-  // Load cover image if available (but don't wait for it to display content)
-  let coverLoaded = false;
-  const cover = document.getElementById('book-cover');
-
-  if (cover && bookData.coverUrl) {
-    const coverPromise = new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        cover.src = bookData.coverUrl;
-        cover.alt = `Cover of ${bookData.title}`;
-        coverLoaded = true;
-        resolve(true);
-      };
-      img.onerror = () => {
-        coverLoaded = false;
-        resolve(false);
-      };
-      img.src = bookData.coverUrl;
-    });
-
-    // Wait up to 2 seconds for cover to load, then proceed anyway
-    await Promise.race([
-      coverPromise,
-      new Promise((resolve) => setTimeout(resolve, 2000)),
-    ]);
-  } else if (cover && book.source === 'curated') {
-    // Try to get cover from Google Books for curated books
-    try {
-      await searchCoverForCuratedBookSynchronous(book, cover);
-      coverLoaded = cover.src && cover.src !== '';
-    } catch (error) {
-      console.log('Could not load curated book cover:', error);
-    }
-  }
-
-  // Now display everything at once with a smooth reveal
-  displayAllBookContent(bookData, coverLoaded);
-}
-
-function displayAllBookContent(bookData, coverLoaded) {
-  // Display all text content at once
-  document.getElementById('book-title').textContent = bookData.title;
-  document.getElementById('book-description').textContent =
-    bookData.description;
-  document.getElementById('book-author').textContent = bookData.authors;
-
-  // Handle rating display with stars
-  const ratingElement = document.getElementById('book-rating');
-  if (bookData.hasRating) {
-    if (bookData.publishInfo) {
-      // If we have publish year, show it as text and stars separately
-      ratingElement.innerHTML =
-        bookData.publishInfo + '<br>' + createBookStarRating(bookData.rating);
-    } else {
-      // If no publish year, just show stars
-      ratingElement.innerHTML = createBookStarRating(bookData.rating);
-    }
-  } else {
-    // No rating available, just show publish info if any
-    ratingElement.textContent = bookData.publishInfo || '';
-  }
-
-  // Display cover if loaded
-  const cover = document.getElementById('book-cover');
-  if (cover && coverLoaded) {
-    cover.style.display = 'block';
-  }
-
-  // Setup preview button
-  const previewBtn = document.getElementById('preview-btn');
-  if (previewBtn && bookData.previewConfig) {
-    previewBtn.style.display = 'inline-block';
-    previewBtn.textContent = bookData.previewConfig.text;
-    previewBtn.onclick = () => {
-      window.open(bookData.previewConfig.url, '_blank');
-    };
-  }
-
-  // Setup Goodreads link
-  const goodreadsLink = document.getElementById('goodreads-link');
-  if (goodreadsLink && bookData.title && bookData.authors) {
-    // Build Goodreads search URL
-    const searchQuery = `${bookData.title} ${bookData.authors.replace('By ', '')}`;
-    goodreadsLink.href = `https://www.goodreads.com/search?q=${encodeURIComponent(searchQuery)}`;
-    goodreadsLink.style.display = 'inline-block';
-  }
-
-  // Smooth scroll to result
-  const bookResult = document.getElementById('book-result');
-  if (bookResult) {
-    bookResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-}
+// Clean up unused functions - keeping only the essential ones
 
 // Helper function to get better description synchronously
 async function getBetterDescription(book) {
@@ -673,48 +376,6 @@ async function getBetterDescription(book) {
   return null;
 }
 
-// Synchronous version of cover search for loading sequence
-async function searchCoverForCuratedBookSynchronous(book, coverElement) {
-  // Use server proxy to search Google Books for covers (no client key required)
-
-  try {
-    const searchQuery = `${book.title} ${book.authors[0].name || book.authors[0]}`;
-    const url = `/api/googlebooks/volumes?q=${encodeURIComponent(searchQuery)}&maxResults=1`;
-
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (
-      data.items &&
-      data.items.length > 0 &&
-      data.items[0].volumeInfo.imageLinks
-    ) {
-      const imageLinks = data.items[0].volumeInfo.imageLinks;
-      const coverUrl =
-        imageLinks.large || imageLinks.medium || imageLinks.thumbnail;
-
-      if (coverUrl) {
-        return new Promise((resolve) => {
-          const img = new Image();
-          img.onload = () => {
-            coverElement.src = coverUrl;
-            coverElement.alt = `Cover of ${book.title}`;
-            resolve(true);
-          };
-          img.onerror = () => {
-            resolve(false);
-          };
-          img.src = coverUrl;
-        });
-      }
-    }
-  } catch (error) {
-    console.log('Could not fetch cover for curated book:', error);
-  }
-
-  return false;
-}
-
 function applyBookFilters() {
   const genre = document.getElementById('genre').value;
   const minRating = parseFloat(document.getElementById('rating').value);
@@ -731,52 +392,31 @@ function applyBookFilters() {
 }
 
 async function showRandomFilteredBook() {
-  const bookResult = document.getElementById('book-result');
-  if (!bookResult) return;
-
-  // Show loading state
-  bookResult.style.display = 'block';
-  showBookLoadingState();
-
-  try {
-    // Get filtered books from Hardcover API
-    const filteredBooks = await getFilteredHardcoverBooks();
-
-    if (filteredBooks && filteredBooks.length > 0) {
-      // Select random book from filtered results
-      const randomIndex = Math.floor(Math.random() * filteredBooks.length);
-      const book = filteredBooks[randomIndex];
-      displayBook(book);
-    } else {
-      displayNoBookResults();
-    }
-  } catch (error) {
-    console.error('Error getting filtered books:', error);
-    displayNoBookResults();
-  }
+  // Simplified - just show a random book (no filtering needed)
+  await showRandomBook();
 }
 
 async function getFilteredHardcoverBooks() {
   const { genre, minRating } = currentBookFilter;
 
-  // Build search query based on genre
+  // Build search query based on genre with modern focus
   let query = '';
   if (genre === 'all') {
     const genres = [
-      'bestseller fiction',
-      'popular novels',
-      'award winning books',
-      'contemporary literature',
-      'new releases fiction',
-      'literary fiction',
+      '2024 bestseller fiction',
+      '2023 bestseller fiction',
+      'modern contemporary fiction',
+      'popular fiction 2024',
+      'new york times bestseller fiction',
+      'award winning fiction 2023',
     ];
     query = genres[Math.floor(Math.random() * genres.length)];
   } else {
-    query = `${genre} books`;
+    query = `${genre} books 2024`;
   }
 
   try {
-    const url = `/api/hardcover/search?q=${encodeURIComponent(query)}&per_page=20&page=1`;
+    const url = `/api/hardcover/search?q=${encodeURIComponent(query)}&per_page=25&page=1`;
 
     const response = await fetch(url);
     const data = await response.json();
@@ -793,13 +433,16 @@ async function getFilteredHardcoverBooks() {
           const rating = book.rating || 0;
           const hasImage = book.image && book.image.url;
           const hasAuthors = book.author_names && book.author_names.length > 0;
+          const currentYear = new Date().getFullYear();
+          const publishYear = book.release_year || book.first_publish_year;
 
           return (
             rating >= minRating &&
             hasImage &&
             hasAuthors &&
             book.title &&
-            book.description
+            book.description &&
+            publishYear >= (currentYear - 10) // Only books from last 10 years
           );
         })
         .map((hit) => {
@@ -842,6 +485,7 @@ function displayNoBookResults() {
   // Hide other elements
   const elements = [
     'book-author',
+    'book-year',
     'book-rating',
     'goodreads-link',
     'preview-btn',
@@ -870,48 +514,32 @@ function displayBook(book) {
   }
   document.getElementById('book-author').textContent = `By ${authors}`;
 
-  // Display publication year and rating if available
-  let publishInfo = '';
-  if (book.first_publish_year) {
-    publishInfo = `Published ${book.first_publish_year}`;
+  // Display publication year
+  const yearElement = document.getElementById('book-year');
+  if (yearElement) {
+    if (book.first_publish_year) {
+      yearElement.textContent = `Published ${book.first_publish_year}`;
+      yearElement.style.display = 'block';
+    } else {
+      yearElement.style.display = 'none';
+    }
   }
 
   // Handle rating display with stars
   const ratingElement = document.getElementById('book-rating');
   if (book.rating) {
-    if (publishInfo) {
-      // If we have publish year, show it as text and stars separately
-      ratingElement.innerHTML =
-        publishInfo + '<br>' + createBookStarRating(book.rating);
-    } else {
-      // If no publish year, just show stars
-      ratingElement.innerHTML = createBookStarRating(book.rating);
-    }
+    ratingElement.innerHTML = createBookStarRating(book.rating);
   } else {
-    // No rating available, just show publish info if any
-    ratingElement.textContent = publishInfo;
+    ratingElement.textContent = '';
   }
 
-  // Display cover image with better error handling
+  // Display cover image - simplified for Google Books
   const cover = document.getElementById('book-cover');
   if (cover) {
-    let coverUrl = null;
-
-    // Determine cover URL based on source
     if (book.cover_url) {
-      // Google Books cover
-      coverUrl = book.cover_url;
-    } else if (book.cover_id) {
-      // Open Library cover
-      coverUrl = `https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`;
-    } else if (book.source === 'curated') {
-      // Try to get cover from Google Books for curated books
-      searchCoverForCuratedBook(book, cover);
-      // Don't set coverUrl here, let the search function handle it
-    }
-
-    if (coverUrl) {
-      cover.onload = function () {
+      console.log('Loading cover from:', book.cover_url);
+      cover.onload = () => {
+        console.log('Cover loaded successfully');
         cover.style.display = 'block';
         const bookResultElement = document.getElementById('book-result');
         if (bookResultElement) {
@@ -921,7 +549,8 @@ function displayBook(book) {
           });
         }
       };
-      cover.onerror = function () {
+      cover.onerror = () => {
+        console.log('Cover failed to load');
         cover.style.display = 'none';
         const bookResultElement = document.getElementById('book-result');
         if (bookResultElement) {
@@ -931,10 +560,10 @@ function displayBook(book) {
           });
         }
       };
-      cover.src = coverUrl;
+      cover.src = book.cover_url;
       cover.alt = `Cover of ${book.title}`;
     } else {
-      // If no cover, scroll immediately
+      cover.style.display = 'none';
       const bookResultElement = document.getElementById('book-result');
       if (bookResultElement) {
         bookResultElement.scrollIntoView({
@@ -1016,7 +645,7 @@ async function searchCoverForCuratedBook(book, coverElement) {
         coverElement.onerror = function () {
           coverElement.style.display = 'none';
         };
-        coverElement.src = coverUrl;
+        coverElement.src = coverUrl.replace('http://', 'https://');
         coverElement.alt = `Cover of ${book.title}`;
       }
     }
@@ -1170,7 +799,6 @@ async function initBooks() {
   if (window.location.pathname.includes('books.html')) {
     const curatedBooks = await loadCuratedBooks();
     shuffleArray(curatedBooks);
-    preloadBooks();
   }
 
   // Next Book button functionality

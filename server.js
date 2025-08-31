@@ -21,7 +21,7 @@ app.use((req, res, next) => {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: https:; " +
-    "connect-src 'self' https://api.themoviedb.org https://www.googleapis.com https://maps.googleapis.com https://api.hardcover.app https://world.openfoodfacts.org; " +
+    "connect-src 'self' https://api.themoviedb.org https://www.googleapis.com https://maps.googleapis.com https://api.hardcover.app https://world.openfoodfacts.org https://openlibrary.org; " +
     "frame-src 'none'; " +
     "object-src 'none';"
   );

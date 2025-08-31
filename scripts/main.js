@@ -1064,9 +1064,9 @@ async function preloadGoogleBooks() {
                 : null,
               rating: volumeInfo.averageRating || null,
               cover_url:
-                volumeInfo.imageLinks?.large ||
+                (volumeInfo.imageLinks?.large ||
                 volumeInfo.imageLinks?.medium ||
-                volumeInfo.imageLinks?.thumbnail,
+                volumeInfo.imageLinks?.thumbnail)?.replace('http://', 'https://'),
               googleBooksId: item.id,
               source: 'google',
             };
@@ -1260,9 +1260,9 @@ async function getRandomGoogleBook() {
             : null,
           rating: volumeInfo.averageRating || null,
           cover_url:
-            volumeInfo.imageLinks?.large ||
+            (volumeInfo.imageLinks?.large ||
             volumeInfo.imageLinks?.medium ||
-            volumeInfo.imageLinks?.thumbnail,
+            volumeInfo.imageLinks?.thumbnail)?.replace('http://', 'https://'),
           googleBooksId: randomBook.id,
           source: 'google',
         };
@@ -1847,7 +1847,7 @@ async function searchCoverForCuratedBookSynchronous(book, coverElement) {
     ) {
       const imageLinks = data.items[0].volumeInfo.imageLinks;
       const coverUrl =
-        imageLinks.large || imageLinks.medium || imageLinks.thumbnail;
+        (imageLinks.large || imageLinks.medium || imageLinks.thumbnail).replace('http://', 'https://');
 
       if (coverUrl) {
         return new Promise((resolve) => {
@@ -2019,7 +2019,7 @@ async function searchCoverForCuratedBook(book, coverElement) {
     ) {
       const imageLinks = data.items[0].volumeInfo.imageLinks;
       const coverUrl =
-        imageLinks.large || imageLinks.medium || imageLinks.thumbnail;
+        (imageLinks.large || imageLinks.medium || imageLinks.thumbnail).replace('http://', 'https://');
 
       if (coverUrl) {
         coverElement.onload = function () {
@@ -2305,8 +2305,8 @@ async function getFilteredGoogleBooks() {
           description:
             item.volumeInfo.description || 'No description available.',
           image: item.volumeInfo.imageLinks?.thumbnail?.replace(
-            'http:',
-            'https:'
+            'http://',
+            'https://'
           ),
           rating: item.volumeInfo.averageRating,
           goodreadsUrl: `https://www.goodreads.com/search?q=${encodeURIComponent(item.volumeInfo.title)}`,
