@@ -165,20 +165,6 @@
     transform: translateY(-1px);
 }
 
-@media (max-width: 768px) {
-    .filters-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .main-tagline {
-        font-size: 2rem;
-    }
-    
-    .hero-section {
-        padding: 2rem 1rem;
-    }
-}
-
 .movie-tagline span {
   display: block;
   margin-bottom: 1rem;
@@ -478,12 +464,6 @@ header {
 
 p#main-tag {
   margin-top: 3rem;
-}
-
-
-#Random-button {
-    margin-top: 5rem;
-    margin-bottom: 1.5rem;
 }
 
 .filters {
@@ -937,4 +917,438 @@ h2 a:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 30px rgba(108, 99, 255, 0.4);
     background: linear-gradient(135deg, #7c73ff 0%, #ac98ff 100%);
+}
+
+/* Enhanced Responsive Design for All Pages */
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+    .hero-section {
+        max-width: 1000px;
+    }
+
+    .filters-container {
+        max-width: 800px;
+    }
+
+    .movie-suggestion, .book-suggestion, .food-suggestion {
+        max-width: 900px;
+    }
+}
+
+/* Desktop (1024px to 1199px) */
+@media (min-width: 1024px) and (max-width: 1199px) {
+    .hero-section {
+        max-width: 90%;
+        padding: 3.5rem 2rem;
+    }
+
+    .main-tagline {
+        font-size: 2.3rem;
+    }
+
+    .filters-container {
+        max-width: 85%;
+    }
+}
+
+/* Small Desktop/Tablet Landscape (769px to 1023px) */
+@media (min-width: 769px) and (max-width: 1023px) {
+    .hero-section {
+        max-width: 90%;
+        padding: 3rem 1.5rem;
+    }
+
+    .main-tagline {
+        font-size: 2.1rem;
+    }
+
+    .tagline-highlight {
+        font-size: 2.1rem;
+    }
+
+    .discover-btn {
+        padding: 0.9rem 2.2rem;
+        font-size: 1.1rem;
+    }
+
+    .filters-container {
+        max-width: 90%;
+        padding: 1.8rem 1.5rem;
+    }
+
+    .movie-suggestion, .book-suggestion, .food-suggestion {
+        max-width: 85%;
+        padding: 2.2rem 1.8rem;
+    }
+}
+
+/* Tablet Portrait (601px to 768px) */
+@media (min-width: 601px) and (max-width: 768px) {
+    header {
+        padding: 1.8rem 1.5rem;
+    }
+
+    header h1 {
+        font-size: 2.5rem;
+    }
+
+    header .header-tagline {
+        font-size: 1.1rem;
+        margin-bottom: 1.2rem;
+    }
+
+    main {
+        padding: 1.5rem;
+    }
+
+    .hero-section {
+        padding: 2.5rem 1.5rem;
+        margin: 1.5rem auto;
+        max-width: 95%;
+    }
+
+    .main-tagline {
+        font-size: 1.9rem;
+    }
+
+    .tagline-highlight {
+        font-size: 1.9rem;
+    }
+
+    .discover-btn {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+    }
+
+    .filters-container {
+        max-width: 95%;
+        padding: 1.5rem 1.2rem;
+        margin: 1.5rem auto;
+    }
+
+    .filters-title {
+        font-size: 1.4rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .movie-suggestion, .book-suggestion, .food-suggestion {
+        max-width: 95%;
+        padding: 2rem 1.5rem;
+        margin: 2rem auto;
+    }
+
+    .navigation-footer {
+        margin: 2.5rem 0;
+    }
+}
+
+/* Mobile Landscape (481px to 600px) */
+@media (min-width: 481px) and (max-width: 600px) {
+    header {
+        padding: 1.5rem 1.2rem;
+    }
+
+    header h1 {
+        font-size: 2.2rem;
+    }
+
+    header .header-tagline {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    header nav {
+        gap: 0.4rem;
+    }
+
+    header nav a {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    main {
+        padding: 1.2rem;
+    }
+
+    .hero-section {
+        padding: 2rem 1.2rem;
+        margin: 1.2rem auto;
+        max-width: 100%;
+    }
+
+    .main-tagline {
+        font-size: 1.7rem;
+    }
+
+    .tagline-highlight {
+        font-size: 1.7rem;
+    }
+
+    .main-tagline span:last-child {
+        font-size: 1rem;
+    }
+
+    .discover-btn {
+        padding: 0.75rem 1.8rem;
+        font-size: 0.95rem;
+    }
+
+    .filters-container {
+        max-width: 100%;
+        padding: 1.3rem 1rem;
+        margin: 1.2rem auto;
+    }
+
+    .filters-title {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+    }
+
+    .filters-grid {
+        gap: 1.2rem;
+    }
+
+    .filter-group label {
+        font-size: 0.85rem;
+    }
+
+    .filter-select, .filter-input {
+        padding: 0.65rem 0.9rem;
+        font-size: 0.9rem;
+    }
+
+    .apply-filters-btn {
+        padding: 0.65rem 1.8rem;
+        font-size: 0.9rem;
+        margin-top: 0.8rem;
+    }
+
+    .movie-suggestion, .book-suggestion, .food-suggestion {
+        max-width: 100%;
+        padding: 1.8rem 1.2rem;
+        margin: 1.8rem auto;
+    }
+
+    .movie-suggestion img, .book-suggestion img, .food-suggestion img {
+        max-width: 95%;
+    }
+
+    #next-movie-btn, #next-book-btn, #next-food-btn {
+        padding: 0.65rem 1.8rem;
+        font-size: 0.9rem;
+        margin-top: 1.2rem;
+    }
+
+    .navigation-footer {
+        margin: 2rem 0;
+    }
+
+    .home-btn {
+        padding: 0.65rem 1.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Mobile Portrait (320px to 480px) */
+@media (max-width: 480px) {
+    header {
+        padding: 1.2rem 1rem;
+    }
+
+    header h1 {
+        font-size: 1.8rem;
+        letter-spacing: 1px;
+    }
+
+    header .header-tagline {
+        font-size: 0.9rem;
+        margin-bottom: 0.8rem;
+        line-height: 1.3;
+    }
+
+    header nav {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    header nav a {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        width: 100%;
+        text-align: center;
+    }
+
+    main {
+        padding: 1rem;
+    }
+
+    .hero-section {
+        padding: 1.8rem 1rem;
+        margin: 1rem auto;
+        max-width: 100%;
+    }
+
+    .main-tagline {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tagline-highlight {
+        font-size: 1.5rem;
+    }
+
+    .main-tagline span:last-child {
+        font-size: 0.9rem;
+    }
+
+    .discover-btn {
+        padding: 0.7rem 1.5rem;
+        font-size: 0.9rem;
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .filters-container {
+        max-width: 100%;
+        padding: 1.2rem 0.9rem;
+        margin: 1rem auto;
+    }
+
+    .filters-title {
+        font-size: 1.2rem;
+        margin-bottom: 0.9rem;
+        text-align: center;
+    }
+
+    .filters-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    .filter-group label {
+        font-size: 0.8rem;
+        margin-bottom: 0.3rem;
+        display: block;
+    }
+
+    .filter-select, .filter-input {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+        width: 100%;
+    }
+
+    .apply-filters-btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        width: 100%;
+        max-width: 200px;
+        justify-self: center;
+    }
+
+    .movie-suggestion, .book-suggestion, .food-suggestion {
+        max-width: 100%;
+        padding: 1.5rem 1rem;
+        margin: 1.5rem auto;
+    }
+
+    .movie-suggestion h2, .book-suggestion h2, .food-suggestion h2 {
+        font-size: 1.3rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .movie-suggestion p, .book-suggestion p, .food-suggestion p {
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .movie-suggestion img, .book-suggestion img, .food-suggestion img {
+        max-width: 90%;
+        margin: 1rem auto;
+    }
+
+    #next-movie-btn, #next-book-btn, #next-food-btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.85rem;
+        margin-top: 1rem;
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .navigation-footer {
+        margin: 1.5rem 0;
+        text-align: center;
+    }
+
+    .home-btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.85rem;
+        width: 100%;
+        max-width: 250px;
+    }
+}
+
+/* Touch-friendly enhancements for mobile devices */
+@media (hover: none) and (pointer: coarse) {
+    .discover-btn,
+    .apply-filters-btn,
+    .home-btn,
+    #next-movie-btn,
+    #next-book-btn,
+    #next-food-btn,
+    .filter-select,
+    .filter-input {
+        min-height: 44px;
+    }
+
+    .filter-select, .filter-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+    .hero-section,
+    .filters-container,
+    .movie-suggestion,
+    .book-suggestion,
+    .food-suggestion {
+        border: 2px solid #000;
+    }
+
+    .discover-btn,
+    .apply-filters-btn,
+    .home-btn,
+    #next-movie-btn,
+    #next-book-btn,
+    #next-food-btn {
+        border: 2px solid #000;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .discover-btn,
+    .apply-filters-btn,
+    .home-btn,
+    #next-movie-btn,
+    #next-book-btn,
+    #next-food-btn,
+    .movie-suggestion img,
+    .book-suggestion img,
+    .food-suggestion img,
+    header nav a {
+        transition: none;
+        transform: none !important;
+    }
+
+    header::before {
+        animation: none;
+    }
 }
