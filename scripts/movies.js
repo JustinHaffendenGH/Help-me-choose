@@ -1,5 +1,5 @@
 // Movie-related functionality
-import { createStarRating, formatDateToUK } from './utils.js';
+// Note: createStarRating and formatDateToUK are now available globally from utils.js
 
 // Store current filter settings
 let currentFilter = {
@@ -11,7 +11,7 @@ let currentFilter = {
 // TMDB API key removed from client and moved server-side. Use /api/tmdb endpoints.
 const TMDB_API_KEY = null;
 
-export async function getRandomTMDbMovie() {
+async function getRandomTMDbMovie() {
   let attempts = 0;
   const maxAttempts = 15; // Try up to 15 different pages for better results
 
@@ -55,7 +55,7 @@ export async function getRandomTMDbMovie() {
   return null; // Return null if no movie found after all attempts
 }
 
-export async function getMovieExternalIDs(movieId) {
+async function getMovieExternalIDs(movieId) {
   try {
     // Use server proxy for external IDs
     const url = `/api/tmdb/movie/${movieId}/external_ids`;
@@ -69,7 +69,7 @@ export async function getMovieExternalIDs(movieId) {
 }
 
 // Helper to update IMDb link element
-export async function updateImdbLink(movie) {
+async function updateImdbLink(movie) {
   const imdbLink = document.getElementById('imdb-link');
   if (!imdbLink) return;
 
@@ -89,7 +89,7 @@ export async function updateImdbLink(movie) {
   }
 }
 
-export async function showRandomTMDbMovie() {
+async function showRandomTMDbMovie() {
   const movie = await getRandomTMDbMovie();
   const movieResult = document.getElementById('movie-result');
   movieResult.style.display = 'block'; // Ensure the div is visible
@@ -172,7 +172,7 @@ export async function showRandomTMDbMovie() {
   }
 }
 
-export async function fetchMovies() {
+async function fetchMovies() {
   // Server-side proxy will handle TMDb API key
   const url = `/api/tmdb/popular?page=1`;
 
@@ -191,7 +191,7 @@ export async function fetchMovies() {
   }
 }
 
-export function applyFilters() {
+function applyFilters() {
   const genre = document.getElementById('genre').value;
   const minRating = parseFloat(document.getElementById('rating').value);
 
@@ -206,7 +206,7 @@ export function applyFilters() {
   showRandomTMDbMovie();
 }
 
-export function displayRandomFilteredMovie(movies) {
+function displayRandomFilteredMovie(movies) {
   const movieResult = document.getElementById('movie-result');
   if (!movieResult) {
     console.error('movie-result div not found');
@@ -294,7 +294,7 @@ export function displayRandomFilteredMovie(movies) {
 }
 
 // Initialize movie functionality
-export function initMovies() {
+function initMovies() {
   // Next Movie button functionality
   const nextMovieBtn = document.getElementById('next-movie-btn');
   if (nextMovieBtn) {
@@ -303,3 +303,13 @@ export function initMovies() {
     };
   }
 }
+
+// Make functions globally available
+window.showRandomTMDbMovie = showRandomTMDbMovie;
+window.applyFilters = applyFilters;
+window.initMovies = initMovies;
+
+// Initialize movies functionality when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  initMovies();
+});

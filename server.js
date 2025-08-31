@@ -21,7 +21,7 @@ app.use((req, res, next) => {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: https:; " +
-    "connect-src 'self' https://api.themoviedb.org https://www.googleapis.com https://maps.googleapis.com https://api.hardcover.app; " +
+    "connect-src 'self' https://api.themoviedb.org https://www.googleapis.com https://maps.googleapis.com https://api.hardcover.app https://world.openfoodfacts.org; " +
     "frame-src 'none'; " +
     "object-src 'none';"
   );
@@ -31,7 +31,7 @@ app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  res.setHeader('Permissions-Policy', 'geolocation=(self), microphone=(), camera=()');
   
   next();
 });

@@ -1,5 +1,5 @@
 // Food functionality
-import { shuffleArray, createStarRating } from './utils.js';
+// Note: shuffleArray and createStarRating are now available globally from utils.js
 
 // Load curated foods data
 let curatedFoodsData = null;
@@ -77,7 +77,7 @@ function getLocationString() {
   return `${userLocation.lat},${userLocation.lng}`;
 }
 
-export async function preloadFoods() {
+async function preloadFoods() {
   if (foodCache.isPreloading) return;
 
   // Ensure we have user's location before preloading
@@ -420,7 +420,7 @@ async function getRandomOpenFoodFactsFood() {
   return null;
 }
 
-export async function showRandomFood() {
+async function showRandomFood() {
   const foodResult = document.getElementById('food-result');
   if (!foodResult) return;
 
@@ -644,7 +644,7 @@ function displayAllFoodContent(foodData, coverLoaded) {
   }
 }
 
-export function applyFoodFilters() {
+function applyFoodFilters() {
   const cuisine = document.getElementById('cuisine').value;
   // Food page doesn't have rating filter, so use a default minimum rating
   const minRating = 3.0;
@@ -660,7 +660,7 @@ export function applyFoodFilters() {
   showRandomFilteredFood();
 }
 
-export async function showRandomFilteredFood() {
+async function showRandomFilteredFood() {
   const foodResult = document.getElementById('food-result');
   if (!foodResult) return;
 
@@ -1004,7 +1004,7 @@ function displayFood(food) {
 }
 
 // Initialize food functionality
-export async function initFoods() {
+async function initFoods() {
   // Get user's location first
   if (window.location.pathname.includes('food.html')) {
     await getUserLocation();
@@ -1034,3 +1034,14 @@ export async function initFoods() {
     };
   }
 }
+
+// Make functions globally available
+window.showRandomFood = showRandomFood;
+window.applyFoodFilters = applyFoodFilters;
+window.showRandomFilteredFood = showRandomFilteredFood;
+window.initFoods = initFoods;
+
+// Initialize food functionality when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  initFoods();
+});

@@ -76,19 +76,7 @@
             </button>
         </div>
     </main>
-    <script type="module" src="scripts/utils.js"></script>
-    <script type="module" src="scripts/movies.js"></script>
-    <script type="module">
-        // Import the functions we need
-        import { showRandomTMDbMovie, initMovies } from './scripts/movies.js';
-
-        // Make functions available globally for onclick handlers
-        window.showRandomTMDbMovie = showRandomTMDbMovie;
-
-        // Initialize movies functionality when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            initMovies();
-        });
-    </script>
+    <script src="scripts/utils.js"></script>
+    <script src="scripts/movies.js"></script>
 </body>
 </html>

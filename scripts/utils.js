@@ -1,7 +1,7 @@
 // Utility functions for the website
 
 // Shuffle array in place using Fisher-Yates algorithm
-export function shuffleArray(array) {
+function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
@@ -9,14 +9,14 @@ export function shuffleArray(array) {
 }
 
 // Navigate to the selected page
-export function goToPage() {
+function goToPage() {
   const select = document.getElementById('page-select');
   const page = select.value;
   window.location.href = page;
 }
 
 // Create star rating HTML for movies (0-10 scale converted to 0-5 stars)
-export function createStarRating(rating) {
+function createStarRating(rating) {
   // Convert rating from 0-10 scale to 0-5 stars
   const starRating = (rating / 10) * 5;
   const fullStars = Math.floor(starRating);
@@ -44,7 +44,7 @@ export function createStarRating(rating) {
 }
 
 // Create star rating HTML for books (0-5 scale)
-export function createBookStarRating(rating) {
+function createBookStarRating(rating) {
   // Books already use 0-5 scale, no conversion needed
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 >= 0.5;
@@ -71,7 +71,7 @@ export function createBookStarRating(rating) {
 }
 
 // Format date from YYYY-MM-DD to DD/MM/YYYY
-export function formatDateToUK(dateString) {
+function formatDateToUK(dateString) {
   // Convert YYYY-MM-DD to DD/MM/YYYY format
   if (!dateString) return 'Unknown';
 
@@ -84,3 +84,10 @@ export function formatDateToUK(dateString) {
 
   return `${day}/${month}/${year}`;
 }
+
+// Make functions globally available
+window.shuffleArray = shuffleArray;
+window.goToPage = goToPage;
+window.createStarRating = createStarRating;
+window.createBookStarRating = createBookStarRating;
+window.formatDateToUK = formatDateToUK;

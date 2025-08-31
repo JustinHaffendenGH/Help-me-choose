@@ -1,5 +1,5 @@
 // Curated list of great books for instant results - EXPANDED
-export const curatedBooks = [
+const curatedBooks = [
     // Contemporary Fiction
     { 
         title: "Where the Crawdads Sing", 
@@ -514,3 +514,6 @@ export const curatedBooks = [
         description: "A boy joins a track team and learns to run from his problems instead of away from them."
     }
 ];
+
+// Make curatedBooks globally available
+window.curatedBooks = curatedBooks;

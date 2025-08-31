@@ -76,21 +76,8 @@
             </button>
         </div>
     </main>
-    <script type="module" src="scripts/utils.js"></script>
-    <script type="module" src="scripts/data/curated-books.js"></script>
-    <script type="module" src="scripts/books.js"></script>
-    <script type="module">
-        // Import the functions we need
-        import { showRandomBook, applyBookFilters, initBooks } from './scripts/books.js';
-
-        // Make functions available globally for onclick handlers
-        window.showRandomBook = showRandomBook;
-        window.applyBookFilters = applyBookFilters;
-
-        // Initialize books functionality when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            initBooks();
-        });
-    </script>
+    <script src="scripts/utils.js"></script>
+    <script src="scripts/data/curated-books.js"></script>
+    <script src="scripts/books.js"></script>
 </body>
 </html>
