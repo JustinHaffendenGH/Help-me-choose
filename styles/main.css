@@ -696,12 +696,12 @@ h2 a:hover {
 }
 
 /* Book-specific styling */
-#goodreads-link {
-    background: linear-gradient(135deg, rgba(101, 75, 54, 0.1) 0%, rgba(101, 75, 54, 0.2) 100%);
-    border: 2px solid rgba(101, 75, 54, 0.4);
-    color: #654b36;
+.goodreads-btn {
+    background: linear-gradient(135deg, rgba(55, 34, 19, 0.1) 0%, rgba(74, 44, 31, 0.15) 100%);
+    border: 2px solid rgba(55, 34, 19, 0.4);
+    color: #372213;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(101, 75, 54, 0.2);
+    box-shadow: 0 2px 8px rgba(55, 34, 19, 0.2);
     border-radius: 12px;
     padding: 0.75rem 1.5rem;
     cursor: pointer;
@@ -710,15 +710,22 @@ h2 a:hover {
     font-weight: 500;
     display: inline-block;
     margin: 0.5rem;
+    font-family: 'Georgia', serif;
+    letter-spacing: 0.3px;
 }
 
-#goodreads-link:hover {
-    background: linear-gradient(135deg, #654b36 0%, #5a4230 100%);
-    color: #fff;
-    border-color: #654b36;
-    box-shadow: 0 4px 20px rgba(101, 75, 54, 0.4);
+.goodreads-btn:hover {
+    background: linear-gradient(135deg, #372213 0%, #2a1f15 100%);
+    color: #F4F1EA;
+    border-color: #372213;
+    box-shadow: 0 4px 20px rgba(55, 34, 19, 0.4);
     text-decoration: none;
     transform: translateY(-2px);
+}
+
+.goodreads-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(55, 34, 19, 0.2);
 }
 
 #preview-btn {

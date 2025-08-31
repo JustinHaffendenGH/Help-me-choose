@@ -574,6 +574,19 @@ function displayBook(book) {
     }
   }
 
+  // Set up Goodreads button
+  const goodreadsBtn = document.getElementById('goodreads-link');
+  if (goodreadsBtn) {
+    goodreadsBtn.style.display = 'inline-block';
+    goodreadsBtn.onclick = () => {
+      const searchQuery = `"${book.title}" ${book.authors.map(author => author.name || author).join(' ')}`;
+      window.open(
+        `https://www.goodreads.com/search?q=${encodeURIComponent(searchQuery)}`,
+        '_blank'
+      );
+    };
+  }
+
   // Set up preview button based on source
   const previewBtn = document.getElementById('preview-btn');
   if (previewBtn) {
