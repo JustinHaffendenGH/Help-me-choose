@@ -68,6 +68,17 @@
             <span id="movie-rating"></span><br>
             <a id="imdb-link" href="#" target="_blank" style="display:none; margin-right:8px;">View on IMDb</a>
             <button id="trailer-btn" style="display:none;">Watch Trailer</button>
+
+            <!-- Favorites controls -->
+            <div class="fav-controls" style="margin-top:0.75rem;">
+                <button id="fav-toggle-btn" class="fav-btn icon-only" aria-pressed="false" aria-label="Save to favorites" title="Save to favorites">
+                    <!-- Smoother heart SVG path (icon-only). Visual fill controlled by CSS. -->
+                    <svg class="heart-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+                        <path class="heart-path" d="M12.1 21.3c-.4-.3-8-6.1-10.6-9.2C-0.2 9.1 1.3 5 5.6 5c2.2 0 3.6 1.3 4.5 2.6.6 1 1.6 1.8 2.9 1.8s2.3-.8 2.9-1.8c.9-1.3 2.3-2.6 4.5-2.6 4.3 0 5.8 4.1 3.9 7.1-2.6 3.1-10.2 8.9-10.2 8.9z" stroke-width="0" fill="none" />
+                    </svg>
+                </button>
+                <button id="open-favs-btn" class="home-btn" title="Open favorites">View Favorites</button>
+            </div>
             
             <!-- Streaming Availability Section -->
             <div id="streaming-availability" style="display:none;"></div>
@@ -81,6 +92,19 @@
                 ← Back to Decidr
             </button>
         </div>
+
+        <!-- Favorites panel (hidden by default) -->
+        <aside id="favorites-panel" class="movie-suggestion" style="display:none; position:fixed; right:1rem; top:6rem; width:320px; max-width:90%; z-index:60;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0;">Favorites</h3>
+                <button id="close-favs-btn" class="home-btn" style="font-size:0.9rem; padding:0.25rem 0.5rem;">Close</button>
+            </div>
+            <div id="favorites-list" style="margin-top:0.75rem; display:flex; flex-direction:column; gap:0.5rem; max-height:60vh; overflow:auto;"></div>
+            <div style="margin-top:0.75rem; display:flex; gap:0.5rem; justify-content:space-between;">
+                <button id="clear-favs-btn" class="apply-filters-btn">Clear</button>
+                <button id="export-favs-btn" class="discover-btn">Export</button>
+            </div>
+        </aside>
     </main>
     <script src="scripts/utils.js"></script>
     <script src="scripts/movies.js"></script>
