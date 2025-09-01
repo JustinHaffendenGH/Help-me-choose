@@ -54,6 +54,28 @@ app.get('/healthz', (req, res) => {
   });
 });
 
+// Minimal geo-region endpoint (best-effort, header-based). This is a lightweight helper
+// for the client to request a likely ISO country code; not intended to replace a true
+// geo-IP service. For accurate results in production, integrate a geo-IP DB or API.
+app.get('/api/geo-region', (req, res) => {
+  // Allow an override for testing: /api/geo-region?ip=1.2.3.4
+  const ipOverride = req.query.ip;
+  const ip = ipOverride || req.headers['x-forwarded-for'] || req.connection.remoteAddress || '';
+
+  // Very small heuristic mapping for common private/testing IPs and well-known prefixes
+  // Note: This is intentionally tiny; expand with a real GeoIP service for production.
+  let country = 'US';
+  if (ip) {
+    const s = String(ip);
+    if (s.startsWith('::1') || s.startsWith('127.') || s.startsWith('192.168.')) country = 'US';
+    else if (/^::ffff:46\.|^46\./.test(s)) country = 'GB'; // example IPv4 ranges
+    else if (/^::ffff:203\.|^203\./.test(s)) country = 'AU';
+    else if (s.includes('58.')) country = 'SE';
+  }
+
+  res.json({ region: country });
+});
+
 // Simple in-memory cache for JSON API responses
 const cache = new Map();
 function getCached(key) {
