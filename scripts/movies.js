@@ -89,6 +89,144 @@ async function updateImdbLink(movie) {
   }
 }
 
+// Fetch streaming availability for a movie
+async function getMovieStreamingData(movieId) {
+  try {
+    const response = await fetch(`/api/tmdb/movie/${movieId}/watch/providers`);
+    if (!response.ok) {
+      console.error('Failed to fetch streaming data');
+      return null;
+    }
+    const data = await response.json();
+    // Return US data, fallback to first available region
+    return data.results?.US || Object.values(data.results || {})[0] || null;
+  } catch (error) {
+    console.error('Error fetching streaming data:', error);
+    return null;
+  }
+}
+
+// Map provider names to their actual URLs
+function getProviderUrl(providerName) {
+  if (!providerName) {
+    return 'https://www.google.com/search?q=' + encodeURIComponent('streaming');
+  }
+
+  const key = providerName.trim().toLowerCase();
+  const providerUrls = {
+    'netflix': 'https://www.netflix.com',
+    'disney+': 'https://www.disneyplus.com',
+    'disney plus': 'https://www.disneyplus.com',
+    'disneyplus': 'https://www.disneyplus.com',
+    'hulu': 'https://www.hulu.com',
+    'amazon prime video': 'https://www.amazon.com/primevideo',
+    'amazon prime': 'https://www.amazon.com/primevideo',
+    'prime video': 'https://www.amazon.com/primevideo',
+    'primevideo': 'https://www.amazon.com/primevideo',
+    'hbo max': 'https://www.hbomax.com',
+    'hbo': 'https://www.hbomax.com',
+    'max': 'https://www.hbomax.com',
+    'apple tv+': 'https://tv.apple.com',
+    'apple tv': 'https://tv.apple.com',
+    'paramount+': 'https://www.paramountplus.com',
+    'paramount plus': 'https://www.paramountplus.com',
+    'paramountplus': 'https://www.paramountplus.com',
+    'peacock': 'https://www.peacocktv.com',
+    'crunchyroll': 'https://www.crunchyroll.com',
+    'funimation': 'https://www.funimation.com',
+    'youtube': 'https://www.youtube.com',
+    'youtube premium': 'https://www.youtube.com/premium',
+    'tubi': 'https://www.tubi.tv',
+    'pluto tv': 'https://www.pluto.tv',
+    'pluto.tv': 'https://www.pluto.tv',
+    'roku channel': 'https://www.roku.com/channel',
+    'roku': 'https://www.roku.com',
+    'amc+': 'https://www.amcplus.com',
+    'amc plus': 'https://www.amcplus.com',
+    'shudder': 'https://www.shudder.com',
+    'criterion channel': 'https://www.criterionchannel.com',
+    'kanopy': 'https://www.kanopy.com',
+    'hoopla': 'https://www.hoopladigital.com',
+    'acorn tv': 'https://www.acorn.tv',
+    'acorn': 'https://www.acorn.tv',
+    'britbox': 'https://www.britbox.com',
+    'mubi': 'https://mubi.com',
+    'fandor': 'https://www.fandor.com',
+    'sundance now': 'https://www.sundancenow.com',
+    'ifc films unlimited': 'https://www.ifcfilmsunlimited.com',
+    'starz': 'https://www.starz.com',
+    'discovery+': 'https://www.discoveryplus.com',
+    'discovery plus': 'https://www.discoveryplus.com'
+  };
+
+  if (providerUrls[key]) return providerUrls[key];
+
+  // try cleaned variants (replace + with ' plus', collapse whitespace)
+  const cleaned = key.replace(/\+/g, ' plus').replace(/\s+/g, ' ').trim();
+  if (providerUrls[cleaned]) return providerUrls[cleaned];
+
+  // Fallback to a helpful web search rather than a '#' anchor
+  return `https://www.google.com/search?q=${encodeURIComponent(providerName + ' streaming')}`;
+}
+
+// Display streaming availability
+function displayStreamingAvailability(streamingData) {
+  const streamingContainer = document.getElementById('streaming-availability');
+  if (!streamingContainer) return;
+
+  if (!streamingData) {
+    streamingContainer.style.display = 'none';
+    return;
+  }
+
+  let streamingHTML = '<div class="streaming-section"><h4>🎬 Where to Watch</h4>';
+  
+  // Only show streaming services (subscription)
+  if (streamingData.flatrate && streamingData.flatrate.length > 0) {
+    streamingHTML += '<div class="streaming-type"><div class="provider-list">';
+    streamingData.flatrate.forEach(provider => {
+      let providerUrl = getProviderUrl(provider.provider_name);
+      // Ensure URL is absolute; if mapping returned something missing scheme, prefix https://
+      if (providerUrl && !/^https?:\/\//i.test(providerUrl)) {
+        providerUrl = 'https://' + providerUrl.replace(/^\/*/, '');
+      }
+      // If provider references Roku, link to Roku info page and show simplified title
+      let displayName = provider.provider_name || '';
+      if (/roku/i.test(displayName)) {
+        providerUrl = 'https://www.roku.com/';
+        displayName = 'roku';
+      }
+
+      // Debug log to help trace incorrect links
+      try { console.debug('Provider link:', provider.provider_name, '=>', providerUrl, 'display:', displayName); } catch (e) {}
+
+      streamingHTML += `
+        <a href="${providerUrl}" target="_blank" rel="noopener noreferrer" class="streaming-provider" title="${displayName}">
+          <img src="https://image.tmdb.org/t/p/w45${provider.logo_path}" alt="${displayName}" />
+          <span>${displayName}</span>
+        </a>
+      `;
+    });
+    streamingHTML += '</div></div>';
+  }
+
+  streamingHTML += '</div>';
+  
+  if (streamingData.flatrate && streamingData.flatrate.length > 0) {
+    streamingContainer.innerHTML = streamingHTML;
+    streamingContainer.style.display = 'block';
+  } else {
+    // Professional message when no subscription streaming platforms are found
+    streamingContainer.innerHTML = `
+      <div class="streaming-section">
+        <h4>🎬 Where to Watch</h4>
+        <p class="no-streams">We couldn't find subscription streaming options for this title at the moment. You may still be able to rent or purchase it through major digital retailers.</p>
+      </div>
+    `;
+    streamingContainer.style.display = 'block';
+  }
+}
+
 async function showRandomTMDbMovie() {
   const movie = await getRandomTMDbMovie();
   const movieResult = document.getElementById('movie-result');
@@ -127,6 +265,11 @@ async function showRandomTMDbMovie() {
     }
     // Update IMDb link
     updateImdbLink(movie);
+    
+    // Fetch and display streaming availability
+    const streamingData = await getMovieStreamingData(movie.id);
+    displayStreamingAvailability(streamingData);
+    
     // Show and update trailer button
     const trailerBtn = document.getElementById('trailer-btn');
     if (trailerBtn) {

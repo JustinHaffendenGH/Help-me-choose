@@ -181,6 +181,37 @@ app.get('/api/tmdb/movie/:id/external_ids', async (req, res) => {
   }
 });
 
+// Proxy for TMDb watch providers (keeps API key server-side)
+app.get('/api/tmdb/movie/:id/watch/providers', async (req, res) => {
+  try {
+    if (!TMDB_API_KEY)
+      return res
+        .status(500)
+        .json({ error: 'Missing TMDB_API_KEY in server environment' });
+    const movieId = req.params.id;
+    if (!movieId) return res.status(400).json({ error: 'movie id required' });
+    
+    // Default to US region, but allow override via query param
+    const region = req.query.region || 'US';
+    const url = `https://api.themoviedb.org/3/movie/${encodeURIComponent(movieId)}/watch/providers?api_key=${TMDB_API_KEY}`;
+    const cacheKey = `tmdb:watch:${movieId}:${region}`;
+    
+    const cached = getCached(cacheKey);
+    if (cached) return res.json(cached);
+    
+    const r = await fetch(url);
+    if (!r.ok) return res.status(502).send(await r.text());
+    const json = await r.json();
+    
+    // Cache for 1 hour (streaming availability changes less frequently)
+    setCached(cacheKey, json, 60 * 60 * 1000);
+    return res.json(json);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Server error', detail: err.message });
+  }
+});
+
 // Proxy for Google Books volumes endpoint
 app.get('/api/googlebooks/volumes', async (req, res) => {
   try {
