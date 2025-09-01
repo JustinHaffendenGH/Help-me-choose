@@ -89,8 +89,26 @@ async function updateImdbLink(movie) {
   }
 }
 
-// Fetch streaming availability for a movie
-async function getMovieStreamingData(movieId) {
+// Determine user's region (ISO 3166-1 alpha-2) with override support
+function getUserRegion() {
+  // 1) user override
+  const override = (localStorage.getItem('regionOverride') || '').trim();
+  if (override) return override.toUpperCase();
+
+  // 2) navigator.language (e.g. en-GB)
+  const locale = (navigator.language || navigator.userLanguage || '').toLowerCase();
+  if (locale && locale.includes('-')) {
+    const parts = locale.split('-');
+    const maybeCountry = parts[parts.length - 1];
+    if (maybeCountry && maybeCountry.length === 2) return maybeCountry.toUpperCase();
+  }
+
+  // 3) default
+  return 'US';
+}
+
+// Fetch streaming availability for a movie and return the data for the requested region
+async function getMovieStreamingData(movieId, region) {
   try {
     const response = await fetch(`/api/tmdb/movie/${movieId}/watch/providers`);
     if (!response.ok) {
@@ -98,8 +116,14 @@ async function getMovieStreamingData(movieId) {
       return null;
     }
     const data = await response.json();
-    // Return US data, fallback to first available region
-    return data.results?.US || Object.values(data.results || {})[0] || null;
+    if (!data.results) return null;
+
+    const r = (region || '').toUpperCase();
+    if (r && data.results[r]) return data.results[r];
+    if (data.results['US']) return data.results['US'];
+
+    // fallback to first available
+    return Object.values(data.results || {})[0] || null;
   } catch (error) {
     console.error('Error fetching streaming data:', error);
     return null;
@@ -112,7 +136,7 @@ function getProviderUrl(providerName) {
     return 'https://www.google.com/search?q=' + encodeURIComponent('streaming');
   }
 
-  const key = providerName.trim().toLowerCase();
+  const key = normalizeProviderName(providerName);
   const providerUrls = {
     'netflix': 'https://www.netflix.com',
     'disney+': 'https://www.disneyplus.com',
@@ -169,8 +193,210 @@ function getProviderUrl(providerName) {
   return `https://www.google.com/search?q=${encodeURIComponent(providerName + ' streaming')}`;
 }
 
+// Normalize noisy provider names from TMDb into canonical lookup keys.
+function normalizeProviderName(providerName) {
+  if (!providerName) return '';
+  let s = providerName.trim().toLowerCase();
+
+  // Remove parenthetical notes and extra punctuation
+  s = s.replace(/\(.*?\)/g, '');
+  s = s.replace(/[\*\|\/:,]/g, ' ');
+
+  // Normalize plus sign, collapse whitespace
+  s = s.replace(/\+/g, ' plus').replace(/\s+/g, ' ').trim();
+
+  // Strip common suffixes/prefixes that break hostname generation
+  s = s.replace(/\b(amazon channel|amazon prime channel|amazon channel)\b/g, '');
+  s = s.replace(/\b(standard with ads|basic with ads|with ads|with ads?)\b/g, '');
+  s = s.replace(/\b(roku premium channel|premium channel|channel)\b/g, '');
+  s = s.replace(/\b(available to purchase|buy|rental|rent)\b/g, '');
+  s = s.replace(/\b(\(free\)|free)\b/g, '');
+
+  s = s.replace(/\s+/g, ' ').trim();
+
+  // Heuristic canonical mapping by substring
+  if (s.includes('netflix')) return 'netflix';
+  if (s.includes('disney')) return 'disney+';
+  if (s.includes('hulu')) return 'hulu';
+  if (s.includes('amazon') || s.includes('primevideo') || s.includes('prime video') || s.includes('prime')) return 'amazon prime video';
+  if (s.includes('hbo') || s.includes('max')) return 'hbo max';
+  if (s.includes('apple')) return 'apple tv+';
+  if (s.includes('paramount')) return 'paramount+';
+  if (s.includes('peacock')) return 'peacock';
+  if (s.includes('roku')) return 'roku';
+  if (s.includes('amc')) return 'amc+';
+  if (s.includes('starz')) return 'starz';
+  if (s.includes('google play') || s.includes('play.google')) return 'google play';
+  if (s.includes('rakuten')) return 'rakuten tv';
+  if (s.includes('pathe')) return 'pathe thuis';
+  if (s.includes('vudu')) return 'vudu';
+  if (s.includes('mubi')) return 'mubi';
+  if (s.includes('peacock')) return 'peacock';
+  if (s.includes('tubi')) return 'tubi';
+  if (s.includes('pluto')) return 'pluto tv';
+
+  // Default: cleaned whitespace string
+  return s;
+}
+
+// Convert a normalized provider key into a friendly display label.
+function prettyProviderLabel(normalizedKey, originalName) {
+  if (!normalizedKey) return originalName || '';
+  const map = {
+    'netflix': 'Netflix',
+    'disney+': 'Disney+',
+    'disney plus': 'Disney+',
+    'hulu': 'Hulu',
+    'amazon prime video': 'Amazon Prime Video',
+    'prime video': 'Amazon Prime Video',
+    'hbo max': 'HBO Max',
+    'apple tv+': 'Apple TV+',
+    'paramount+': 'Paramount+',
+    'peacock': 'Peacock',
+    'roku': 'Roku',
+    'amc+': 'AMC+',
+    'starz': 'Starz',
+    'google play': 'Google Play',
+    'rakuten tv': 'Rakuten TV',
+    'pathe thuis': 'Pathé Thuis',
+    'vudu': 'Vudu',
+    'mubi': 'MUBI',
+    'tubi': 'Tubi',
+    'pluto tv': 'Pluto TV',
+    'philo': 'Philo',
+    'fubo tv': 'FuboTV',
+    'youtube tv': 'YouTube TV',
+    'now tv': 'Now TV',
+    'hotstar': 'Hotstar',
+    'bbc iplayer': 'BBC iPlayer',
+    'viaplay': 'Viaplay'
+  };
+  if (map[normalizedKey]) return map[normalizedKey];
+
+  // Fallback: title-case the original name for nicer display
+  const src = originalName || normalizedKey;
+  return src.replace(/\b\w+/g, (w) => w[0].toUpperCase() + w.slice(1).toLowerCase());
+}
+
+// Best-effort provider-specific deep links for a given movie title.
+// Returns an absolute URL string or null if none known.
+function getProviderDeepLink(providerName, movieTitle, region) {
+  if (!providerName || !movieTitle) return null;
+  const titleQ = encodeURIComponent(movieTitle.trim());
+  const key = normalizeProviderName(providerName);
+  const r = (region || '').toUpperCase();
+
+  // region-specific provider domains for higher-quality deep links
+  const providerDomainByRegion = {
+    'netflix': { US: 'www.netflix.com', GB: 'www.netflix.com', AU: 'www.netflix.com' },
+    'amazon prime video': { US: 'www.amazon.com', GB: 'www.amazon.co.uk', AU: 'www.amazon.com.au' },
+    'prime video': { US: 'www.amazon.com', GB: 'www.amazon.co.uk', AU: 'www.amazon.com.au' },
+    'disney+': { US: 'www.disneyplus.com', GB: 'www.disneyplus.com', AU: 'www.disneyplus.com' },
+    'hulu': { US: 'www.hulu.com' },
+    'hbo max': { US: 'www.hbomax.com', GB: 'www.hbomax.com' },
+    'apple tv+': { US: 'tv.apple.com', GB: 'tv.apple.com' },
+    'paramount+': { US: 'www.paramountplus.com', GB: 'www.paramountplus.com' },
+    'peacock': { US: 'www.peacocktv.com' },
+    'roku': { US: 'www.roku.com', GB: 'www.roku.com', AU: 'www.roku.com' },
+    'amc+': { US: 'www.amcplus.com' },
+    'mubi': { US: 'mubi.com', GB: 'mubi.com' },
+  'rakuten tv': { US: 'rakuten.tv', GB: 'rakuten.tv', AU: 'rakuten.tv' },
+  'rakuten': { US: 'rakuten.tv', GB: 'rakuten.tv', AU: 'rakuten.tv' },
+  'pathe thuis': { NL: 'pathe-thuis.nl' },
+  'pathe-thuis': { NL: 'pathe-thuis.nl' },
+  'google play': { US: 'play.google.com', GB: 'play.google.com', AU: 'play.google.com' },
+  'google play movies': { US: 'play.google.com', GB: 'play.google.com', AU: 'play.google.com' },
+  'sky store': { GB: 'www.skystore.com' },
+  'chili': { US: 'www.chili.com', GB: 'www.chili.com', AU: 'www.chili.com' },
+  'vudu': { US: 'www.vudu.com' }
+  ,
+  // Additional providers and regional domains
+  'philo': { US: 'www.philo.com' },
+  'fubo tv': { US: 'www.fubo.tv' },
+  'fubo': { US: 'www.fubo.tv' },
+  'youtube tv': { US: 'tv.youtube.com' },
+  'now tv': { GB: 'www.nowtv.com' },
+  'hotstar': { IN: 'www.hotstar.com' },
+  'bbc iplayer': { GB: 'www.bbc.co.uk' },
+  'viaplay': { SE: 'www.viaplay.se', FI: 'www.viaplay.fi', DK: 'www.viaplay.dk', NO: 'www.viaplay.no', US: 'www.viaplay.com' }
+  };
+
+  // additional normalized aliases handled below
+  // e.g. 'netflix standard with ads' => netflix
+
+  // patterns that are invariant (use domain above when present)
+  const basePatterns = {
+    'netflix': (domain) => `https://${domain}/search?q=${titleQ}`,
+    'disney+': (domain) => `https://${domain}/search?q=${titleQ}`,
+    'disney plus': (domain) => `https://${domain}/search?q=${titleQ}`,
+    'hulu': (domain) => `https://${domain}/search?q=${titleQ}`,
+    'amazon prime video': (domain) => `https://${domain}/s?k=${titleQ}&i=instant-video`,
+    'prime video': (domain) => `https://${domain}/s?k=${titleQ}&i=instant-video`,
+    'hbo max': (domain) => `https://${domain}/search?q=${titleQ}`,
+    'hbo': (domain) => `https://${domain}/search?q=${titleQ}`,
+    'max': (domain) => `https://${domain}/search?q=${titleQ}`,
+    'apple tv+': (domain) => `https://${domain}/search?term=${titleQ}`,
+    'apple tv': (domain) => `https://${domain}/search?term=${titleQ}`,
+    'paramount+': (domain) => `https://${domain}/search/?q=${titleQ}`,
+    'peacock': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'philo': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'fubo tv': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'fubo': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'youtube tv': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'now tv': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'hotstar': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'bbc iplayer': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'viaplay': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'rakuten tv': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'rakuten': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'pathe thuis': (domain) => `https://${domain}/search?query=${titleQ}`,
+  'pathe-thuis': (domain) => `https://${domain}/search?query=${titleQ}`,
+  'google play': (domain) => `https://${domain}/store/search?q=${titleQ}&c=movies`,
+  'google play movies': (domain) => `https://${domain}/store/search?q=${titleQ}&c=movies`,
+  'sky store': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'chili': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'vudu': (domain) => `https://${domain}/search?q=${titleQ}`,
+  // variant aliases
+  'netflix standard with ads': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'netflix standard': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'netflix basic with ads': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'amazon prime video with ads': (domain) => `https://${domain}/s?k=${titleQ}&i=instant-video`,
+  'paramount+ amazon channel': (domain) => `https://${domain}/search/?q=${titleQ}`,
+  'amc+ amazon channel': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'amc plus amazon channel': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'starz amazon channel': (domain) => `https://${domain}/search?q=${titleQ}`,
+  'starz roku premium channel': (domain) => `https://${domain}/search?q=${titleQ}`,
+    'tubi': (domain) => `https://${domain}/search?query=${titleQ}`,
+    'pluto tv': (domain) => `https://${domain}/search?query=${titleQ}`,
+    'roku': (domain) => `https://${domain}/search?q=${titleQ}`,
+    'amc+': (domain) => `https://${domain}/search?q=${titleQ}`,
+    'mubi': (domain) => `https://${domain}/search?q=${titleQ}`
+  };
+
+  // direct lookup using normalized key
+  if (basePatterns[key]) {
+    const domainMap = providerDomainByRegion[key];
+    const domain = domainMap ? (domainMap[r] || domainMap['US'] || Object.values(domainMap)[0]) : null;
+    if (domain) return basePatterns[key](domain);
+    // If no region-specific domain, fall back to a single known domain used in getProviderUrl
+    const fallback = basePatterns[key]('www.' + (key.replace(/\s|\+/g, '') || ''));
+    return fallback;
+  }
+
+  // try cleaned variants
+  const cleaned = key.replace(/\+/g, ' plus').replace(/\s+/g, ' ').trim();
+  if (basePatterns[cleaned]) {
+    const domainMap = providerDomainByRegion[cleaned] || providerDomainByRegion[key];
+    const domain = domainMap ? (domainMap[r] || domainMap['US'] || Object.values(domainMap)[0]) : null;
+    if (domain) return basePatterns[cleaned](domain);
+    return basePatterns[cleaned]('www.' + cleaned.replace(/\s/g, ''));
+  }
+
+  return null;
+}
+
 // Display streaming availability
-function displayStreamingAvailability(streamingData) {
+function displayStreamingAvailability(streamingData, movie, region) {
   const streamingContainer = document.getElementById('streaming-availability');
   if (!streamingContainer) return;
 
@@ -184,24 +410,60 @@ function displayStreamingAvailability(streamingData) {
   // Only show streaming services (subscription)
   if (streamingData.flatrate && streamingData.flatrate.length > 0) {
     streamingHTML += '<div class="streaming-type"><div class="provider-list">';
-    streamingData.flatrate.forEach(provider => {
-      let providerUrl = getProviderUrl(provider.provider_name);
-      // Ensure URL is absolute; if mapping returned something missing scheme, prefix https://
+    // Deduplicate providers by normalized provider key so we show one badge per service.
+    const seen = {};
+    const deduped = [];
+    streamingData.flatrate.forEach((provider) => {
+      const norm = normalizeProviderName(provider.provider_name || '');
+      if (!seen[norm]) {
+        seen[norm] = provider;
+        deduped.push(provider);
+      } else {
+        // Prefer an entry that includes a logo_path over one that doesn't
+        const existing = seen[norm];
+        if ((!existing.logo_path || existing.logo_path.length === 0) && provider.logo_path) {
+          const idx = deduped.indexOf(existing);
+          if (idx >= 0) deduped[idx] = provider;
+          seen[norm] = provider;
+        }
+      }
+    });
+
+    deduped.forEach(provider => {
+      const providerUrlRaw = getProviderUrl(provider.provider_name);
+      let providerUrl = providerUrlRaw;
       if (providerUrl && !/^https?:\/\//i.test(providerUrl)) {
         providerUrl = 'https://' + providerUrl.replace(/^\/*/, '');
       }
-      // If provider references Roku, link to Roku info page and show simplified title
-      let displayName = provider.provider_name || '';
-      if (/roku/i.test(displayName)) {
+
+      const normalized = normalizeProviderName(provider.provider_name || '');
+      let displayName = prettyProviderLabel(normalized, provider.provider_name || '');
+      if (/roku/i.test(provider.provider_name || '')) {
         providerUrl = 'https://www.roku.com/';
-        displayName = 'roku';
+        displayName = 'Roku';
       }
 
-      // Debug log to help trace incorrect links
-      try { console.debug('Provider link:', provider.provider_name, '=>', providerUrl, 'display:', displayName); } catch (e) {}
+      // Prefer a provider-specific deep link for this movie when possible (use normalized key)
+      const deep = getProviderDeepLink(normalized, movie?.title || '', region) || getProviderDeepLink(provider.provider_name, movie?.title || '', region);
+      let finalHref;
+      if (/^roku$/i.test(displayName)) {
+        finalHref = 'https://www.roku.com/';
+      } else if (deep) {
+        finalHref = deep;
+      } else if (streamingData && streamingData.link) {
+        finalHref = streamingData.link;
+      } else {
+        finalHref = providerUrl;
+      }
+
+      if (finalHref && !/^https?:\/\//i.test(finalHref)) {
+        finalHref = 'https://' + finalHref.replace(/^\/*/, '');
+      }
+
+      try { console.debug('Provider link:', provider.provider_name, '=>', finalHref, 'display:', displayName, 'normalized:', normalized); } catch (e) {}
 
       streamingHTML += `
-        <a href="${providerUrl}" target="_blank" rel="noopener noreferrer" class="streaming-provider" title="${displayName}">
+        <a href="${finalHref}" target="_blank" rel="noopener noreferrer" class="streaming-provider" title="${displayName}">
           <img src="https://image.tmdb.org/t/p/w45${provider.logo_path}" alt="${displayName}" />
           <span>${displayName}</span>
         </a>
@@ -266,9 +528,13 @@ async function showRandomTMDbMovie() {
     // Update IMDb link
     updateImdbLink(movie);
     
-    // Fetch and display streaming availability
-    const streamingData = await getMovieStreamingData(movie.id);
-    displayStreamingAvailability(streamingData);
+  // Fetch and display streaming availability (region-aware)
+  window.currentMovieId = movie.id;
+  // keep the full movie object handy for deep-link generation
+  window.currentMovie = movie;
+  const region = getUserRegion();
+  const streamingData = await getMovieStreamingData(movie.id, region);
+  displayStreamingAvailability(streamingData, movie, region);
     
     // Show and update trailer button
     const trailerBtn = document.getElementById('trailer-btn');
@@ -435,6 +701,8 @@ function displayRandomFilteredMovie(movies) {
   // Show the movie-result div
   movieResult.style.display = 'block';
 }
+
+// Region is auto-detected by `getUserRegion()`; no UI override is provided.
 
 // Initialize movie functionality
 function initMovies() {
