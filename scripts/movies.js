@@ -702,8 +702,8 @@ function displayRandomFilteredMovie(movies) {
   movieResult.style.display = 'block';
 }
 
-// Favorites system (localStorage)
-const FAV_KEY = 'hmc_favorites_v1';
+// Favorites system (localStorage) - use canonical 'favorites' key for compatibility
+const FAV_KEY = 'favorites';
 
 function loadFavorites() {
   try {
@@ -738,99 +738,20 @@ function toggleFavorite(movie) {
     favs.splice(existing, 1);
   } else {
     // Store a minimal snapshot
-    favs.unshift({ id: movie.id, title: movie.title, poster_path: movie.poster_path || '' });
+    // Store a compatible shape used by the standalone favorites page.
+    favs.unshift({
+      id: movie.id,
+      title: movie.title,
+      poster: movie.poster || '',
+      poster_path: movie.poster_path || '',
+      url: `movies.html?id=${movie.id}`,
+      addedAt: Date.now()
+    });
     // keep list reasonable size
     if (favs.length > 200) favs = favs.slice(0, 200);
   }
   saveFavorites(favs);
-  renderFavorites();
   updateFavToggleUI(movie.id);
-}
-
-function renderFavorites() {
-  const panel = document.getElementById('favorites-panel');
-  const listEl = document.getElementById('favorites-list');
-  if (!panel || !listEl) return;
-  const favs = loadFavorites();
-  listEl.innerHTML = '';
-  if (favs.length === 0) {
-    listEl.innerHTML = '<div style="color:#515070;">No favorites yet. Save a movie to see it here.</div>';
-    return;
-  }
-  favs.forEach((m) => {
-    const item = document.createElement('div');
-    item.style.display = 'flex';
-    item.style.alignItems = 'center';
-    item.style.justifyContent = 'space-between';
-    item.style.gap = '0.5rem';
-
-    const left = document.createElement('div');
-    left.style.display = 'flex';
-    left.style.alignItems = 'center';
-    left.style.gap = '0.5rem';
-
-    const img = document.createElement('img');
-    img.src = m.poster_path ? `https://image.tmdb.org/t/p/w92${m.poster_path}` : 'assets/cinema.png';
-    img.alt = m.title;
-    img.style.width = '48px';
-    img.style.height = '68px';
-    img.style.objectFit = 'cover';
-    img.style.borderRadius = '6px';
-
-    const title = document.createElement('div');
-    title.textContent = m.title;
-    title.style.flex = '1';
-    title.style.fontSize = '0.95rem';
-    title.style.color = '#3a3768';
-
-    left.appendChild(img);
-    left.appendChild(title);
-
-    const actions = document.createElement('div');
-    actions.style.display = 'flex';
-    actions.style.gap = '0.4rem';
-
-    const openBtn = document.createElement('button');
-    openBtn.textContent = 'Open';
-    openBtn.className = 'home-btn';
-    openBtn.onclick = () => {
-      // Load the movie by id via TMDb and show details
-      fetch(`/api/tmdb/movie/${m.id}`)
-        .then((r) => r.json())
-        .then((full) => {
-          window.currentMovie = full;
-          window.currentMovieId = full.id;
-          // Reuse display logic by setting up movie object
-          document.getElementById('movie-title').textContent = full.title;
-          document.getElementById('movie-overview').textContent = full.overview || '';
-          document.getElementById('movie-release').textContent = 'Release date: ' + (full.release_date ? formatDateToUK(full.release_date) : '');
-          document.getElementById('movie-rating').innerHTML = createStarRating(full.vote_average || 0);
-          const poster = document.getElementById('movie-poster');
-          if (poster) { poster.src = full.poster_path ? `https://image.tmdb.org/t/p/w500${full.poster_path}` : ''; poster.style.display = full.poster_path ? 'block' : 'none'; }
-          updateImdbLink(full);
-          getMovieStreamingData(full.id, getUserRegion()).then((d) => displayStreamingAvailability(d, full, getUserRegion()));
-          document.getElementById('movie-result').style.display = 'block';
-        });
-    };
-
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = 'Remove';
-    removeBtn.className = 'apply-filters-btn';
-    removeBtn.onclick = () => {
-      let favs2 = loadFavorites();
-      favs2 = favs2.filter((x) => x.id !== m.id);
-      saveFavorites(favs2);
-      renderFavorites();
-      updateFavToggleUI(window.currentMovieId);
-    };
-
-    actions.appendChild(openBtn);
-    actions.appendChild(removeBtn);
-
-    item.appendChild(left);
-    item.appendChild(actions);
-    listEl.appendChild(item);
-  });
 }
 
 function updateFavToggleUI(currentMovieId) {
@@ -855,10 +776,7 @@ function updateFavToggleUI(currentMovieId) {
 // Wire up favorites buttons when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   const favToggle = document.getElementById('fav-toggle-btn');
-  const openFavs = document.getElementById('open-favs-btn');
-  const closeFavs = document.getElementById('close-favs-btn');
-  const clearFavs = document.getElementById('clear-favs-btn');
-  const exportFavs = document.getElementById('export-favs-btn');
+  // open-favs is a semantic anchor now and intentionally has no in-page handler
 
   if (favToggle) {
     favToggle.addEventListener('click', () => {
@@ -868,53 +786,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  if (openFavs) {
-    openFavs.addEventListener('click', () => {
-      const panel = document.getElementById('favorites-panel');
-      if (panel) {
-        panel.style.display = 'block';
-        renderFavorites();
-      }
-    });
-  }
-
-  if (closeFavs) {
-    closeFavs.addEventListener('click', () => {
-      const panel = document.getElementById('favorites-panel');
-      if (panel) panel.style.display = 'none';
-    });
-  }
-
-  if (clearFavs) {
-    clearFavs.addEventListener('click', () => {
-      if (confirm('Clear all favorites?')) {
-        saveFavorites([]);
-        renderFavorites();
-        updateFavToggleUI(window.currentMovieId);
-      }
-    });
-  }
-
-  if (exportFavs) {
-    exportFavs.addEventListener('click', () => {
-      const favs = loadFavorites();
-      const blob = new Blob([JSON.stringify(favs, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'favorites.json';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    });
-  }
-
   // Keep the fav toggle in-sync if user navigates between movies
   const nextBtn = document.getElementById('next-movie-btn');
   if (nextBtn) nextBtn.addEventListener('click', () => setTimeout(() => updateFavToggleUI(window.currentMovieId), 600));
-
-  renderFavorites();
+  // The `open-favs` anchor intentionally has no JS handler so it always
+  // navigates to `favorites.html`. Re-add an event listener here only if
+  // you later reintroduce an in-page panel.
 });
 
 

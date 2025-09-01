@@ -11,8 +11,8 @@
     align-items: center;
     justify-content: center;
     padding: 0; /* icon-only */
-    background: transparent;
-    border: none;
+    background: transparent; /* keep no visible box background */
+    border: none; /* remove outer button border */
     color: #3a3768;
     border-radius: 50%;
     line-height: 1; /* prevent size jumps */
@@ -25,9 +25,9 @@
 .fav-btn.icon-only { width: 36px; height: 36px; }
 .fav-btn .heart-icon { display: block; width: 20px; height: 20px; }
 .fav-btn .heart-path {
-    stroke: #6c63ff;
+    stroke: #6c63ff; /* restore stroke so heart has an outline */
     stroke-width: 1.2px;
-    fill: none;
+    fill: none; /* keep icon unfilled by default like before */
     transition: fill 200ms ease, stroke 200ms ease, transform 200ms ease;
 }
 .fav-btn:hover { background: transparent; transform: translateY(-1px); }
@@ -398,6 +398,27 @@ main {
     backdrop-filter: blur(10px);
     border: 1px solid rgba(108, 99, 255, 0.2);
 }
+
+/* Favorites specific styles */
+.favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+.favorite-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,255,0.9) 100%);
+    border: 1px solid rgba(108, 99, 255, 0.08);
+    padding: 1rem;
+    border-radius: 12px;
+    text-align: left;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+.favorite-card img { width: 96px; height: 144px; object-fit:cover; border-radius:8px; }
+.favorite-card h3 { margin: 0; font-size:1rem; }
+.favorite-meta { margin-left: auto; display:flex; gap:0.5rem; align-items:center; }
+
 
 .main-tagline {
     font-size: 2.5rem;
@@ -1529,47 +1550,4 @@ h2 a:hover {
     margin-right: auto;
 }
 
-/* Favorites panel styling */
-#favorites-panel {
-    box-shadow: 0 8px 40px rgba(58,55,104,0.12);
-    border: 1px solid rgba(108,99,255,0.12);
-    padding: 1rem;
-    background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,249,255,0.95));
-    border-radius: 12px;
-}
-
-#favorites-list img { border: 1px solid rgba(0,0,0,0.06); }
-
-.discover-btn, .home-btn, .apply-filters-btn { cursor: pointer; }
-
-/* Favorite heart button styles */
-.fav-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.35rem 0.65rem;
-    background: transparent;
-    border: 1px solid rgba(108,99,255,0.12);
-    color: #3a3768;
-    border-radius: 8px;
-}
-.fav-btn .heart-icon { display: block; }
-.fav-btn .heart-path {
-    stroke: #6c63ff;
-    stroke-width: 1.2px;
-    fill: none;
-}
-.fav-btn .heart-icon { transition: transform 160ms cubic-bezier(.2,.9,.3,1); }
-.fav-btn .heart-path { transition: fill 220ms cubic-bezier(.2,.9,.3,1), transform 200ms cubic-bezier(.2,.9,.3,1); transform-origin: center center; }
-.fav-btn:hover { background: rgba(108,99,255,0.04); }
-.fav-btn.fav-pressed {
-    background: rgba(108,99,255,0.08);
-    border-color: rgba(108,99,255,0.2);
-}
-.fav-btn.fav-pressed .heart-path {
-    fill: #6c63ff;
-    stroke: #6c63ff;
-    transform: scale(1.08);
-}
-.fav-btn.fav-pressed .heart-icon { transform: scale(1.06); }
-.fav-label { font-weight:600; color:#3a3768; }
+/* Duplicate/obsolete favorites rules removed — main .fav-btn definitions live earlier in this file. */

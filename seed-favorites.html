@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Seed Favorites (test)</title>
+</head>
+<body>
+  <p>Seeding favorites and redirecting to <code>favorites.html</code>…</p>
+  <script>
+    (function(){
+      const sample = [
+        {
+          id: 'tt0000001',
+          title: 'Example Movie One',
+          poster: 'assets/cinema.png',
+          url: 'movies.html?id=tt0000001',
+          addedAt: Date.now()
+        },
+        {
+          id: 'tt0000002',
+          title: 'Example Movie Two',
+          poster: 'assets/cinema.png',
+          url: 'movies.html?id=tt0000002',
+          addedAt: Date.now() - 86400000
+        }
+      ];
+      try{
+        localStorage.setItem('favorites', JSON.stringify(sample));
+        console.log('Seeded favorites', sample);
+      }catch(e){
+        console.error('Failed to seed favorites', e);
+      }
+      // give a moment then redirect
+      setTimeout(()=>{ window.location.href = 'favorites.html'; }, 400);
+    })();
+  </script>
+</body>
+</html>

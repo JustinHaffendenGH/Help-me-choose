@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Your Favorites</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <header>
+    <h1>Watch</h1>
+    <p class="header-tagline">Discover your next obsession – books that captivate, meals that delight, movies that inspire.</p>
+    <nav>
+      <a href="books.html">Read</a>
+      <a href="food.html">Eat</a>
+      <a href="movies.html">Watch</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="movie-suggestion" style="max-width:1000px;">
+      <div class="favorites-banner" style="background:rgba(108,99,255,0.06); padding:0.75rem; border-radius:8px; margin-bottom:0.75rem;">
+        <strong>Tip:</strong> To add a favorite, open a movie on the <a href="movies.html">Movies</a> page and click the heart button. Remove favorites here using the "Remove" buttons or the "Clear all" control.
+      </div>
+      <h2 id="favorites-title">Your Favorites <span id="favorites-count" aria-live="polite">(0)</span></h2>
+      <div style="margin-top:0.75rem; display:flex; gap:0.5rem;">
+        <button id="clear-all" class="apply-filters-btn">Clear all</button>
+        <button id="export-json" class="discover-btn">Export JSON</button>
+        <label for="import-file" class="home-btn" style="cursor:pointer;">Import</label>
+        <input id="import-file" type="file" accept="application/json" style="display:none" />
+      </div>
+
+      <div id="aria-live" aria-live="polite" style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"></div>
+
+      <div id="favorites-root" style="margin-top:1rem; display:grid; gap:1rem;"></div>
+
+      <div id="empty-state" style="margin-top:1rem; display:none;">
+        <p>You don't have any favorites yet. <a href="movies.html">Browse movies</a> to add some.</p>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <button class="home-btn" onclick="window.location.href='movies.html'">← Back to Movies</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="scripts/utils.js"></script>
+  <script src="scripts/favorites.js"></script>
+</body>
+</html>
