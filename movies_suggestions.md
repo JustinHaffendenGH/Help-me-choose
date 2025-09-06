@@ -3,6 +3,11 @@
 ## Overview
 The current `movies.html` page provides a basic movie discovery experience with random selection and basic filters. Below are suggestions to enhance functionality, user experience, and features.
 
+## Status & Recent Work
+- Favorites system migrated to a dedicated `favorites.html` page (reads/writes the canonical localStorage key `"favorites"`). The in-page favorites panel was removed, export/import/clear controls were added, duplicate CSS was deduped, and a headless smoke test verifies rendering.
+- A small helper `seed-favorites.html` was removed from the repo; changes have been committed to `main`.
+- Next recommended actions: add a brief README note about the migration and optionally add an end-to-end test (Playwright/Puppeteer) for browser-level verification.
+
 ## UI/UX Improvements
 - **Responsive Design**: Ensure the layout works seamlessly on mobile devices. Consider using CSS Grid or Flexbox for better adaptability.
 - **Dark Mode Toggle**: Add a toggle for dark/light mode to improve user comfort, especially for movie enthusiasts who browse at night.
@@ -17,10 +22,11 @@ The current `movies.html` page provides a basic movie discovery experience with 
   - Runtime
   - Popularity
   - Certification (e.g., PG, R)
-- **Favorites System**: Allow users to save favorite movies to a local list (using localStorage) for later reference.
+- **Favorites System**: Allow users to save favorite movies to a local list (using localStorage) for later reference. #Done
+ - **Favorites System**: Allow users to save favorite movies to a local list (using localStorage) for later reference. — Done (migrated to `favorites.html`)
 - **Movie Lists**: Create curated lists like "Top Rated", "New Releases", or user-generated playlists.
 - **Trailer Integration**: Embed YouTube trailers directly on the page when available.
-- **Streaming Availability**: Integrate APIs (e.g., JustWatch) to show where movies are available for streaming.
+- **Streaming Availability**: Integrate APIs (e.g., JustWatch) to show where movies are available for streaming. #done.
 
 ## Technical Improvements
 - **Caching**: Implement caching for API responses to reduce load times and API calls.
