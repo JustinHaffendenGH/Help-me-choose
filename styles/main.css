@@ -319,6 +319,20 @@
     border-radius: 6px; 
 }
 
+/* IMDb branded button */
+.imdb-btn {
+    background: #f5c518; /* IMDb yellow */
+    color: #000; /* black text */
+    font-weight: 700;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+.imdb-btn:hover {
+    filter: brightness(0.95);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
 @media (max-width: 760px) {
     .favorites-grid { 
         grid-template-columns: 1fr; 

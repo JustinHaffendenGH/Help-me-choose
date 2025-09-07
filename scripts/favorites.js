@@ -58,11 +58,13 @@
       openLink.href = `https://www.imdb.com/title/${item.imdb_id}`;
       openLink.target = '_blank';
       openLink.rel = 'noopener noreferrer';
+      openLink.textContent = 'IMDb';
+      openLink.className = 'small-btn imdb-btn';
     } else {
       openLink.href = item.url || (item.id ? `movies.html?id=${item.id}` : '#');
+      openLink.textContent = 'Open';
+      openLink.className = 'small-btn';
     }
-    openLink.textContent = item.imdb_id ? 'IMDb' : 'Open';
-    openLink.className = 'small-btn';
 
     const removeBtn = document.createElement('button');
     removeBtn.textContent = 'Remove';
