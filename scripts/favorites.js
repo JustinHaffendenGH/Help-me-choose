@@ -66,7 +66,7 @@
 
     const removeBtn = document.createElement('button');
     removeBtn.textContent = 'Remove';
-    removeBtn.className = 'small-btn';
+    removeBtn.className = 'small-btn secondary';
     removeBtn.addEventListener('click', ()=>{
       removeFavorite(item.id);
       // after removal, move focus sensibly
