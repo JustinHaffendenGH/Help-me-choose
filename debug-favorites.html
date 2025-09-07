@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Favorites Test</title>
+</head>
+<body>
+    <h1>Favorites Debug Test</h1>
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        // Test 1: Check current localStorage
+        const currentFavorites = localStorage.getItem('favorites');
+        output.innerHTML += '<h2>Current localStorage:</h2>';
+        output.innerHTML += '<pre>' + (currentFavorites || 'null') + '</pre>';
+        
+        // Test 2: Add a test favorite
+        const testFavorite = {
+            id: 'test123',
+            title: 'Test Movie',
+            poster: '',
+            poster_path: '/test.jpg',
+            url: 'movies.html?id=test123',
+            addedAt: Date.now()
+        };
+        
+        let favorites = [];
+        try {
+            favorites = JSON.parse(currentFavorites || '[]');
+        } catch (e) {
+            console.error('Error parsing favorites:', e);
+        }
+        
+        favorites.unshift(testFavorite);
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+        
+        output.innerHTML += '<h2>Added test favorite:</h2>';
+        output.innerHTML += '<pre>' + JSON.stringify(testFavorite, null, 2) + '</pre>';
+        
+        // Test 3: Read back
+        const readBack = localStorage.getItem('favorites');
+        output.innerHTML += '<h2>Read back from localStorage:</h2>';
+        output.innerHTML += '<pre>' + readBack + '</pre>';
+        
+        output.innerHTML += '<p><a href="favorites.html">Go to Favorites Page</a></p>';
+    </script>
+</body>
+</html>

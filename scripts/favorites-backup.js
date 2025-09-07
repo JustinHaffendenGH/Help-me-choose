@@ -7,7 +7,9 @@
   function readFavorites(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY) || '[]';
+      console.log('Raw favorites from localStorage:', raw);
       const parsed = JSON.parse(raw);
+      console.log('Parsed favorites:', parsed);
       return Array.isArray(parsed) ? parsed : [];
     }catch(e){
       console.error('Failed to parse favorites from localStorage', e);
@@ -61,7 +63,7 @@
     } else {
       openLink.href = item.url || (item.id ? `movies.html?id=${item.id}` : '#');
     }
-    openLink.textContent = item.imdb_id ? 'IMDb' : 'Open';
+    openLink.textContent = 'Open';
     openLink.className = 'small-btn';
 
     const removeBtn = document.createElement('button');
@@ -77,36 +79,46 @@
     });
 
     actions.append(openLink, removeBtn);
-    meta.appendChild(actions);
-    card.append(img, meta);
+    card.append(img, meta, actions);
     return card;
   }
 
   function renderFavorites(list){
+    console.log('renderFavorites called with:', list);
     const root = document.getElementById('favorites-root');
     const countEl = document.getElementById('favorites-count');
     const empty = document.getElementById('empty-state');
     const aria = document.getElementById('aria-live');
 
+    console.log('Found elements:', { root: !!root, countEl: !!countEl, empty: !!empty, aria: !!aria });
+
     if(!root) return;
     root.innerHTML = '';
-    
     if(!list || list.length === 0){
       if(empty) empty.style.display = '';
-      if(countEl) countEl.textContent = `(0)`;
+      countEl.textContent = `(0)`;
       if(aria) aria.textContent = 'No favorites';
+      console.log('No favorites to display');
       return;
     }
 
     if(empty) empty.style.display = 'none';
-    if(countEl) countEl.textContent = `(${list.length})`;
-    if(aria) aria.textContent = `${list.length} favorites`;
+    countEl.textContent = `(${list.length})`;
+    if(aria) aria.textContent = `${list.length} favorites`; // announce
 
     const wrapper = document.createElement('div');
     wrapper.className = 'favorites-grid';
     wrapper.setAttribute('role','list');
 
     list.forEach(item => {
+      console.log('Creating card for:', item);
+      const c = createCard(item);
+      wrapper.appendChild(c);
+    });
+
+    root.appendChild(wrapper);
+    console.log('Rendered', list.length, 'favorites');
+  }
       const c = createCard(item);
       wrapper.appendChild(c);
     });
@@ -162,9 +174,12 @@
   }
 
   function wireUp(){
+    console.log('wireUp function called');
     const clearBtn = document.getElementById('clear-all');
     const exportBtn = document.getElementById('export-json');
     const importInput = document.getElementById('import-file');
+    
+    console.log('Found elements:', { clearBtn: !!clearBtn, exportBtn: !!exportBtn, importInput: !!importInput });
     
     if (clearBtn) {
       clearBtn.addEventListener('click', ()=>{
@@ -185,6 +200,7 @@
     }
 
     // initial render
+    console.log('Calling initial renderFavorites');
     renderFavorites(readFavorites());
   }
 

@@ -61,7 +61,7 @@
     } else {
       openLink.href = item.url || (item.id ? `movies.html?id=${item.id}` : '#');
     }
-    openLink.textContent = item.imdb_id ? 'IMDb' : 'Open';
+    openLink.textContent = 'Open';
     openLink.className = 'small-btn';
 
     const removeBtn = document.createElement('button');
@@ -77,8 +77,7 @@
     });
 
     actions.append(openLink, removeBtn);
-    meta.appendChild(actions);
-    card.append(img, meta);
+    card.append(img, meta, actions);
     return card;
   }
 

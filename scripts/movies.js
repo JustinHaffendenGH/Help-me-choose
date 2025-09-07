@@ -730,13 +730,17 @@ function isFavorite(movieId) {
   return favs.some((m) => m.id === movieId);
 }
 
-function toggleFavorite(movie) {
+async function toggleFavorite(movie) {
   if (!movie || !movie.id) return;
   let favs = loadFavorites();
   const existing = favs.findIndex((m) => m.id === movie.id);
   if (existing >= 0) {
     favs.splice(existing, 1);
   } else {
+    // Fetch external IDs to get IMDb ID
+    const external = await getMovieExternalIDs(movie.id);
+    const imdbId = external && external.imdb_id ? external.imdb_id : null;
+    
     // Store a minimal snapshot
     // Store a compatible shape used by the standalone favorites page.
     favs.unshift({
@@ -745,6 +749,7 @@ function toggleFavorite(movie) {
       poster: movie.poster || '',
       poster_path: movie.poster_path || '',
       url: `movies.html?id=${movie.id}`,
+      imdb_id: imdbId,
       addedAt: Date.now()
     });
     // keep list reasonable size
@@ -779,10 +784,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // open-favs is a semantic anchor now and intentionally has no in-page handler
 
   if (favToggle) {
-    favToggle.addEventListener('click', () => {
+    favToggle.addEventListener('click', async () => {
       // Toggle favorite for the current movie if present
       const movie = window.currentMovie || (window.currentMovieId ? { id: window.currentMovieId, title: document.getElementById('movie-title')?.textContent || '' } : null);
-      if (movie) toggleFavorite(movie);
+      if (movie) await toggleFavorite(movie);
     });
   }
 
