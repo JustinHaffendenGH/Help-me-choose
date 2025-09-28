@@ -13,7 +13,9 @@ module.exports = [
       },
     },
     rules: {
-      // Add Node-specific rules if needed
+      'no-unused-vars': ['warn', { args: 'after-used', ignoreRestSiblings: true }],
+      'no-var': 'error',
+      'prefer-const': ['warn', { destructuring: 'all' }],
     },
   },
   {
@@ -30,7 +32,9 @@ module.exports = [
       },
     },
     rules: {
-      // Add browser-specific rules if needed
+      'no-unused-vars': ['warn', { args: 'after-used', ignoreRestSiblings: true }],
+      'no-var': 'error',
+      'prefer-const': ['warn', { destructuring: 'all' }],
     },
   },
 ];
