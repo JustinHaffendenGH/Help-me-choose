@@ -1008,6 +1008,99 @@ function displayFood(food) {
     const searchQuery = food.name;
     menuLink.href = `https://www.yelp.com/search?find_desc=${encodeURIComponent(searchQuery)}`;
   }
+
+  // Store current food for favorites functionality
+  window.currentFood = food;
+  
+  // Update favorites button state
+  updateFoodFavToggleUI(food);
+}
+
+// Food Favorites System
+const FOOD_FAV_KEY = 'favorites-food';
+
+function loadFoodFavorites() {
+  try {
+    const raw = localStorage.getItem(FOOD_FAV_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    console.error('Failed to load food favorites', e);
+    return [];
+  }
+}
+
+function saveFoodFavorites(list) {
+  try {
+    localStorage.setItem(FOOD_FAV_KEY, JSON.stringify(list || []));
+  } catch (e) {
+    console.error('Failed to save food favorites', e);
+  }
+}
+
+function generateFoodId(food) {
+  // Create a unique ID for the food item
+  if (food.place_id) return `gp_${food.place_id}`;
+  if (food.id) return `off_${food.id}`;
+  // Fallback to name-based ID
+  return `food_${food.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}`;
+}
+
+function isFoodFavorite(food) {
+  if (!food) return false;
+  const favs = loadFoodFavorites();
+  const foodId = generateFoodId(food);
+  return favs.some((f) => f.id === foodId);
+}
+
+async function toggleFoodFavorite(food) {
+  if (!food || !food.name) return;
+  
+  let favs = loadFoodFavorites();
+  const foodId = generateFoodId(food);
+  const existing = favs.findIndex((f) => f.id === foodId);
+  
+  if (existing >= 0) {
+    favs.splice(existing, 1);
+  } else {
+    // Add to favorites
+    const foodFavorite = {
+      id: foodId,
+      name: food.name,
+      cuisine: food.cuisine || food.category || 'Unknown',
+      rating: food.rating || 0,
+      image: food.image_url || (food.photo_reference ? `/api/photo?photoreference=${food.photo_reference}&maxwidth=400` : ''),
+      location: food.vicinity || food.formatted_address || '',
+      description: food.description || '',
+      type: 'food',
+      addedAt: Date.now()
+    };
+    
+    favs.unshift(foodFavorite);
+    // Keep list reasonable size
+    if (favs.length > 200) favs = favs.slice(0, 200);
+  }
+  
+  saveFoodFavorites(favs);
+  updateFoodFavToggleUI(food);
+}
+
+function updateFoodFavToggleUI(food) {
+  const btn = document.getElementById('food-fav-toggle-btn');
+  if (!btn || !food) return;
+  
+  if (isFoodFavorite(food)) {
+    btn.classList.add('fav-pressed');
+    btn.setAttribute('aria-pressed', 'true');
+    btn.setAttribute('aria-label', 'Remove from favorites');
+    btn.title = 'Remove from favorites';
+  } else {
+    btn.classList.remove('fav-pressed');
+    btn.setAttribute('aria-pressed', 'false');
+    btn.setAttribute('aria-label', 'Save to favorites');
+    btn.title = 'Save to favorites';
+  }
 }
 
 // Initialize food functionality
@@ -1038,6 +1131,16 @@ async function initFoods() {
       // Reset filters when using main discover button
       currentFoodFilter.isActive = false;
       showRandomFood();
+    };
+  }
+
+  // Food favorites button functionality
+  const foodFavBtn = document.getElementById('food-fav-toggle-btn');
+  if (foodFavBtn) {
+    foodFavBtn.onclick = function () {
+      if (window.currentFood) {
+        toggleFoodFavorite(window.currentFood);
+      }
     };
   }
 }

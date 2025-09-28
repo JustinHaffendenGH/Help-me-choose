@@ -622,6 +622,103 @@ function displayBook(book) {
   if (book.source === 'curated') {
     getBookDescription(book);
   }
+
+  // Store current book for favorites functionality
+  window.currentBook = book;
+  
+  // Update favorites button state
+  updateBookFavToggleUI(book);
+}
+
+// Book Favorites System
+const BOOK_FAV_KEY = 'favorites-books';
+
+function loadBookFavorites() {
+  try {
+    const raw = localStorage.getItem(BOOK_FAV_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    console.error('Failed to load book favorites', e);
+    return [];
+  }
+}
+
+function saveBookFavorites(list) {
+  try {
+    localStorage.setItem(BOOK_FAV_KEY, JSON.stringify(list || []));
+  } catch (e) {
+    console.error('Failed to save book favorites', e);
+  }
+}
+
+function generateBookId(book) {
+  // Create a unique ID for the book
+  if (book.googleBooksId) return `gb_${book.googleBooksId}`;
+  if (book.key) return `ol_${book.key.replace(/\//g, '_')}`;
+  // Fallback to title and author based ID
+  const author = book.authors && book.authors.length > 0 ? 
+    (book.authors[0].name || book.authors[0]) : 'unknown';
+  return `book_${book.title.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}_${author.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}`;
+}
+
+function isBookFavorite(book) {
+  if (!book) return false;
+  const favs = loadBookFavorites();
+  const bookId = generateBookId(book);
+  return favs.some((b) => b.id === bookId);
+}
+
+async function toggleBookFavorite(book) {
+  if (!book || !book.title) return;
+  
+  let favs = loadBookFavorites();
+  const bookId = generateBookId(book);
+  const existing = favs.findIndex((b) => b.id === bookId);
+  
+  if (existing >= 0) {
+    favs.splice(existing, 1);
+  } else {
+    // Add to favorites
+    const bookFavorite = {
+      id: bookId,
+      title: book.title,
+      authors: book.authors || [{ name: 'Unknown' }],
+      cover: book.cover_url || '',
+      rating: book.rating || 0,
+      description: book.description || '',
+      first_publish_year: book.first_publish_year || null,
+      googleBooksId: book.googleBooksId || null,
+      key: book.key || null,
+      type: 'book',
+      addedAt: Date.now()
+    };
+    
+    favs.unshift(bookFavorite);
+    // Keep list reasonable size
+    if (favs.length > 200) favs = favs.slice(0, 200);
+  }
+  
+  saveBookFavorites(favs);
+  updateBookFavToggleUI(book);
+}
+
+function updateBookFavToggleUI(book) {
+  const btn = document.getElementById('book-fav-toggle-btn');
+  if (!btn || !book) return;
+  
+  if (isBookFavorite(book)) {
+    btn.classList.add('fav-pressed');
+    btn.setAttribute('aria-pressed', 'true');
+    btn.setAttribute('aria-label', 'Remove from favorites');
+    btn.title = 'Remove from favorites';
+  } else {
+    btn.classList.remove('fav-pressed');
+    btn.setAttribute('aria-pressed', 'false');
+    btn.setAttribute('aria-label', 'Save to favorites');
+    btn.title = 'Save to favorites';
+  }
 }
 
 // Helper function to search for cover images for curated books
@@ -834,6 +931,16 @@ async function initBooks() {
       // Reset filters when using main discover button
       currentBookFilter.isActive = false;
       showRandomBook();
+    };
+  }
+
+  // Book favorites button functionality
+  const bookFavBtn = document.getElementById('book-fav-toggle-btn');
+  if (bookFavBtn) {
+    bookFavBtn.onclick = function () {
+      if (window.currentBook) {
+        toggleBookFavorite(window.currentBook);
+      }
     };
   }
 }

@@ -78,6 +78,16 @@
             <p id="food-description"></p>
             <span id="food-price"></span><br>
             <span id="food-rating"></span><br>
+            
+            <!-- Favorites control -->
+            <div class="fav-controls" style="margin: 1rem 0;">
+                <button id="food-fav-toggle-btn" class="fav-btn icon-only" type="button" aria-pressed="false" title="Save to favorites">
+                    <svg class="heart-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path class="heart-path" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+            
             <a id="menu-link" href="#" target="_blank" style="display:none; margin-right:8px;">View Menu</a>
             <button id="directions-btn" style="display:none;">Get Directions</button>
             <img id="food-image" alt="Food/Restaurant Image" />

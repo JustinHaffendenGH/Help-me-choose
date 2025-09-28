@@ -5,7 +5,12 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "start:debug": "DEBUG_MODE=true node --inspect=0.0.0.0:9229 server.js",
+    "start:debug-brk": "DEBUG_MODE=true node --inspect-brk=0.0.0.0:9229 server.js",
     "start:daemon": "nohup node server.js > proxy.log 2>&1 &",
+    "start:debug-daemon": "DEBUG_MODE=true nohup node --inspect=0.0.0.0:9229 server.js > proxy.log 2>&1 &",
+    "debug:chrome": "node debug-helper.js",
+    "debug:full": "npm run start:debug & sleep 2 && npm run debug:chrome",
     "stop:daemon": "pids=$(lsof -ti :3000) || true; if [ -n \"$pids\" ]; then kill $pids; fi",
     "lint": "eslint scripts/*.js server.js",
     "format": "prettier --write scripts/*.js server.js",
@@ -20,6 +25,7 @@
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {
+    "chrome-remote-interface": "^0.33.3",
     "eslint": "^9.34.0",
     "jest": "^30.1.1",
     "prettier": "^3.6.2"

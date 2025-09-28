@@ -66,6 +66,16 @@
             <span id="book-author"></span><br>
             <span id="book-year" style="font-size: 0.9em; color: #666;"></span><br>
             <span id="book-rating"></span><br>
+            
+            <!-- Favorites control -->
+            <div class="fav-controls" style="margin: 1rem 0;">
+                <button id="book-fav-toggle-btn" class="fav-btn icon-only" type="button" aria-pressed="false" title="Save to favorites">
+                    <svg class="heart-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path class="heart-path" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+            
             <button id="goodreads-link" style="display:none; margin-right:8px;" class="goodreads-btn">📖 View on Goodreads</button>
             <button id="preview-btn" style="display:none;">Preview Book</button>
             <img id="book-cover" alt="Book Cover" />

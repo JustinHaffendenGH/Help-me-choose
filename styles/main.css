@@ -264,16 +264,18 @@
     text-overflow: ellipsis;
     white-space: normal;
     line-height: 1.2;
+    display: block !important;
 }
 
 /* actions below the movie title */
 .favorite-card .actions {
     margin-top: 0.75rem;
-    display: flex;
+    display: flex !important;
     gap: 0.5rem;
     flex-direction: row;
     align-items: flex-start;
     flex-wrap: wrap;
+    position: relative !important;
 }
 
 .small-btn {
@@ -311,6 +313,54 @@
     color: #6c63ff;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(108, 99, 255, 0.2);
+}
+
+.small-btn.trailer-btn {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    border-color: #ee5a52;
+    color: white;
+}
+
+.small-btn.trailer-btn:hover {
+    background: linear-gradient(135deg, #ee5a52, #dc4c3e);
+    border-color: #dc4c3e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(238, 90, 82, 0.3);
+}
+
+.small-btn.trailer-btn:disabled {
+    background: #ccc;
+    border-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.small-btn.location-btn {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    border-color: #45a049;
+    color: white;
+}
+
+.small-btn.location-btn:hover {
+    background: linear-gradient(135deg, #45a049, #3d8b40);
+    border-color: #3d8b40;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.small-btn.buy-btn {
+    background: linear-gradient(135deg, #9C27B0, #8E24AA);
+    border-color: #8E24AA;
+    color: white;
+}
+
+.small-btn.buy-btn:hover {
+    background: linear-gradient(135deg, #8E24AA, #7B1FA2);
+    border-color: #7B1FA2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
 }
 
 .small-btn.small { 
@@ -370,6 +420,34 @@
     }
     .favorite-card .meta { 
         padding-right: 0; 
+    }
+}
+
+/* Desktop view styles (ensure proper display at larger screens) */
+@media (min-width: 761px) {
+    .favorite-card .meta {
+        display: flex !important;
+        flex-direction: column;
+    }
+    
+    .favorite-card .title {
+        display: block !important;
+        font-size: 1.1rem;
+    }
+    
+    .favorite-card .actions {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 0.5rem !important;
+        margin-top: 0.75rem !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .favorite-card .authors,
+    .favorite-card .cuisine-badge,
+    .favorite-card .rating {
+        display: block !important;
+        margin-bottom: 0.25rem;
     }
 }
 
@@ -2132,3 +2210,47 @@ h2 a:hover {
         height: 100%;
     }
 }
+
+/* =============================== */
+/* Favorites Parity Overrides      */
+/* Ensure food & book cards follow */
+/* the same horizontal layout as   */
+/* movie cards on desktop widths.  */
+/* =============================== */
+@media (min-width: 761px) {
+    .food-card, .book-card {
+        display: flex;               /* match base favorite-card layout */
+        flex-direction: row;         /* horizontal */
+        padding: 1rem;               /* align with movie card */
+        overflow: visible;           /* allow meta/actions to show */
+    }
+    .food-card img, .book-card img {
+        width: 80px;                 /* override earlier 100% width */
+        height: 120px;               /* consistent image size */
+        object-fit: cover;           /* maintain aspect */
+        border-radius: 8px;          /* same as movie card */
+    }
+    .food-card .meta, .book-card .meta {
+        padding: 0;                  /* movie card meta has no extra padding */
+        display: flex;               /* stack meta content */
+        flex-direction: column;
+    }
+    .food-card .cuisine-badge,
+    .book-card .authors,
+    .food-card .rating,
+    .book-card .rating {
+        display: block !important;   /* ensure visibility */
+        margin-bottom: 0.25rem;
+    }
+    /* Ensure actions row appears similar */
+    .food-card .actions, .book-card .actions {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 0.5rem !important;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
+    }
+}
+
+/* Debug helper attribute hooks (no visual change, but future-ready) */
+[data-fav-kind] { outline: none; /* placeholder hook for future targeted styling */ }

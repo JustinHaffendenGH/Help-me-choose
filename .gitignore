@@ -7,3 +7,16 @@ node_modules/
 
 # Mac
 .DS_Store
+
+# Logs & runtime artifacts
+proxy.log
+*.log
+nohup.out
+
+# OS / editor junk (extend as needed)
+.idea/
+.vscode/
+
+# Backups / exports
+*-favorites.json
+all-favorites.json

@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Your Favorites</title>
-  <link rel="stylesheet" href="styles/main.css">
+  <title>Your Favorites Collection</title>
+  <link rel="stylesheet" href="styles/main.css?v=3">
 </head>
 <body>
   <header>
-    <h1>Watch</h1>
-    <p class="header-tagline">Discover your next obsession – books that captivate, meals that delight, movies that inspire.</p>
+    <h1>Favorites</h1>
+    <p class="header-tagline">Your curated collection – movies that inspire, meals that delight, books that captivate.</p>
     <nav>
       <a href="books.html">Read</a>
       <a href="food.html">Eat</a>
@@ -19,33 +19,92 @@
   </header>
 
   <main>
-    <section class="movie-suggestion" style="max-width:1000px;">
-      <div class="favorites-banner" style="background:rgba(108,99,255,0.06); padding:0.75rem; border-radius:8px; margin-bottom:0.75rem;">
-        <strong>Tip:</strong> To add a favorite, open a movie on the <a href="movies.html">Movies</a> page and click the heart button. Remove favorites here using the "Remove" buttons or the "Clear all" control.
-      </div>
-      <h2 id="favorites-title">Your Favorites <span id="favorites-count" aria-live="polite">(0)</span></h2>
-      <div style="margin-top:0.75rem; display:flex; gap:0.5rem;">
-        <button id="clear-all" class="apply-filters-btn">Clear all</button>
-        <button id="export-json" class="discover-btn">Export JSON</button>
-        <label for="import-file" class="home-btn" style="cursor:pointer;">Import</label>
-        <input id="import-file" type="file" accept="application/json" style="display:none" />
-      </div>
-
-      <div id="aria-live" aria-live="polite" style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"></div>
-
-      <div id="favorites-root" style="margin-top:1rem; display:grid; gap:1rem;"></div>
-
-      <div id="empty-state" style="margin-top:1rem; display:none;">
-        <p>You don't have any favorites yet. <a href="movies.html">Browse movies</a> to add some.</p>
-      </div>
-
-      <div style="margin-top:1.5rem;">
-        <button class="home-btn" onclick="window.location.href='movies.html'">← Back to Movies</button>
+    <!-- Global Controls -->
+    <section class="favorites-global-controls">
+      <div class="global-actions">
+        <button id="clear-all-types" class="apply-filters-btn">Clear All Favorites</button>
+        <button id="export-all" class="discover-btn">Export All</button>
+        <label for="import-all" class="home-btn" style="cursor:pointer;">Import Favorites</label>
+        <input id="import-all" type="file" accept="application/json" style="display:none" />
       </div>
     </section>
+
+    <!-- Movies Section -->
+    <section class="favorites-section" data-type="movies">
+      <header class="section-header">
+        <h2>🎬 Movies <span id="movies-count">(0)</span></h2>
+        <div class="section-actions">
+          <button class="browse-btn" onclick="window.location.href='movies.html'">
+            Browse Movies
+          </button>
+          <button class="clear-section-btn" data-type="movies">Clear Movies</button>
+        </div>
+      </header>
+      <div id="movies-grid" class="favorites-grid"></div>
+      <div class="empty-state" id="movies-empty" style="display:none;">
+        <p>No movie favorites yet. <a href="movies.html">Discover movies</a> to start your collection.</p>
+      </div>
+    </section>
+
+    <!-- Food Section -->
+    <section class="favorites-section" data-type="food">
+      <header class="section-header">
+        <h2>🍽️ Food & Restaurants <span id="food-count">(0)</span></h2>
+        <div class="section-actions">
+          <button class="browse-btn" onclick="window.location.href='food.html'">
+            Browse Food
+          </button>
+          <button class="clear-section-btn" data-type="food">Clear Food</button>
+        </div>
+      </header>
+      <div id="food-grid" class="favorites-grid"></div>
+      <div class="empty-state" id="food-empty" style="display:none;">
+        <p>No food favorites yet. <a href="food.html">Explore restaurants</a> to save your favorites.</p>
+      </div>
+    </section>
+
+    <!-- Books Section -->
+    <section class="favorites-section" data-type="books">
+      <header class="section-header">
+        <h2>📚 Books <span id="books-count">(0)</span></h2>
+        <div class="section-actions">
+          <button class="browse-btn" onclick="window.location.href='books.html'">
+            Browse Books
+          </button>
+          <button class="clear-section-btn" data-type="books">Clear Books</button>
+        </div>
+      </header>
+      <div id="books-grid" class="favorites-grid"></div>
+      <div class="empty-state" id="books-empty" style="display:none;">
+        <p>No book favorites yet. <a href="books.html">Discover books</a> to build your reading list.</p>
+      </div>
+    </section>
+
+    <div id="aria-live" aria-live="polite" style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"></div>
+    
+    <!-- Trailer Modal -->
+    <div id="trailer-modal" class="trailer-modal" style="display: none;">
+      <div class="trailer-modal-content">
+        <div class="trailer-modal-header">
+          <h3 id="trailer-title">Movie Trailer</h3>
+          <button class="trailer-close-btn" onclick="closeTrailerModal()">&times;</button>
+        </div>
+        <div class="trailer-video-container">
+          <iframe id="trailer-iframe" 
+                  width="100%" 
+                  height="100%" 
+                  src="" 
+                  frameborder="0" 
+                  allowfullscreen
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+          </iframe>
+        </div>
+      </div>
+    </div>
   </main>
 
-  <script src="scripts/utils.js"></script>
-  <script src="scripts/favorites.js"></script>
+  <!-- Bumped script versions to force cache busting for layout/debug changes -->
+  <script src="scripts/utils.js?v=3"></script>
+  <script src="scripts/favorites.js?v=3"></script>
 </body>
 </html>
