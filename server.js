@@ -7,6 +7,17 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const path = require('path');
 
+// Chrome DevTools debugging support
+const DEBUG_MODE = process.env.DEBUG_MODE === 'true' || process.argv.includes('--debug');
+if (DEBUG_MODE) {
+  console.log('🔧 Chrome DevTools debugging enabled');
+  // Enable inspector for remote debugging
+  if (!process.debugPort) {
+    require('inspector').open(9229, '0.0.0.0');
+    console.log('🔍 Inspector listening on 0.0.0.0:9229');
+  }
+}
+
 dotenv.config();
 const app = express();
 app.use(cors());
@@ -22,7 +33,7 @@ app.use((req, res, next) => {
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: https:; " +
     "connect-src 'self' https://api.themoviedb.org https://www.googleapis.com https://maps.googleapis.com https://api.hardcover.app https://world.openfoodfacts.org https://openlibrary.org; " +
-    "frame-src 'none'; " +
+    "frame-src 'self' https://www.youtube.com https://youtube.com; " +
     "object-src 'none';"
   );
   
@@ -43,6 +54,22 @@ const HARDCOVER_API_KEY = process.env.HARDCOVER_API_KEY;
 
 // Serve static files from project root so a single process can serve the site + proxy
 app.use(express.static(path.join(__dirname)));
+
+// Chrome DevTools debugging endpoint
+app.get('/debug', (req, res) => {
+  if (DEBUG_MODE) {
+    res.json({
+      debugMode: true,
+      inspectorUrl: 'chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=127.0.0.1:9229',
+      instructions: 'Open Chrome DevTools by visiting chrome://inspect or use the inspector URL above'
+    });
+  } else {
+    res.json({
+      debugMode: false,
+      message: 'Debug mode not enabled. Restart with DEBUG_MODE=true or --debug flag'
+    });
+  }
+});
 
 // Health check endpoint
 app.get('/healthz', (req, res) => {
@@ -227,6 +254,35 @@ app.get('/api/tmdb/movie/:id/watch/providers', async (req, res) => {
     
     // Cache for 1 hour (streaming availability changes less frequently)
     setCached(cacheKey, json, 60 * 60 * 1000);
+    return res.json(json);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Server error', detail: err.message });
+  }
+});
+
+// Proxy for TMDb movie videos/trailers (keeps API key server-side)
+app.get('/api/tmdb/movie/:id/videos', async (req, res) => {
+  try {
+    if (!TMDB_API_KEY)
+      return res
+        .status(500)
+        .json({ error: 'Missing TMDB_API_KEY in server environment' });
+    const movieId = req.params.id;
+    if (!movieId) return res.status(400).json({ error: 'movie id required' });
+    
+    const url = `https://api.themoviedb.org/3/movie/${encodeURIComponent(movieId)}/videos?api_key=${TMDB_API_KEY}`;
+    const cacheKey = `tmdb:videos:${movieId}`;
+    
+    const cached = getCached(cacheKey);
+    if (cached) return res.json(cached);
+    
+    const r = await fetch(url);
+    if (!r.ok) return res.status(502).send(await r.text());
+    const json = await r.json();
+    
+    // Cache for 24 hours (videos don't change often)
+    setCached(cacheKey, json, 24 * 60 * 60 * 1000);
     return res.json(json);
   } catch (err) {
     console.error(err);

@@ -328,9 +328,20 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 .imdb-btn:hover {
-    filter: brightness(0.95);
+    background: #e6b90f; /* slightly darker yellow */
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.14);
+}
+
+.imdb-btn:focus {
+    outline: 3px solid rgba(0,0,0,0.12);
+    outline-offset: 2px;
+}
+
+.imdb-btn:active {
+    background: #d9a806; /* pressed state */
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12) inset;
 }
 
 @media (max-width: 760px) {
@@ -1725,3 +1736,399 @@ h2 a:hover {
 }
 
 /* Duplicate/obsolete favorites rules removed — main .fav-btn definitions live earlier in this file. */
+
+/* Enhanced Favorites Page Styling */
+
+/* Global Favorites Layout */
+.favorites-global-controls {
+    background: rgba(108, 99, 255, 0.06);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.global-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Section Styling */
+.favorites-section {
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(58, 55, 104, 0.1) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(108, 99, 255, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.favorites-section:hover {
+    box-shadow: 0 8px 32px rgba(108, 99, 255, 0.25);
+    border-color: rgba(108, 99, 255, 0.4);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.section-header h2 {
+    color: #3a3768;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.section-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.browse-btn {
+    background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.browse-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+}
+
+.clear-section-btn {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(108, 99, 255, 0.3);
+    color: #6c63ff;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clear-section-btn:hover {
+    background: rgba(108, 99, 255, 0.1);
+    border-color: #6c63ff;
+    transform: translateY(-1px);
+}
+
+/* Card Grid */
+.favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.empty-state a {
+    color: #6c63ff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.empty-state a:hover {
+    text-decoration: underline;
+}
+
+/* Content-Specific Card Styling */
+
+/* Food Cards */
+.food-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.food-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.food-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.food-card .meta {
+    padding: 1rem;
+}
+
+.food-card .cuisine-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.food-card .rating {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Book Cards */
+.book-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.book-card img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+}
+
+.book-card .meta {
+    padding: 1rem;
+}
+
+.book-card .authors {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.book-card .rating {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Movie Cards (enhanced existing styling) */
+.movie-card .meta {
+    padding: 1rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .section-actions {
+        justify-content: center;
+    }
+    
+    .favorites-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+    
+    .global-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .favorites-section {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .favorites-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .global-actions {
+        gap: 0.75rem;
+    }
+
+    .section-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .favorites-section {
+        padding: 1rem;
+    }
+}
+
+/* Trailer Modal Styles */
+.trailer-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.trailer-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.trailer-modal-content {
+    position: relative;
+    width: 90vw;
+    max-width: 1200px;
+    height: 80vh;
+    background: #1a1a1a;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.trailer-modal.show .trailer-modal-content {
+    transform: scale(1);
+}
+
+.trailer-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: #2a2a2a;
+    border-bottom: 1px solid #333;
+}
+
+.trailer-modal-header h3 {
+    color: #fff;
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.trailer-close-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.trailer-close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.trailer-video-container {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 70px); /* Account for header height */
+    background: #000;
+}
+
+.trailer-video-container iframe {
+    border: none;
+    outline: none;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .trailer-modal-content {
+        width: 95vw;
+        height: 70vh;
+        border-radius: 8px;
+    }
+    
+    .trailer-modal-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .trailer-modal-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .trailer-close-btn {
+        font-size: 1.5rem;
+        width: 32px;
+        height: 32px;
+    }
+}
+
+@media (max-width: 480px) {
+    .trailer-modal-content {
+        width: 98vw;
+        height: 60vh;
+        border-radius: 6px;
+    }
+    
+    .trailer-modal-header {
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .trailer-video-container {
+        height: calc(100% - 60px);
+    }
+}
+
+/* Aspect ratio fallback for older browsers */
+@supports not (aspect-ratio: 16/9) {
+    .trailer-video-container {
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        height: 0;
+        position: relative;
+    }
+    
+    .trailer-video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
