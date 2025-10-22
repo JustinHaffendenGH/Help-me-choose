@@ -12,10 +12,16 @@
     "debug:chrome": "node debug-helper.js",
     "debug:full": "npm run start:debug & sleep 2 && npm run debug:chrome",
     "stop:daemon": "pids=$(lsof -ti :3000) || true; if [ -n \"$pids\" ]; then kill $pids; fi",
-    "lint": "eslint scripts/*.js server.js",
-    "format": "prettier --write scripts/*.js server.js",
-    "test": "jest --passWithNoTests",
-    "build": "npm run lint && npm run test"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src/ scripts/*.js server.js",
+    "lint:fix": "eslint src/ scripts/*.js server.js --fix",
+    "format": "prettier --write \"src/**/*.js\" \"scripts/**/*.js\" \"*.js\" \"*.json\"",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:watch": "vitest --watch"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -25,9 +31,12 @@
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {
+    "@vitest/ui": "^4.0.1",
     "chrome-remote-interface": "^0.33.3",
     "eslint": "^9.34.0",
     "jest": "^30.1.1",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "vite": "^7.1.11",
+    "vitest": "^4.0.1"
   }
 }
