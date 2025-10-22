@@ -12,6 +12,9 @@
     legacy: 'favorites'
   };
 
+  // State for search filtering
+  let currentSearchQuery = '';
+
   // Migration function for legacy favorites
   function migrateLegacyFavorites(){
     try{
@@ -89,6 +92,11 @@
     } else {
       img.src = '';
     }
+      // Fallback if poster fails to load
+      img.addEventListener('error', function onImgErr() {
+        img.removeEventListener('error', onImgErr);
+        img.src = '/assets/cinema.png';
+      });
     img.alt = item.title ? `${item.title} poster` : 'Poster';
     img.loading = 'lazy';
 
@@ -160,6 +168,11 @@
     img.src = item.image || 'assets/food.png';
     img.alt = item.name ? `${item.name}` : 'Food';
     img.loading = 'lazy';
+      // Fallback if food image fails to load
+      img.addEventListener('error', function onImgErr() {
+        img.removeEventListener('error', onImgErr);
+        img.src = '/assets/food.png';
+      });
 
     const meta = document.createElement('div');
     meta.className = 'meta';
@@ -242,6 +255,11 @@
     img.src = item.cover || 'assets/books.png';
     img.alt = item.title ? `${item.title} cover` : 'Book cover';
     img.loading = 'lazy';
+      // Fallback if book cover fails to load
+      img.addEventListener('error', function onImgErr() {
+        img.removeEventListener('error', onImgErr);
+        img.src = '/assets/Read.svg';
+      });
 
     const meta = document.createElement('div');
     meta.className = 'meta';
@@ -320,8 +338,25 @@
     const empty = document.getElementById(`${type}-empty`);
 
     if(!grid) return;
-
-    const list = readFavorites(type);
+    // Support runtime filtering
+    const baseList = readFavorites(type);
+    const query = (currentSearchQuery || '').trim().toLowerCase();
+    let list = baseList;
+    if(query){
+      list = baseList.filter(item => {
+        // gather searchable fields depending on type
+        let haystack = '';
+        if(type === 'movies'){
+          haystack = [item.title, item.overview, item.tagline, item.genres && item.genres.join(' ')].filter(Boolean).join(' ').toLowerCase();
+        } else if(type === 'food') {
+          haystack = [item.name, item.cuisine, item.location, item.address, item.tags && item.tags.join(' ')].filter(Boolean).join(' ').toLowerCase();
+        } else if(type === 'books') {
+          const authors = Array.isArray(item.authors) ? item.authors.map(a => (a.name || a)).join(' ') : '';
+          haystack = [item.title, authors, item.description, item.subtitle, item.categories && item.categories.join(' ')].filter(Boolean).join(' ').toLowerCase();
+        }
+        return haystack.includes(query);
+      });
+    }
     grid.innerHTML = '';
 
     if(countEl) countEl.textContent = `(${list.length})`;
@@ -343,6 +378,14 @@
     renderSection('movies');
     renderSection('food');
     renderSection('books');
+
+    // Update meta info for search results
+    if(currentSearchQuery){
+      updateSearchMeta();
+    } else {
+      const meta = document.getElementById('favorites-search-meta');
+      if(meta) meta.textContent = '';
+    }
   }
 
   function removeFavorite(id, type = 'movies'){
@@ -456,29 +499,6 @@
     // Run migration first
     migrateLegacyFavorites();
 
-    // Global controls
-    const clearAllBtn = document.getElementById('clear-all-types');
-    const exportAllBtn = document.getElementById('export-all');
-    const importInput = document.getElementById('import-all');
-    
-    if (clearAllBtn) {
-      clearAllBtn.addEventListener('click', ()=>{
-        if(confirm('Clear all favorites across all sections?')) clearAllSections();
-      });
-    }
-    
-    if (exportAllBtn) {
-      exportAllBtn.addEventListener('click', exportAll);
-    }
-    
-    if (importInput) {
-      importInput.addEventListener('change', function(){
-        const f = this.files && this.files[0];
-        importFavorites(f);
-        this.value = '';
-      });
-    }
-
     // Section-specific controls
     ['movies', 'food', 'books'].forEach(type => {
       const clearBtn = document.querySelector(`[data-type="${type}"].clear-section-btn`);
@@ -488,6 +508,88 @@
         });
       }
     });
+
+    // --- Search / Filter wiring ---
+    const searchInput = document.getElementById('favorites-search');
+    const clearBtn = document.getElementById('favorites-search-clear');
+    const meta = document.getElementById('favorites-search-meta');
+
+    if(searchInput){
+      searchInput.addEventListener('input', (e)=>{
+        const val = e.target.value;
+        currentSearchQuery = val;
+        if(val){
+          if(clearBtn) clearBtn.style.display = '';
+        } else {
+          if(clearBtn) clearBtn.style.display = 'none';
+        }
+        debouncedFilter();
+      });
+    }
+
+    if(clearBtn){
+      clearBtn.addEventListener('click', ()=>{
+        currentSearchQuery = '';
+        if(searchInput){
+          searchInput.value = '';
+          searchInput.focus();
+        }
+        clearBtn.style.display = 'none';
+        renderAllSections();
+      });
+    }
+
+    function updateNoResultsState(){
+      // If query is active and every section is empty -> show a global no-results message
+      const query = (currentSearchQuery || '').trim();
+      let totalVisible = 0;
+      ['movies','food','books'].forEach(type => {
+        const grid = document.getElementById(`${type}-grid`);
+        if(grid) totalVisible += grid.children.length;
+      });
+      if(meta){
+        if(query && totalVisible === 0){
+          meta.textContent = `No favorites match "${query}"`;
+        }
+      }
+    }
+
+    function updateSearchMeta(){
+      const query = (currentSearchQuery || '').trim();
+      if(!meta) return;
+      if(!query){
+        meta.textContent = '';
+        return;
+      }
+      let counts = [];
+      ['movies','food','books'].forEach(type => {
+        const grid = document.getElementById(`${type}-grid`);
+        if(grid){
+          const len = grid.children.length;
+          if(len) counts.push(`${len} ${type}`);
+        }
+      });
+      if(counts.length){
+        meta.textContent = `Showing ${counts.join(', ')} for "${query}"`;
+      } else {
+        meta.textContent = `No favorites match "${query}"`;
+      }
+    }
+    window.updateSearchMeta = updateSearchMeta; // debug hook
+
+    function filterNow(){
+      renderAllSections();
+      updateNoResultsState();
+    }
+
+    let filterTimer = null;
+    function debouncedFilter(){
+      if(filterTimer) clearTimeout(filterTimer);
+      filterTimer = setTimeout(filterNow, 140); // small debounce
+    }
+
+    // expose for debugging
+    window.forceFilterFavorites = filterNow;
 
   // Trailer functionality (copied from movies.js for favorites page)
   async function getMovieTrailer(movieId) {

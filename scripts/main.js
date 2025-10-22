@@ -3232,6 +3232,46 @@ async function displayFoodWithLoadingSequence(food) {
   }
 }
 
+// Global image fault-tolerance: replace broken /api/photo images with a local placeholder
+// This runs on DOMContentLoaded and also attaches to later-added images via mutation observer.
+function _attachPhotoFallbacks(root = document) {
+  const placeholder = '/assets/food.png';
+
+  function apply(el) {
+    if (!el || el.dataset.__photoFallbackAttached) return;
+    const src = el.getAttribute && el.getAttribute('src');
+    if (!src) return;
+    if (src.indexOf('/api/photo') !== -1) {
+      el.addEventListener('error', function onErr() {
+        el.removeEventListener('error', onErr);
+        el.src = placeholder;
+      });
+      // mark to avoid reattaching
+      el.dataset.__photoFallbackAttached = '1';
+    }
+  }
+
+  // Attach to existing images
+  Array.from(root.querySelectorAll('img')).forEach(apply);
+
+  // Observe for new images added later
+  const mo = new MutationObserver((records) => {
+    for (const r of records) {
+      for (const n of r.addedNodes) {
+        if (n && n.querySelectorAll) Array.from(n.querySelectorAll('img')).forEach(apply);
+        if (n && n.tagName === 'IMG') apply(n);
+      }
+    }
+  });
+  mo.observe(root, { childList: true, subtree: true });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => _attachPhotoFallbacks());
+} else {
+  _attachPhotoFallbacks();
+}
+
 // Create food star rating (0-5 scale)
 function createFoodStarRating(rating) {
   const fullStars = Math.floor(rating);

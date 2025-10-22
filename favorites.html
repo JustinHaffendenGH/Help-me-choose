@@ -19,13 +19,13 @@
   </header>
 
   <main>
-    <!-- Global Controls -->
-    <section class="favorites-global-controls">
-      <div class="global-actions">
-        <button id="clear-all-types" class="apply-filters-btn">Clear All Favorites</button>
-        <button id="export-all" class="discover-btn">Export All</button>
-        <label for="import-all" class="home-btn" style="cursor:pointer;">Import Favorites</label>
-        <input id="import-all" type="file" accept="application/json" style="display:none" />
+    <!-- Search / Filter Bar -->
+    <section class="favorites-search-section">
+      <div class="favorites-search-bar" role="search">
+        <label for="favorites-search" class="visually-hidden">Search favorites</label>
+        <input id="favorites-search" type="search" placeholder="Search favorites (title, name, author, cuisine)" autocomplete="off" />
+        <button id="favorites-search-clear" class="small-btn secondary" type="button" aria-label="Clear search" style="display:none;">✕</button>
+        <div id="favorites-search-meta" class="search-meta" aria-live="polite"></div>
       </div>
     </section>
 

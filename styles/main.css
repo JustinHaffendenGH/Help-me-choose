@@ -56,25 +56,7 @@
     font-size: 1.2rem;
 }
 
-.discover-btn {
-    background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
-    color: white;
-    border: none;
-    padding: 1rem 2.5rem;
-    font-size: 1.2rem;
-    font-weight: 600;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
-    transform: translateY(0);
-}
-
-.discover-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(108, 99, 255, 0.4);
-    background: linear-gradient(135deg, #7c73ff 0%, #ac98ff 100%);
-}
+/* Unified button styles for favorites controls - REMOVED */
 
 .filters-container {
     background: rgba(255, 255, 255, 0.1);
@@ -129,49 +111,12 @@
     box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
 }
 
-.apply-filters-btn {
-    grid-column: 1 / -1;
-    background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
-    color: white;
-    border: none;
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
-    font-weight: 600;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    justify-self: center;
-    margin-top: 1rem;
-}
-
-.apply-filters-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
-}
-
 .navigation-footer {
     text-align: center;
     margin: 3rem 0;
 }
 
-.home-btn {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(108, 99, 255, 0.3);
-    color: #6c63ff;
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
-    font-weight: 500;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.home-btn:hover {
-    background: rgba(108, 99, 255, 0.1);
-    border-color: #6c63ff;
-    transform: translateY(-1px);
-}
+/* .home-btn - REMOVED from favorites page */
 
 .movie-tagline span {
   display: block;
@@ -2254,3 +2199,102 @@ h2 a:hover {
 
 /* Debug helper attribute hooks (no visual change, but future-ready) */
 [data-fav-kind] { outline: none; /* placeholder hook for future targeted styling */ }
+
+/* --- Favorites Search Bar (Premium Styled, 2025-10-22) --- */
+.visually-hidden { position:absolute !important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap; border:0; padding:0; margin:-1px; }
+
+.favorites-search-bar {
+  margin: 2rem auto 1.5rem;
+  max-width: 700px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.08) 0%, rgba(58, 55, 104, 0.08) 100%);
+  border: 1px solid rgba(108, 99, 255, 0.25);
+  padding: 1.25rem 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(108, 99, 255, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.favorites-search-bar:focus-within {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.12) 0%, rgba(58, 55, 104, 0.12) 100%);
+  border-color: rgba(108, 99, 255, 0.4);
+  box-shadow: 0 6px 24px rgba(108, 99, 255, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.08);
+}
+
+.favorites-search-bar input[type="search"] {
+  flex: 1 1 280px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(108, 99, 255, 0.2);
+  color: #f5f7fa;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.favorites-search-bar input[type="search"]::placeholder {
+  color: #000;
+}
+
+.favorites-search-bar input[type="search"]:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+}
+
+.favorites-search-bar button.small-btn.secondary {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.2) 0%, rgba(108, 99, 255, 0.1) 100%);
+  border: 1px solid rgba(108, 99, 255, 0.3);
+  color: #c9c0ff;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.9rem;
+  line-height: 1;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.favorites-search-bar button.small-btn.secondary:hover {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.35) 0%, rgba(108, 99, 255, 0.2) 100%);
+  border-color: rgba(108, 99, 255, 0.5);
+  color: #dcd4ff;
+  transform: translateY(-1px);
+}
+
+.favorites-search-bar button.small-btn.secondary:active {
+  transform: translateY(0);
+}
+
+.favorites-search-bar .search-meta {
+  flex-basis: 100%;
+  font-size: 0.8rem;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(108, 99, 255, 0.7);
+  padding-top: 0.5rem;
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .favorites-search-bar {
+    margin: 1.5rem auto 1rem;
+    padding: 1rem 1rem;
+    max-width: none;
+  }
+  .favorites-search-bar input[type="search"] {
+    flex: 1 1 200px;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.95rem;
+  }
+  .favorites-search-bar button.small-btn.secondary {
+    padding: 0.55rem 0.7rem;
+    font-size: 0.85rem;
+  }
+}

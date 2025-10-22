@@ -169,8 +169,23 @@ app.get('/api/nearby', async (req, res) => {
 
     const r = await fetch(url);
     if (!r.ok) {
-      const text = await r.text();
-      return res.status(502).send(text);
+      // Try to read a short snippet from the upstream body for debugging but avoid
+      // sending sensitive data (like API keys) back to the browser. Return a
+      // concise JSON error instead of the raw HTML page that Google may return.
+      let snippet = '';
+      try {
+        const body = await r.text();
+        snippet = body ? body.slice(0, 800) : '';
+      } catch (e) {
+        snippet = '';
+      }
+      console.error(`/api/photo upstream error: ${r.status} ${r.statusText}`);
+      return res.status(502).json({
+        error: 'Upstream photo fetch failed',
+        upstreamStatus: r.status,
+        upstreamStatusText: r.statusText,
+        upstreamSnippet: snippet ? snippet : undefined,
+      });
     }
     const json = await r.json();
 
@@ -405,8 +420,24 @@ app.get('/api/photo', async (req, res) => {
     // Fetch the photo URL. Google returns a redirect to the image; node-fetch will follow and return the image body.
     const r = await fetch(url);
     if (!r.ok) {
-      const text = await r.text();
-      return res.status(502).send(text);
+      // Read a short snippet from the upstream response for debugging but do not
+      // return raw HTML (it may contain markup and is not helpful in the browser
+      // console). Return a concise JSON object with the status and a short
+      // snippet so the client can log or display a friendly message.
+      let snippet = '';
+      try {
+        const body = await r.text();
+        snippet = body ? body.slice(0, 800) : '';
+      } catch (e) {
+        snippet = '';
+      }
+      console.error(`/api/photo upstream error: ${r.status} ${r.statusText}`);
+      return res.status(502).json({
+        error: 'Upstream photo fetch failed',
+        upstreamStatus: r.status,
+        upstreamStatusText: r.statusText,
+        upstreamSnippet: snippet ? snippet : undefined,
+      });
     }
 
     // Forward content-type and add CORS + cache headers to help browser image loading

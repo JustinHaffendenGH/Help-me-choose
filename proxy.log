@@ -1,4 +1,5 @@
-Debugger listening on ws://0.0.0.0:9229/f7f8b3e4-6895-4b6c-b2b8-17bc594debe9
-For help, see: https://nodejs.org/en/docs/inspector
-🔧 Chrome DevTools debugging enabled
 Proxy + static server listening on http://localhost:3000
+/api/photo upstream error: 400 Bad Request
+/api/photo upstream error: 400 Bad Request
+/api/photo upstream error: 400 Bad Request
+/api/photo upstream error: 400 Bad Request
