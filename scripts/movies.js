@@ -55,6 +55,32 @@ async function getRandomTMDbMovie() {
   return null; // Return null if no movie found after all attempts
 }
 
+async function fetchMovieCast(movieId) {
+  try {
+    const response = await fetch(`/api/tmdb/movie/${movieId}/credits`);
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching cast:', error);
+    return null;
+  }
+}
+
+async function displayCast(movieId) {
+  const castContainer = document.getElementById('movie-cast');
+  if (!castContainer) return;
+  
+  castContainer.innerHTML = ''; // reset
+  
+  const credits = await fetchMovieCast(movieId);
+  if (credits && credits.cast && credits.cast.length > 0) {
+    const topCast = credits.cast.slice(0, 5).map(actor => actor.name);
+    castContainer.innerHTML = '<strong>Starring:</strong> ' + topCast.join(', ');
+  } else {
+    castContainer.innerHTML = '';
+  }
+}
+
 async function getMovieExternalIDs(movieId) {
   try {
     // Use server proxy for external IDs
@@ -518,12 +544,12 @@ async function showRandomTMDbMovie() {
     const moviePoster = document.getElementById('movie-poster');
     if (moviePoster && posterUrl) {
       moviePoster.onload = function () {
-        movieResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        movieResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
       };
       moviePoster.src = posterUrl;
       moviePoster.style.display = 'block';
     } else {
-      movieResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      movieResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     // Update IMDb link
     updateImdbLink(movie);
@@ -535,8 +561,11 @@ async function showRandomTMDbMovie() {
   const region = getUserRegion();
   const streamingData = await getMovieStreamingData(movie.id, region);
   displayStreamingAvailability(streamingData, movie, region);
+  
+  // Fetch and display cast
+  displayCast(movie.id);
     
-    // Show and update trailer button
+  // Show and update trailer button
     const trailerBtn = document.getElementById('trailer-btn');
     if (trailerBtn) {
       trailerBtn.style.display = 'inline-block';
@@ -559,6 +588,10 @@ async function showRandomTMDbMovie() {
     if (movieRating) {
       movieRating.textContent = '';
     }
+    const movieCast = document.getElementById('movie-cast');
+    if (movieCast) {
+      movieCast.innerHTML = '';
+    }
     const moviePoster = document.getElementById('movie-poster');
     if (moviePoster) {
       moviePoster.style.display = 'none';
@@ -571,7 +604,7 @@ async function showRandomTMDbMovie() {
     if (imdbLink) {
       imdbLink.style.display = 'none';
     }
-    movieResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    movieResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
 
@@ -648,6 +681,9 @@ function displayRandomFilteredMovie(movies) {
     // Update IMDb link
     updateImdbLink(movie);
 
+    // Fetch and display cast
+    displayCast(movie.id);
+
     // Show and update trailer button
     const trailerBtn = document.getElementById('trailer-btn');
     if (trailerBtn) {
@@ -677,6 +713,10 @@ function displayRandomFilteredMovie(movies) {
     const movieRating = document.getElementById('movie-rating');
     if (movieRating) {
       movieRating.textContent = '';
+    }
+    const movieCast = document.getElementById('movie-cast');
+    if (movieCast) {
+      movieCast.innerHTML = '';
     }
     const moviePoster = document.getElementById('movie-poster');
     if (moviePoster) {
