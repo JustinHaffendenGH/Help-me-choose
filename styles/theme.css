@@ -47,6 +47,37 @@
   --transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+[data-theme="light"] {
+  /* Core Colors */
+  --bg-base: #f8f9fc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f1f5f9;
+  
+  /* Primary Brand */
+  --primary: #6c63ff;
+  --primary-hover: #5a52d5;
+  --primary-gradient: linear-gradient(135deg, #6c63ff 0%, #4facfe 100%);
+  --primary-gradient-hover: linear-gradient(135deg, #5a52d5 0%, #3e8acc 100%);
+  
+  /* Text */
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  
+  /* Borders and Effects */
+  --border-light: rgba(0, 0, 0, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.12);
+  --glow: 0 0 20px rgba(108, 99, 255, 0.2);
+}
+
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 /* Global Reset & Base */
 body {
   font-family: var(--font-body);
@@ -115,7 +146,26 @@ h1, h2, h3, h4, h5, h6 {
 
 .navbar-nav a:hover, .navbar-nav a.active {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--border-light);
+}
+
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle:hover {
+  background: var(--border-light);
+  transform: translateY(-2px);
 }
 
 /* Layout Utilities */
