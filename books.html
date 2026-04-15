@@ -3,32 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Books</title>
+    <title>Books - Decidr</title>
+    <link rel="stylesheet" href="styles/theme.css">
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-    <header>
-        <h1>Read</h1>
-        <p class="header-tagline">Discover your next obsession – books that captivate, meals that delight, movies that inspire.</p>
-        <nav>
-            <a href="books.html">Read</a>
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand gradient-text">Decidr</a>
+        <div class="navbar-nav">
+            <a href="books.html" class="active">Read</a>
             <a href="food.html">Eat</a>
             <a href="movies.html">Watch</a>
             <a href="favorites.html">Favorites</a>
-        </nav>
-    </header>
-    <main>
-        <div class="hero-section">
+        </div>
+    </nav>
+    <main class="container">
+        <div class="hero-section glass-panel">
             <p class="main-tagline">
                 <span class="tagline-highlight">Literary adventures await</span><br>
                 <span>Discover your next captivating read</span>
             </p>
-            <button id="Random-book-button" class="discover-btn" role="button" onclick="showRandomBook()">
+            <button id="Random-book-button" class="btn-primary" role="button" onclick="showRandomBook()">
                 📚 Discover Books
             </button>
         </div>
         
-        <div class="filters-container">
+        <div class="filters-container glass-panel">
             <h3 class="filters-title">Refine Your Search</h3>
             <div class="filters-grid">
                 <div class="filter-group">
@@ -56,10 +56,10 @@
                     <input type="number" id="rating" class="filter-input" min="1" max="5" value="3" step="0.1">
                 </div>
                 
-                <button class="apply-filters-btn" onclick="applyBookFilters()">Apply Filters</button>
+                <button class="apply-filters-btn btn-primary" onclick="applyBookFilters()" style="padding: 0.75rem;">Apply Filters</button>
             </div>
         </div>
-    <div id="book-result" class="center-horizontal book-suggestion" style="display:none;">
+    <div id="book-result" class="book-suggestion glass-panel" style="display:none; text-align: center;">
             <!-- Book details here -->
             <h2 id="book-title"></h2>
             <p id="book-description"></p>
@@ -77,9 +77,9 @@
             </div>
             
             <button id="goodreads-link" style="display:none; margin-right:8px;" class="goodreads-btn">📖 View on Goodreads</button>
-            <button id="preview-btn" style="display:none;">Preview Book</button>
-            <img id="book-cover" alt="Book Cover" />
-            <button id="next-book-btn" class="button-29 center-horizontal" style="margin-top:1.5rem;">Next Book</button>
+            <button id="preview-btn" style="display:none;" class="btn-primary" style="padding: 0.5rem;">Preview Book</button>
+            <img id="book-cover" alt="Book Cover" style="margin: 1.5rem auto; border-radius: 12px; box-shadow: var(--shadow-sm);"/>
+            <button id="next-book-btn" class="btn-primary" style="margin-top:1.5rem;">Next Book</button>
         </div>
         
         <div class="navigation-footer">

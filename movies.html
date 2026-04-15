@@ -3,32 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movies</title>
+    <title>Movies - Decidr</title>
+    <link rel="stylesheet" href="styles/theme.css">
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-    <header>
-        <h1>Watch</h1>
-        <p class="header-tagline">Discover your next obsession – books that captivate, meals that delight, movies that inspire.</p>
-        <nav>
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand gradient-text">Decidr</a>
+        <div class="navbar-nav">
             <a href="books.html">Read</a>
             <a href="food.html">Eat</a>
-            <a href="movies.html">Watch</a>
+            <a href="movies.html" class="active">Watch</a>
             <a href="favorites.html">Favorites</a>
-        </nav>
-    </header>
-    <main>
-        <div class="hero-section">
+        </div>
+    </nav>
+    <main class="container">
+        <div class="hero-section glass-panel">
             <p class="main-tagline">
                 <span class="tagline-highlight">Cinematic adventures await</span><br>
                 <span>Discover your next favorite film</span>
             </p>
-            <button id="Random-button" class="discover-btn" role="button" onclick="showRandomTMDbMovie()">
+            <button id="Random-button" class="btn-primary" role="button" onclick="showRandomTMDbMovie()">
                 🎬 Discover Movies
             </button>
         </div>
         
-        <div class="filters-container">
+        <div class="filters-container glass-panel">
             <h3 class="filters-title">Refine Your Search</h3>
             <div class="filters-grid">
                 <div class="filter-group">
@@ -58,10 +58,10 @@
                 
                 <!-- Region selector removed: region is detected automatically -->
                 
-                <button class="apply-filters-btn" onclick="applyFilters()">Apply Filters</button>
+                <button class="apply-filters-btn btn-primary" onclick="applyFilters()" style="padding: 0.75rem;">Apply Filters</button>
             </div>
         </div>        
-        <div id="movie-result" class="center-horizontal movie-suggestion" style="display:none;">
+        <div id="movie-result" class="movie-suggestion glass-panel" style="display:none; text-align: center;">
             <!-- Movie details here -->
             <h2 id="movie-title"> </h2>
             <p id="movie-overview"></p>
@@ -82,10 +82,10 @@
             </div>
             
             <!-- Streaming Availability Section -->
-            <div id="streaming-availability" style="display:none;"></div>
+            <div id="streaming-availability" style="display:none; margin: 1rem 0;"></div>
             
-            <img id="movie-poster" alt="Movie Poster" />
-            <button id="next-movie-btn" class="button-29 center-horizontal" style="margin-top:1.5rem;">Next Movie</button>
+            <img id="movie-poster" alt="Movie Poster" style="margin: 1.5rem auto; border-radius: 12px; box-shadow: var(--shadow-sm);"/>
+            <button id="next-movie-btn" class="btn-primary" style="margin-top:1.5rem;">Next Movie</button>
         </div>
         
         <div class="navigation-footer">

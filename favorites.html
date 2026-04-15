@@ -3,78 +3,78 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Your Favorites Collection</title>
+  <title>Favorites - Decidr</title>
+  <link rel="stylesheet" href="styles/theme.css">
   <link rel="stylesheet" href="styles/main.css?v=3">
 </head>
 <body>
-  <header>
-    <h1>Favorites</h1>
-    <p class="header-tagline">Your curated collection – movies that inspire, meals that delight, books that captivate.</p>
-    <nav>
-      <a href="books.html">Read</a>
-      <a href="food.html">Eat</a>
-      <a href="movies.html">Watch</a>
-      <a href="favorites.html">Favorites</a>
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand gradient-text">Decidr</a>
+        <div class="navbar-nav">
+            <a href="books.html">Read</a>
+            <a href="food.html">Eat</a>
+            <a href="movies.html">Watch</a>
+            <a href="favorites.html" class="active">Favorites</a>
+        </div>
     </nav>
-  </header>
 
-  <main>
+  <main class="container">
     <!-- Search / Filter Bar -->
-    <section class="favorites-search-section">
-      <div class="favorites-search-bar" role="search">
+    <section class="favorites-search-section glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+      <div class="favorites-search-bar" role="search" style="display: flex; gap: 1rem;">
         <label for="favorites-search" class="visually-hidden">Search favorites</label>
-        <input id="favorites-search" type="search" placeholder="Search favorites (title, name, author, cuisine)" autocomplete="off" />
-        <button id="favorites-search-clear" class="small-btn secondary" type="button" aria-label="Clear search" style="display:none;">✕</button>
+        <input id="favorites-search" type="search" placeholder="Search favorites (title, name, author, cuisine)" autocomplete="off" style="flex: 1; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-light); background: rgba(255,255,255,0.05); color: var(--text-primary);" />
+        <button id="favorites-search-clear" class="btn-primary" type="button" aria-label="Clear search" style="display:none; padding: 0.5rem 1rem;">✕</button>
         <div id="favorites-search-meta" class="search-meta" aria-live="polite"></div>
       </div>
     </section>
 
     <!-- Movies Section -->
-    <section class="favorites-section" data-type="movies">
-      <header class="section-header">
-        <h2>🎬 Movies <span id="movies-count">(0)</span></h2>
-        <div class="section-actions">
-          <button class="browse-btn" onclick="window.location.href='movies.html'">
+    <section class="favorites-section glass-panel" data-type="movies" style="padding: 2rem; margin-bottom: 2rem;">
+      <header class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="margin: 0;">🎬 Movies <span id="movies-count" style="color: var(--text-muted);">(0)</span></h2>
+        <div class="section-actions" style="display: flex; gap: 1rem;">
+          <button class="browse-btn btn-primary" onclick="window.location.href='movies.html'" style="padding: 0.5rem 1rem;">
             Browse Movies
           </button>
-          <button class="clear-section-btn" data-type="movies">Clear Movies</button>
+          <button class="clear-section-btn btn-primary" data-type="movies" style="padding: 0.5rem 1rem; background: var(--danger);">Clear Movies</button>
         </div>
       </header>
-      <div id="movies-grid" class="favorites-grid"></div>
+      <div id="movies-grid" class="favorites-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;"></div>
       <div class="empty-state" id="movies-empty" style="display:none;">
         <p>No movie favorites yet. <a href="movies.html">Discover movies</a> to start your collection.</p>
       </div>
     </section>
 
     <!-- Food Section -->
-    <section class="favorites-section" data-type="food">
-      <header class="section-header">
-        <h2>🍽️ Food & Restaurants <span id="food-count">(0)</span></h2>
-        <div class="section-actions">
-          <button class="browse-btn" onclick="window.location.href='food.html'">
+    <section class="favorites-section glass-panel" data-type="food" style="padding: 2rem; margin-bottom: 2rem;">
+      <header class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="margin: 0;">🍽️ Food & Restaurants <span id="food-count" style="color: var(--text-muted);">(0)</span></h2>
+        <div class="section-actions" style="display: flex; gap: 1rem;">
+          <button class="browse-btn btn-primary" onclick="window.location.href='food.html'" style="padding: 0.5rem 1rem;">
             Browse Food
           </button>
-          <button class="clear-section-btn" data-type="food">Clear Food</button>
+          <button class="clear-section-btn btn-primary" data-type="food" style="padding: 0.5rem 1rem; background: var(--danger);">Clear Food</button>
         </div>
       </header>
-      <div id="food-grid" class="favorites-grid"></div>
+      <div id="food-grid" class="favorites-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;"></div>
       <div class="empty-state" id="food-empty" style="display:none;">
         <p>No food favorites yet. <a href="food.html">Explore restaurants</a> to save your favorites.</p>
       </div>
     </section>
 
     <!-- Books Section -->
-    <section class="favorites-section" data-type="books">
-      <header class="section-header">
-        <h2>📚 Books <span id="books-count">(0)</span></h2>
-        <div class="section-actions">
-          <button class="browse-btn" onclick="window.location.href='books.html'">
+    <section class="favorites-section glass-panel" data-type="books" style="padding: 2rem; margin-bottom: 2rem;">
+      <header class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="margin: 0;">📚 Books <span id="books-count" style="color: var(--text-muted);">(0)</span></h2>
+        <div class="section-actions" style="display: flex; gap: 1rem;">
+          <button class="browse-btn btn-primary" onclick="window.location.href='books.html'" style="padding: 0.5rem 1rem;">
             Browse Books
           </button>
-          <button class="clear-section-btn" data-type="books">Clear Books</button>
+          <button class="clear-section-btn btn-primary" data-type="books" style="padding: 0.5rem 1rem; background: var(--danger);">Clear Books</button>
         </div>
       </header>
-      <div id="books-grid" class="favorites-grid"></div>
+      <div id="books-grid" class="favorites-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;"></div>
       <div class="empty-state" id="books-empty" style="display:none;">
         <p>No book favorites yet. <a href="books.html">Discover books</a> to build your reading list.</p>
       </div>

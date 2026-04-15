@@ -3,33 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food</title>
+    <title>Food - Decidr</title>
+    <link rel="stylesheet" href="styles/theme.css">
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-    <header>
-        <h1>Eat</h1>
-        <p class="header-tagline">Discover your next obsession – books that captivate, meals that delight, movies that inspire.</p>
-        <nav>
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand gradient-text">Decidr</a>
+        <div class="navbar-nav">
             <a href="books.html">Read</a>
-            <a href="food.html">Eat</a>
+            <a href="food.html" class="active">Eat</a>
             <a href="movies.html">Watch</a>
             <a href="favorites.html">Favorites</a>
-        </nav>
-    </header>
-    <main>
-        <div class="hero-section">
+        </div>
+    </nav>
+    <main class="container">
+        <div class="hero-section glass-panel">
             <p class="main-tagline">
                 <span class="tagline-highlight">Culinary adventures await</span><br>
                 <span>Discover your next favorite meal</span>
             </p>
             <!-- location status removed per user preference -->
-            <button id="Random-food-button" class="discover-btn" role="button" onclick="showRandomFood()">
+            <button id="Random-food-button" class="btn-primary" role="button" onclick="showRandomFood()">
                 🍽️ Discover Food
             </button>
         </div>
 
-        <div class="filters-container">
+        <div class="filters-container glass-panel">
             <h3 class="filters-title">Refine Your Search</h3>
             <div class="filters-grid">
                 <div class="filter-group">
@@ -64,7 +64,7 @@
                     </select>
                 </div>
 
-                <button class="apply-filters-btn" onclick="applyFoodFilters()">Apply Filters</button>
+                <button class="apply-filters-btn btn-primary" onclick="applyFoodFilters()" style="padding: 0.75rem;">Apply Filters</button>
             </div>
         </div>
     <div id="filter-warning" class="filter-warning" style="display:none;">No exact matches for your filters — showing a closest match.</div>
@@ -72,7 +72,7 @@
     <!-- Active filters display: reflects what will be sent to the server (keyword/price) -->
     <div id="active-filters" class="active-filters" style="display:none;" aria-live="polite"></div>
 
-        <div id="food-result" class="center-horizontal food-suggestion" style="display:none;">
+        <div id="food-result" class="food-suggestion glass-panel" style="display:none; text-align: center;">
             <!-- Food details here -->
             <h2 id="food-title"></h2>
             <p id="food-description"></p>
@@ -89,9 +89,9 @@
             </div>
             
             <a id="menu-link" href="#" target="_blank" style="display:none; margin-right:8px;">View Menu</a>
-            <button id="directions-btn" style="display:none;">Get Directions</button>
-            <img id="food-image" alt="Food/Restaurant Image" />
-            <button id="next-food-btn" class="button-29 center-horizontal" style="margin-top:1.5rem;">Next Restaurant</button>
+            <button id="directions-btn" style="display:none;" class="btn-primary" style="padding: 0.5rem;">Get Directions</button>
+            <img id="food-image" alt="Food/Restaurant Image" style="margin: 1.5rem auto; border-radius: 12px; box-shadow: var(--shadow-sm);"/>
+            <button id="next-food-btn" class="btn-primary" style="margin-top:1.5rem;">Next Restaurant</button>
         </div>
 
         <div class="navigation-footer">
