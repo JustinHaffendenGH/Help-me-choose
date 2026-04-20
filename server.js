@@ -28,12 +28,12 @@ app.use((req, res, next) => {
   // Content Security Policy
   res.setHeader('Content-Security-Policy', 
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline'; " +
+    "script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: https:; " +
-    "connect-src 'self' https://api.themoviedb.org https://www.googleapis.com https://maps.googleapis.com https://api.hardcover.app https://world.openfoodfacts.org https://openlibrary.org; " +
-    "frame-src 'self' https://www.youtube.com https://youtube.com; " +
+    "connect-src 'self' https://api.themoviedb.org https://www.googleapis.com https://maps.googleapis.com https://api.hardcover.app https://world.openfoodfacts.org https://openlibrary.org https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com wss://*.firebaseio.com; " +
+    "frame-src 'self' https://www.youtube.com https://youtube.com https://decidr-1a5c4.firebaseapp.com; " +
     "object-src 'none';"
   );
   

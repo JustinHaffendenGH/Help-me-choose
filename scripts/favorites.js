@@ -14,6 +14,9 @@
 
   // State for search filtering
   let currentSearchQuery = '';
+  let currentListId = 'default';
+  let activeModalItem = null;
+  let activeModalType = null;
 
   // Migration function for legacy favorites
   function migrateLegacyFavorites(){
@@ -34,32 +37,198 @@
     }
   }
 
-  function readFavorites(type = 'movies'){
-    try{
-      const key = STORAGE_KEYS[type];
-      if(!key){
-        console.error(`Invalid favorites type: ${type}`);
-        return [];
-      }
-      const raw = localStorage.getItem(key) || '[]';
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
-    }catch(e){
-      console.error(`Failed to parse ${type} favorites from localStorage`, e);
-      return [];
+  async function readFavorites(type = 'movies'){
+    if (window.StorageService) {
+      return await window.StorageService.getFavorites(type);
+    }
+    return [];
+  }
+
+  async function saveFavorites(list, type = 'movies'){
+    if (window.StorageService) {
+      await window.StorageService.saveFavorites(list, type);
     }
   }
 
-  function saveFavorites(list, type = 'movies'){
-    try{
-      const key = STORAGE_KEYS[type];
-      if(!key){
-        console.error(`Invalid favorites type: ${type}`);
-        return;
+  async function renderListsNav() {
+    if (!window.StorageService) return;
+    const lists = await window.StorageService.getLists();
+    const navContainer = document.getElementById('lists-nav-container');
+    if (!navContainer) return;
+    
+    // Clear dynamic pills
+    const dynamicPills = navContainer.querySelectorAll('.dynamic-pill');
+    dynamicPills.forEach(p => p.remove());
+    
+    const insertBeforeTarget = document.getElementById('btn-create-list');
+    
+    // Add custom lists
+    lists.forEach(list => {
+      const btn = document.createElement('button');
+      btn.className = `list-pill btn-secondary dynamic-pill ${currentListId === list.id ? 'active btn-primary' : ''}`;
+      // Basic styling matching the existing pill
+      btn.style.padding = '0.5rem 1rem';
+      btn.style.borderRadius = '20px';
+      if (currentListId === list.id) {
+        btn.style.border = '1px solid var(--accent)';
+        btn.style.background = 'var(--accent)';
       }
-      localStorage.setItem(key, JSON.stringify(list));
-    }catch(e){
-      console.error(`Failed to save ${type} favorites`, e);
+      btn.textContent = list.name;
+      btn.dataset.listId = list.id;
+      
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.list-pill').forEach(b => {
+          b.classList.remove('active', 'btn-primary');
+          b.classList.add('btn-secondary');
+          b.style.border = '';
+          b.style.background = '';
+        });
+        btn.classList.add('active', 'btn-primary');
+        btn.classList.remove('btn-secondary');
+        btn.style.border = '1px solid var(--accent)';
+        btn.style.background = 'var(--accent)';
+        currentListId = list.id;
+        renderAllSections();
+      });
+      
+      navContainer.insertBefore(btn, insertBeforeTarget);
+    });
+    
+    // Wire up Default Pill
+    const defaultPill = navContainer.querySelector('[data-list-id="default"]');
+    if (defaultPill && !defaultPill.dataset.wired) {
+      defaultPill.dataset.wired = 'true';
+      defaultPill.addEventListener('click', () => {
+        document.querySelectorAll('.list-pill').forEach(b => {
+          b.classList.remove('active', 'btn-primary');
+          b.classList.add('btn-secondary');
+          b.style.border = '';
+          b.style.background = '';
+        });
+        defaultPill.classList.add('active', 'btn-primary');
+        defaultPill.classList.remove('btn-secondary');
+        defaultPill.style.border = '1px solid var(--accent)';
+        defaultPill.style.background = 'var(--accent)';
+        currentListId = 'default';
+        renderAllSections();
+      });
+    }
+  }
+
+  // Handle list folder assignment
+  async function openListModal(item, type) {
+    activeModalItem = item;
+    activeModalType = type;
+    const modal = document.getElementById('list-assign-modal');
+    const checkboxesContainer = document.getElementById('list-assign-checkboxes');
+    if (!modal || !checkboxesContainer || !window.StorageService) return;
+    
+    const lists = await window.StorageService.getLists();
+    
+    checkboxesContainer.innerHTML = '';
+    
+    if (lists.length === 0) {
+      checkboxesContainer.innerHTML = '<p style="color: var(--text-muted);">You have no custom folders yet. Create one first!</p>';
+    } else {
+      lists.forEach(list => {
+        const label = document.createElement('label');
+        label.style.display = 'flex';
+        label.style.alignItems = 'center';
+        label.style.gap = '0.5rem';
+        label.style.cursor = 'pointer';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = list.id;
+        // Check if item is already in list
+        checkbox.checked = item.listIds && item.listIds.includes(list.id);
+        
+        checkbox.addEventListener('change', async (e) => {
+           let favs = await readFavorites(activeModalType);
+           let target = favs.find(f => f.id === activeModalItem.id);
+           if (!target) return; // shouldn't happen
+           if (!target.listIds) target.listIds = [];
+           
+           if (e.target.checked) {
+             if (!target.listIds.includes(list.id)) target.listIds.push(list.id);
+           } else {
+             target.listIds = target.listIds.filter(id => id !== list.id);
+           }
+           
+           // Keep memory synced for modal lifespan
+           activeModalItem.listIds = target.listIds;
+           await saveFavorites(favs, activeModalType);
+        });
+        
+        label.appendChild(checkbox);
+        label.append(list.name);
+        checkboxesContainer.appendChild(label);
+      });
+    }
+    
+    modal.showModal();
+  }
+
+  // Set up Create Button & Modal Listeners
+  function setupListModalListeners() {
+    // New Folder creation dialog logic
+    const createBtn = document.getElementById('btn-create-list');
+    const folderModal = document.getElementById('new-folder-modal');
+    const folderInput = document.getElementById('new-folder-input');
+    const cancelFolderBtn = document.getElementById('cancel-folder-btn');
+    const submitFolderBtn = document.getElementById('submit-folder-btn');
+
+    if (createBtn && folderModal) {
+      // Delegate opening modal
+      createBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (folderInput) folderInput.value = '';
+        folderModal.showModal();
+        if (folderInput) folderInput.focus();
+      });
+
+      // Handle Cancel
+      if (cancelFolderBtn) {
+        cancelFolderBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          folderModal.close();
+        });
+      }
+
+      // Handle Submit
+      const submitFolder = async (e) => {
+        if (e) e.preventDefault();
+        const name = folderInput ? folderInput.value : '';
+        if (name && name.trim()) {
+           if (!window.StorageService) return;
+           const lists = await window.StorageService.getLists();
+           // Prevent exact duplicate names
+           if (!lists.some(l => l.name.toLowerCase() === name.trim().toLowerCase())) {
+             lists.push({ id: `list_${Date.now()}`, name: name.trim() });
+             await window.StorageService.saveLists(lists);
+             await renderListsNav();
+           }
+           folderModal.close();
+        }
+      };
+
+      if (submitFolderBtn) submitFolderBtn.addEventListener('click', submitFolder);
+      if (folderInput) {
+        folderInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') submitFolder(e);
+        });
+      }
+    }
+    
+    // Existing Assigment Modal Close Button
+    const closeBtn = document.getElementById('close-list-modal');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+         const modal = document.getElementById('list-assign-modal');
+         if (modal) modal.close();
+         // Re-render in case filter hides it now
+         renderAllSections();
+      });
     }
   }
 
@@ -152,7 +321,13 @@
       }, 40);
     });
 
-    actions.append(openLink, trailerBtn, removeBtn);
+    const listBtn = document.createElement('button');
+    listBtn.textContent = '📁';
+    listBtn.title = 'Add to folder';
+    listBtn.className = 'small-btn secondary';
+    listBtn.addEventListener('click', () => openListModal(item, 'movies'));
+
+    actions.append(openLink, trailerBtn, listBtn, removeBtn);
     meta.appendChild(actions);
     card.append(img, meta);
     return card;
@@ -239,7 +414,13 @@
       }, 40);
     });
 
-    actions.append(viewBtn, locationBtn, removeBtn);
+    const listBtn = document.createElement('button');
+    listBtn.textContent = '📁';
+    listBtn.title = 'Add to folder';
+    listBtn.className = 'small-btn secondary';
+    listBtn.addEventListener('click', () => openListModal(item, 'food'));
+
+    actions.append(viewBtn, locationBtn, listBtn, removeBtn);
     meta.appendChild(actions);
     card.append(img, meta);
     return card;
@@ -326,24 +507,37 @@
       }, 40);
     });
 
-    actions.append(viewBtn, buyBtn, removeBtn);
+    const listBtn = document.createElement('button');
+    listBtn.textContent = '📁';
+    listBtn.title = 'Add to folder';
+    listBtn.className = 'small-btn secondary';
+    listBtn.addEventListener('click', () => openListModal(item, 'books'));
+
+    actions.append(viewBtn, buyBtn, listBtn, removeBtn);
     meta.appendChild(actions);
     card.append(img, meta);
     return card;
   }
 
-  function renderSection(type){
+  async function renderSection(type){
     const grid = document.getElementById(`${type}-grid`);
     const countEl = document.getElementById(`${type}-count`);
     const empty = document.getElementById(`${type}-empty`);
 
     if(!grid) return;
     // Support runtime filtering
-    const baseList = readFavorites(type);
+    const baseList = await readFavorites(type);
+    
+    // Apply list filtering first
+    let listFilteredByTab = baseList;
+    if (currentListId !== 'default') {
+      listFilteredByTab = baseList.filter(item => item.listIds && item.listIds.includes(currentListId));
+    }
+    
     const query = (currentSearchQuery || '').trim().toLowerCase();
-    let list = baseList;
+    let list = listFilteredByTab;
     if(query){
-      list = baseList.filter(item => {
+      list = listFilteredByTab.filter(item => {
         // gather searchable fields depending on type
         let haystack = '';
         if(type === 'movies'){
@@ -374,10 +568,13 @@
     });
   }
 
-  function renderAllSections(){
-    renderSection('movies');
-    renderSection('food');
-    renderSection('books');
+  async function renderAllSections(){
+    await renderListsNav();
+    await Promise.all([
+      renderSection('movies'),
+      renderSection('food'),
+      renderSection('books')
+    ]);
 
     // Update meta info for search results
     if(currentSearchQuery){
@@ -388,33 +585,34 @@
     }
   }
 
-  function removeFavorite(id, type = 'movies'){
-    const list = readFavorites(type).filter(i => i.id !== id);
-    saveFavorites(list, type);
-    renderSection(type);
+  async function removeFavorite(id, type = 'movies'){
+    const favs = await readFavorites(type);
+    const list = favs.filter(i => i.id !== id);
+    await saveFavorites(list, type);
+    await renderSection(type);
   }
 
-  function clearSection(type){
-    saveFavorites([], type);
-    renderSection(type);
+  async function clearSection(type){
+    await saveFavorites([], type);
+    await renderSection(type);
     const aria = document.getElementById('aria-live');
     if(aria) aria.textContent = `Cleared ${type} favorites`;
   }
 
-  function clearAllSections(){
-    saveFavorites([], 'movies');
-    saveFavorites([], 'food');
-    saveFavorites([], 'books');
-    renderAllSections();
+  async function clearAllSections(){
+    await saveFavorites([], 'movies');
+    await saveFavorites([], 'food');
+    await saveFavorites([], 'books');
+    await renderAllSections();
     const aria = document.getElementById('aria-live');
     if(aria) aria.textContent = 'Cleared all favorites';
   }
 
-  function exportAll(){
+  async function exportAll(){
     const data = {
-      movies: readFavorites('movies'),
-      food: readFavorites('food'),
-      books: readFavorites('books'),
+      movies: await readFavorites('movies'),
+      food: await readFavorites('food'),
+      books: await readFavorites('books'),
       exportDate: new Date().toISOString(),
       version: '2.0'
     };
@@ -430,9 +628,9 @@
     URL.revokeObjectURL(url);
   }
 
-  function exportSection(type){
+  async function exportSection(type){
     const data = {
-      [type]: readFavorites(type),
+      [type]: await readFavorites(type),
       exportDate: new Date().toISOString(),
       version: '2.0'
     };
@@ -492,8 +690,6 @@
     if (lastVersion !== currentVersion) {
       console.log('Updating favorites UI to version', currentVersion);
       localStorage.setItem('favorites-ui-version', currentVersion);
-      // Force re-render after version update
-      setTimeout(() => renderAllSections(), 100);
     }
     
     // Run migration first
@@ -751,10 +947,25 @@
   }
 
   // Initialize when DOM ready
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', wireUp);
-  } else {
+  const initApp = () => {
     wireUp();
+    setupListModalListeners(); // Attach modal logic immediately
+    const waitAuth = () => {
+      if (window.StorageService) {
+        window.StorageService.onAuthChange((user) => {
+          renderAllSections();
+        });
+      } else {
+        setTimeout(waitAuth, 50);
+      }
+    };
+    waitAuth();
+  };
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
   }
 
 })();

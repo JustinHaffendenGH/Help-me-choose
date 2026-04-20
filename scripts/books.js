@@ -631,25 +631,18 @@ function displayBook(book) {
 }
 
 // Book Favorites System
-const BOOK_FAV_KEY = 'favorites-books';
+const BOOK_FAV_KEY = 'decidr_books';
 
-function loadBookFavorites() {
-  try {
-    const raw = localStorage.getItem(BOOK_FAV_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    console.error('Failed to load book favorites', e);
-    return [];
+async function readFavorites() {
+  if (window.StorageService) {
+    return await window.StorageService.getFavorites('books');
   }
+  return [];
 }
 
-function saveBookFavorites(list) {
-  try {
-    localStorage.setItem(BOOK_FAV_KEY, JSON.stringify(list || []));
-  } catch (e) {
-    console.error('Failed to save book favorites', e);
+async function saveFavorites(list) {
+  if (window.StorageService) {
+    await window.StorageService.saveFavorites(list, 'books');
   }
 }
 
@@ -663,9 +656,9 @@ function generateBookId(book) {
   return `book_${book.title.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}_${author.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}`;
 }
 
-function isBookFavorite(book) {
+async function isBookFavorite(book) {
   if (!book) return false;
-  const favs = loadBookFavorites();
+  const favs = await readFavorites();
   const bookId = generateBookId(book);
   return favs.some((b) => b.id === bookId);
 }
@@ -673,7 +666,7 @@ function isBookFavorite(book) {
 async function toggleBookFavorite(book) {
   if (!book || !book.title) return;
   
-  let favs = loadBookFavorites();
+  let favs = await readFavorites();
   const bookId = generateBookId(book);
   const existing = favs.findIndex((b) => b.id === bookId);
   
@@ -700,15 +693,16 @@ async function toggleBookFavorite(book) {
     if (favs.length > 200) favs = favs.slice(0, 200);
   }
   
-  saveBookFavorites(favs);
-  updateBookFavToggleUI(book);
+  await saveFavorites(favs);
+  await updateBookFavToggleUI(book);
 }
 
-function updateBookFavToggleUI(book) {
+async function updateBookFavToggleUI(book) {
   const btn = document.getElementById('book-fav-toggle-btn');
   if (!btn || !book) return;
   
-  if (isBookFavorite(book)) {
+  const favState = await isBookFavorite(book);
+  if (favState) {
     btn.classList.add('fav-pressed');
     btn.setAttribute('aria-pressed', 'true');
     btn.setAttribute('aria-label', 'Remove from favorites');
@@ -937,12 +931,25 @@ async function initBooks() {
   // Book favorites button functionality
   const bookFavBtn = document.getElementById('book-fav-toggle-btn');
   if (bookFavBtn) {
-    bookFavBtn.onclick = function () {
+    bookFavBtn.onclick = async function () {
       if (window.currentBook) {
-        toggleBookFavorite(window.currentBook);
+        await toggleBookFavorite(window.currentBook);
       }
     };
   }
+
+  const waitAuthSync = () => {
+    if (window.StorageService) {
+      window.StorageService.onAuthChange(() => {
+        if (window.currentBook) {
+          updateBookFavToggleUI(window.currentBook);
+        }
+      });
+    } else {
+      setTimeout(waitAuthSync, 50);
+    }
+  };
+  waitAuthSync();
 }
 
 // Make functions globally available

@@ -1013,29 +1013,22 @@ function displayFood(food) {
   window.currentFood = food;
   
   // Update favorites button state
-  updateFoodFavToggleUI(food);
+  updateFavToggleUI(generateFoodId(food));
 }
 
 // Food Favorites System
-const FOOD_FAV_KEY = 'favorites-food';
+const FOOD_FAV_KEY = 'decidr_food';
 
-function loadFoodFavorites() {
-  try {
-    const raw = localStorage.getItem(FOOD_FAV_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    console.error('Failed to load food favorites', e);
-    return [];
+async function readFavorites() {
+  if (window.StorageService) {
+    return await window.StorageService.getFavorites('food');
   }
+  return [];
 }
 
-function saveFoodFavorites(list) {
-  try {
-    localStorage.setItem(FOOD_FAV_KEY, JSON.stringify(list || []));
-  } catch (e) {
-    console.error('Failed to save food favorites', e);
+async function saveFavorites(list) {
+  if (window.StorageService) {
+    await window.StorageService.saveFavorites(list, 'food');
   }
 }
 
@@ -1047,17 +1040,15 @@ function generateFoodId(food) {
   return `food_${food.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}`;
 }
 
-function isFoodFavorite(food) {
-  if (!food) return false;
-  const favs = loadFoodFavorites();
-  const foodId = generateFoodId(food);
-  return favs.some((f) => f.id === foodId);
+async function isFavorite(foodId) {
+  const favs = await readFavorites();
+  return favs.some(f => f.id === foodId);
 }
 
 async function toggleFoodFavorite(food) {
   if (!food || !food.name) return;
   
-  let favs = loadFoodFavorites();
+  let favs = await readFavorites();
   const foodId = generateFoodId(food);
   const existing = favs.findIndex((f) => f.id === foodId);
   
@@ -1082,15 +1073,22 @@ async function toggleFoodFavorite(food) {
     if (favs.length > 200) favs = favs.slice(0, 200);
   }
   
-  saveFoodFavorites(favs);
-  updateFoodFavToggleUI(food);
+  await saveFavorites(favs);
+  await updateFavToggleUI(foodId);
 }
 
-function updateFoodFavToggleUI(food) {
+async function updateFavToggleUI(currentFoodId) {
   const btn = document.getElementById('food-fav-toggle-btn');
-  if (!btn || !food) return;
+  if (!btn) return;
   
-  if (isFoodFavorite(food)) {
+  if (!currentFoodId) {
+    btn.classList.remove('active');
+    btn.innerHTML = '♡';
+    return;
+  }
+  
+  const favState = await isFavorite(currentFoodId);
+  if (favState) {
     btn.classList.add('fav-pressed');
     btn.setAttribute('aria-pressed', 'true');
     btn.setAttribute('aria-label', 'Remove from favorites');
@@ -1137,12 +1135,26 @@ async function initFoods() {
   // Food favorites button functionality
   const foodFavBtn = document.getElementById('food-fav-toggle-btn');
   if (foodFavBtn) {
-    foodFavBtn.onclick = function () {
+    foodFavBtn.onclick = async function () {
       if (window.currentFood) {
-        toggleFoodFavorite(window.currentFood);
+        await toggleFoodFavorite(window.currentFood);
       }
     };
   }
+
+  const waitAuthSync = () => {
+    if (window.StorageService) {
+      window.StorageService.onAuthChange(() => {
+        if (window.currentFood) {
+          const foodId = window.currentFoodId || window.currentFood.id || `food_${window.currentFood.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}`;
+          updateFavToggleUI(foodId);
+        }
+      });
+    } else {
+      setTimeout(waitAuthSync, 50);
+    }
+  };
+  waitAuthSync();
 }
 
 // Make functions globally available

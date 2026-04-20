@@ -83,6 +83,13 @@
     align-items: end;
 }
 
+.apply-filters-btn {
+    grid-column: 1 / -1;
+    justify-self: center;
+    min-width: 250px;
+    margin-top: 0.5rem;
+}
+
 .filter-group {
     display: flex;
     flex-direction: column;

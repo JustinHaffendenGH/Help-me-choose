@@ -571,6 +571,9 @@ async function renderMovieData(movie, isHistoryMove = false) {
       trailerBtn.onclick = () => watchTrailer(movie);
     }
 
+    // Refresh the favorite heart toggle for the displayed movie
+    updateFavToggleUI(movie.id);
+
     // Update Previous button state
     updatePrevButtonState();
   } else {
@@ -681,43 +684,27 @@ function displayRandomFilteredMovie(movies) {
 // Favorites system (localStorage) - updated to use new multi-type system
 const FAV_KEY = 'favorites-movies';
 
-function loadFavorites() {
-  try {
-    // Check for legacy data and migrate if needed
-    const legacyKey = 'favorites';
-    const legacyData = localStorage.getItem(legacyKey);
-    if (legacyData && !localStorage.getItem(FAV_KEY)) {
-      console.log('Migrating legacy movie favorites...');
-      localStorage.setItem(FAV_KEY, legacyData);
-      localStorage.removeItem(legacyKey);
-    }
+async function loadFavorites() {
+  if (window.StorageService) {
+    return await window.StorageService.getFavorites('movies');
+  }
+  return [];
+}
 
-    const raw = localStorage.getItem(FAV_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    console.error('Failed to load favorites', e);
-    return [];
+async function saveFavorites(list) {
+  if (window.StorageService) {
+    await window.StorageService.saveFavorites(list, 'movies');
   }
 }
 
-function saveFavorites(list) {
-  try {
-    localStorage.setItem(FAV_KEY, JSON.stringify(list || []));
-  } catch (e) {
-    console.error('Failed to save favorites', e);
-  }
-}
-
-function isFavorite(movieId) {
-  const favs = loadFavorites();
+async function isFavorite(movieId) {
+  const favs = await loadFavorites();
   return favs.some((m) => m.id === movieId);
 }
 
 async function toggleFavorite(movie) {
   if (!movie || !movie.id) return;
-  let favs = loadFavorites();
+  let favs = await loadFavorites();
   const existing = favs.findIndex((m) => m.id === movie.id);
   if (existing >= 0) {
     favs.splice(existing, 1);
@@ -732,23 +719,26 @@ async function toggleFavorite(movie) {
       id: movie.id,
       title: movie.title,
       poster: movie.poster || '',
-      poster_path: movie.poster_path || '',
-      url: `movies.html?id=${movie.id}`,
       imdb_id: imdbId,
-      addedAt: Date.now()
+      url: `movies.html?id=${movie.id}`,
     });
     // keep list reasonable size
     if (favs.length > 200) favs = favs.slice(0, 200);
   }
-  saveFavorites(favs);
-  updateFavToggleUI(movie.id);
+  await saveFavorites(favs);
+  await updateFavToggleUI(movie.id);
 }
 
-function updateFavToggleUI(currentMovieId) {
+async function updateFavToggleUI(currentMovieId) {
   const btn = document.getElementById('fav-toggle-btn');
   if (!btn) return;
-  const heart = btn.querySelector('.heart-path');
-  if (isFavorite(currentMovieId)) {
+  if (!currentMovieId) {
+    btn.classList.remove('active');
+    btn.innerHTML = '♡';
+    return;
+  }
+  const favState = await isFavorite(currentMovieId);
+  if (favState) {
     btn.classList.add('fav-pressed');
     btn.setAttribute('aria-pressed', 'true');
     btn.setAttribute('aria-label', 'Remove from favorites');
@@ -776,6 +766,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const waitAuthSync = () => {
+    if (window.StorageService) {
+      window.StorageService.onAuthChange(() => {
+        if (window.currentMovieId) updateFavToggleUI(window.currentMovieId);
+      });
+    } else {
+      setTimeout(waitAuthSync, 50);
+    }
+  };
+  waitAuthSync();
+
   // Wire up Previous button
   const prevBtn = document.getElementById('prev-movie-btn');
   if (prevBtn) {
@@ -784,9 +785,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Keep the fav toggle in-sync if user navigates between movies
   const nextBtn = document.getElementById('next-movie-btn');
-  if (nextBtn) nextBtn.addEventListener('click', () => setTimeout(() => updateFavToggleUI(window.currentMovieId), 600));
+  // (Note: Fav toggle state is now instantly synchronized within renderMovieData)
+  
   // The `open-favs` anchor intentionally has no JS handler so it always
   // navigates to `favorites.html`. Re-add an event listener here only if
   // you later reintroduce an in-page panel.

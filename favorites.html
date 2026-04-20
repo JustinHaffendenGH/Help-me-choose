@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="styles/theme.css">
   <link rel="stylesheet" href="styles/main.css?v=3">
   <script src="scripts/theme-toggle.js"></script>
+  <script type="module" src="scripts/storage.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -21,8 +22,37 @@
     </nav>
 
   <main class="container">
+    <!-- Custom Lists Navigation -->
+    <div id="lists-nav-container" style="display: flex; gap: 0.8rem; overflow-x: auto; padding-bottom: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); align-items: center;">
+       <button type="button" class="list-pill btn-primary" data-list-id="default" style="padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--accent); background: var(--accent);">All Favorites</button>
+       <!-- Dynamic list pills will be injected here -->
+       <button type="button" class="btn-secondary" id="btn-create-list" style="padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; white-space: nowrap; margin-left: auto;">+ New Folder</button>
+    </div>
+
     <!-- Search / Filter Bar -->
     <section class="favorites-search-section glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+
+    <!-- List Assignment Modal (Native Dialog) -->
+    <dialog id="list-assign-modal" class="glass-panel" style="border: none; padding: 1.5rem 2rem; border-radius: 16px; background: var(--bg-surface-elevated); color: var(--text-primary); margin: auto; max-width: 400px; width: 90vw; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+      <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.5rem;">📁 Save to Folder</h3>
+      <div id="list-assign-checkboxes" style="display: flex; flex-direction: column; gap: 0.8rem; margin: 1.5rem 0; max-height: 200px; overflow-y: auto;">
+        <!-- Checkboxes injected by JS -->
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+        <button type="button" id="close-list-modal" class="btn-primary" style="padding: 0.5rem 1.5rem;">Done</button>
+      </div>
+    </dialog>
+
+    <!-- New Folder Modal (Native Dialog) -->
+    <dialog id="new-folder-modal" class="glass-panel" style="border: none; padding: 1.5rem 2rem; border-radius: 16px; background: var(--bg-surface-elevated); color: var(--text-primary); margin: auto; max-width: 400px; width: 90vw; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+      <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.5rem;">📁 Create New Folder</h3>
+      <label for="new-folder-input" class="visually-hidden">Folder name</label>
+      <input type="text" id="new-folder-input" placeholder="e.g. 'Date Night'" style="width: 100%; box-sizing: border-box; padding: 0.8rem; margin-bottom: 1.5rem; border-radius: 8px; border: 1px solid var(--border-light); background: rgba(255,255,255,0.05); color: var(--text-primary);" />
+      <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+        <button type="button" id="cancel-folder-btn" class="btn-secondary" style="padding: 0.5rem 1.5rem;">Cancel</button>
+        <button type="button" id="submit-folder-btn" class="btn-primary" style="padding: 0.5rem 1.5rem;">Create</button>
+      </div>
+    </dialog>
       <div class="favorites-search-bar" role="search" style="display: flex; gap: 1rem;">
         <label for="favorites-search" class="visually-hidden">Search favorites</label>
         <input id="favorites-search" type="search" placeholder="Search favorites (title, name, author, cuisine)" autocomplete="off" style="flex: 1; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-light); background: rgba(255,255,255,0.05); color: var(--text-primary);" />
